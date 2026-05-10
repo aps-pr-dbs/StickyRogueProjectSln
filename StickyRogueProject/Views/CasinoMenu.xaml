@@ -1,51 +1,54 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
              x:Class="StickyRogueProject.Views.CasinoMenu"
+             x:DataType="vm:CasinoMenuViewModel"
              Title="Main Menu"
-             BackgroundColor="#00001c">
-    <Grid RowDefinitions="3*, Auto ,3*" Padding="20">
+             BackgroundColor="#00001C"
+             Shell.NavBarIsVisible="False">
 
-        <VerticalStackLayout Grid.Row="0" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,40" >
-            <Label Text="STICK" FontFamily="Jersey20" FontSize="45" FontAttributes="Bold" TextColor="#e8d5a3" HorizontalOptions="Center" />
-            <Label Text="CASINO" FontFamily="Jersey20" FontSize="45" FontAttributes="Bold" TextColor="#e8d5a3" HorizontalOptions="Center" />
-            <Label Text="choose what you like" FontFamily="Jersey20" FontSize="18" TextColor="#675a77" HorizontalOptions="Center"/>
+    <Grid RowDefinitions="3*, Auto, 3*" Padding="20">
+
+        <VerticalStackLayout Grid.Row="0" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,40">
+            <Label Text="STICK" FontFamily="Jersey20" FontSize="45" FontAttributes="Bold" TextColor="#E8D5A3" HorizontalOptions="Center" />
+            <Label Text="CASINO" FontFamily="Jersey20" FontSize="45" FontAttributes="Bold" TextColor="#E8D5A3" HorizontalOptions="Center" />
+            <Label Text="choose what you like" FontFamily="Jersey20" FontSize="18" TextColor="#675A77" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
-        <Button Grid.Row="1"
-                x:Name="btnBlackjack"
-                Text="Blackjack 21"
-                FontFamily="Jersey20" FontSize="20" FontAttributes="Bold"
-                BackgroundColor="#4a2e7a" TextColor="White"
-                WidthRequest="330" HeightRequest="65" CornerRadius="15"
-                Margin="0,0,0,30"
-                HorizontalOptions="Center"
-                Clicked="BtnBlackjack_Clicked"
-                CharacterSpacing="0.5">
-            <Button.Shadow>
-                <Shadow Brush="#60488a" Offset="0,5" Radius="20" Opacity="0.7"/>
-            </Button.Shadow>
-        </Button>
+        <VerticalStackLayout Grid.Row="1" Spacing="20" HorizontalOptions="Center">
 
-        <Button Grid.Row="2"
-                x:Name="btnHighLow"
-                Text="High Or Low"
-                FontFamily="Jersey20" FontSize="20" FontAttributes="Bold"
-                BackgroundColor="#4a2e7a" TextColor="White"
-                WidthRequest="330" HeightRequest="65" CornerRadius="15"
-                HorizontalOptions="Center" VerticalOptions="Start"
-                Clicked="BtnHighLow_Clicked">
-            <Button.Shadow>
-                <Shadow Brush="#60488a" Offset="0,5" Radius="20" Opacity="0.7"/>
-            </Button.Shadow>
-        </Button>
-        
-        <Button Text="Exit Casino" 
-            Clicked="BtnExit_Clicked" 
-            BackgroundColor="#B34A2A" 
-            TextColor="White" 
-            Margin="0,20,0,0"
-            FontFamily="skeleboom" />
+            <Button Text="Blackjack 21"
+                    Command="{Binding GoToBlackjackCommand}"
+                    FontFamily="Jersey20" FontSize="20" FontAttributes="Bold"
+                    BackgroundColor="#4A2E7A" TextColor="White"
+                    WidthRequest="330" HeightRequest="65" CornerRadius="15">
+                <Button.Shadow>
+                    <Shadow Brush="#60488A" Offset="0,5" Radius="20" Opacity="0.7"/>
+                </Button.Shadow>
+            </Button>
+
+            <Button Text="High Or Low"
+                    Command="{Binding GoToHighLowCommand}"
+                    FontFamily="Jersey20" FontSize="20" FontAttributes="Bold"
+                    BackgroundColor="#4A2E7A" TextColor="White"
+                    WidthRequest="330" HeightRequest="65" CornerRadius="15">
+                <Button.Shadow>
+                    <Shadow Brush="#60488A" Offset="0,5" Radius="20" Opacity="0.7"/>
+                </Button.Shadow>
+            </Button>
+
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" VerticalOptions="Start" Margin="0,40,0,0">
+            <Button Text="Exit Casino" 
+                    Command="{Binding ExitCasinoCommand}"
+                    BackgroundColor="#B34A2A" 
+                    TextColor="White" 
+                    FontFamily="skeleboom" 
+                    WidthRequest="200" 
+                    CornerRadius="10" />
+        </VerticalStackLayout>
 
     </Grid>
 </ContentPage>

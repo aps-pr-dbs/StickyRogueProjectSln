@@ -43,17 +43,9 @@
                         <ImageButton Grid.Column="2" Source="paper.png" BackgroundColor="#4A2D7A" Padding="15" CornerRadius="20" WidthRequest="90" HeightRequest="90" Command="{Binding PlayRopCommand}" CommandParameter="Paper"/>
                     </Grid>
 
-                    <Button Text="RETURN TO SHOP" 
-                            IsVisible="{Binding IsContinueVisible}"
-                            Command="{Binding GoBackCommand}"
-                            BackgroundColor="#E8D5A3" 
-                            TextColor="#0D0A1A" 
-                            FontAttributes="Bold"
-                            CornerRadius="20" 
-                            WidthRequest="220" 
-                            HeightRequest="50" 
-                            FontSize="16" 
-                            Margin="0,20,0,0"/>
+                    <!-- Win/Lose: Navigate ไป CombatPage อัตโนมัติใน PlayRopAsync หลัง 1.8 วินาที -->
+                    <!-- Draw: ผู้เล่นเห็นข้อความ "DRAW! Try again." แล้วกดซ้ำได้ทันที -->
+                    <!-- ปุ่ม RETURN TO SHOP ถูกลบออก — ไม่จำเป็นแล้ว -->
 
                 </VerticalStackLayout>
             </ScrollView>

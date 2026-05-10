@@ -78,7 +78,32 @@
                     CharacterSpacing="2"
                     HorizontalOptions="Fill"
                     HorizontalTextAlignment="Center"
-                    Margin="0,0,0,14" />
+                    Margin="0,0,0,6" />
+
+                <!-- Sold Out Banner — แสดงเมื่อซื้อแล้ว 1 ชิ้น (IsSoldOut Binding) -->
+                <!-- IsVisible ผูกกับ IsSoldOut โดยตรง — ไม่ต้อง Converter -->
+                <Frame
+                    BackgroundColor="#2A1040"
+                    CornerRadius="10"
+                    Padding="10,7"
+                    HasShadow="False"
+                    BorderColor="#5A2A80"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsSoldOut}"
+                    Margin="0,0,0,10">
+                    <Label
+                        Text="🔒  ซื้อแล้ว 1 ชิ้น — กลับมาครั้งหน้า!"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="#C890F0"
+                        HorizontalOptions="Center" />
+                </Frame>
+
+                <!-- Spacer เมื่อไม่มี Banner -->
+                <BoxView
+                    HeightRequest="8"
+                    Color="Transparent"
+                    IsVisible="{Binding IsSoldOut, Converter={StaticResource InvertedBoolConverter}}" />
 
                 <!-- ActivityIndicator ขณะโหลด -->
                 <ActivityIndicator
@@ -186,7 +211,10 @@
                                             HorizontalTextAlignment="Center" />
 
                                         <!-- ปุ่ม Buy — ส่ง ArtifactItem ตัวเองเป็น CommandParameter -->
-                                        <!-- Command ต้อง AncestorType ขึ้นไปหา ShopViewModel เพราะอยู่ใน DataTemplate -->
+                                        <!-- Command ขึ้นไปหา ShopViewModel ผ่าน AncestorType -->
+                                        <!-- IsEnabled = false เมื่อ IsMaxLevel = true OR IsSoldOut = true -->
+                                        <!-- BuyArtifactCommand.CanExecute() จัดการ IsSoldOut ให้อัตโนมัติ
+                                             ดังนั้น IsEnabled เพิ่มเฉพาะ IsMaxLevel (ไม่ต้อง MultiBinding) -->
                                         <Button
                                             Text="{Binding BuyButtonText}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.BuyArtifactCommand}"
@@ -201,12 +229,23 @@
                                             CornerRadius="8"
                                             Padding="4,0">
                                             <Button.Triggers>
+                                                <!-- Trigger 1: Max Level → สีทอง -->
                                                 <DataTrigger
                                                     TargetType="Button"
                                                     Binding="{Binding IsMaxLevel}"
                                                     Value="True">
                                                     <Setter Property="BackgroundColor" Value="#2E2410" />
                                                     <Setter Property="TextColor" Value="#FFD700" />
+                                                </DataTrigger>
+                                                <!-- Trigger 2: Sold Out → เข้ม + ข้อความเปลี่ยน -->
+                                                <!-- Binding ขึ้นไปถาม IsSoldOut ของ ViewModel ผ่าน Page -->
+                                                <DataTrigger
+                                                    TargetType="Button"
+                                                    Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IsSoldOut}"
+                                                    Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#1A1035" />
+                                                    <Setter Property="TextColor" Value="#4A3A6A" />
+                                                    <Setter Property="Opacity" Value="0.45" />
                                                 </DataTrigger>
                                             </Button.Triggers>
                                         </Button>
