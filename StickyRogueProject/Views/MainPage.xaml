@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="StickyRogueProject.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
+    x:DataType="vm:MainPageViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0D0A1A">
+
+    <!-- Grid 3 แถว: Title / Buttons / Version -->
+    <!-- * = แบ่งพื้นที่เท่ากัน, Auto = พอดีกับเนื้อหา -->
+    <Grid RowDefinitions="*,Auto,*">
+
+        <!-- ===== ROW 0: Title Block ===== -->
+        <!-- VerticalOptions="End" ดันทุกอย่างลงมาชิดด้านล่างของแถวนี้ -->
+        <!-- ทำให้ Title อยู่ใกล้ปุ่มพอดี ไม่ลอยอยู่กลางจอ -->
+        <VerticalStackLayout
+            Grid.Row="0"
+            VerticalOptions="End"
+            HorizontalOptions="Fill"
+            Spacing="10"
+            Padding="32,0,32,36">
+
+            <!-- ชื่อเกมหลัก -->
+            <!-- สูตร: HorizontalOptions="Fill" + HorizontalTextAlignment="Center" -->
+            <!-- ขาดอันใดอันหนึ่งไม่ได้ ต้องใช้คู่กันเสมอเพื่อให้กึ่งกลางจริง -->
+            <Label
+                Text="STICKY ROGUE"
+                FontSize="34"
+                FontAttributes="Bold"
+                TextColor="#E8D5A3"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                CharacterSpacing="8" />
+
+            <!-- เส้นตกแต่ง — BoxView ไม่ใช่ Label จึงใช้ HorizontalOptions="Center" ได้ตรงๆ -->
+            <BoxView
+                HeightRequest="1"
+                WidthRequest="140"
+                Color="#5A3E7A"
+                HorizontalOptions="Center" />
+
+            <!-- Subtitle ใต้ชื่อเกม -->
+            <Label
+                Text="⚔  Turn-Based Rogue-Lite  ⚔"
+                FontSize="13"
+                TextColor="#7A6A8A"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                CharacterSpacing="1" />
+
+        </VerticalStackLayout>
+
+        <!-- ===== ROW 1: Menu Buttons ===== -->
+        <!-- Padding 32dp ซ้าย-ขวา ให้ปุ่มมีพื้นที่หายใจ ไม่แนบขอบจอ -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Spacing="11"
+            Padding="32,0,32,0"
+            VerticalOptions="Center">
+
+            <!-- ActivityIndicator แสดงขณะ CheckSaveStatus กำลังทำงาน -->
+            <ActivityIndicator
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                Color="#A07ED0"
+                HeightRequest="28"
+                HorizontalOptions="Center" />
+
+            <!-- ปุ่ม NEW GAME — Primary Action -->
+            <!-- HorizontalOptions="Fill" บังคับให้ปุ่มกว้างเต็ม Column -->
+            <Button
+                Text="▶ START GAME"
+                Command="{Binding NewGameCommand}"
+                BackgroundColor="#4A2D7A"
+                TextColor="#E8D5A3"
+                FontSize="15"
+                FontAttributes="Bold"
+                HeightRequest="52"
+                CornerRadius="10"
+                HorizontalOptions="Fill"
+                CharacterSpacing="3">
+                <Button.Shadow>
+                    <Shadow
+                        Brush="#7B4FBF"
+                        Offset="0,3"
+                        Radius="8"
+                        Opacity="0.5" />
+                </Button.Shadow>
+            </Button>
+
+            <!-- ปุ่ม LOAD GAME — Secondary Action -->
+            <!-- Opacity Binding ยังคงเดิม ใช้ BoolToOpacityConverter -->
+            <Button
+                Text="↺ LOAD GAME"
+                Command="{Binding LoadGameCommand}"
+                IsEnabled="{Binding HasExistingSave}"
+                BackgroundColor="#221640"
+                TextColor="#C0B0E0"
+                FontSize="15"
+                FontAttributes="Bold"
+                HeightRequest="52"
+                CornerRadius="10"
+                HorizontalOptions="Fill"
+                CharacterSpacing="3"
+                Opacity="{Binding HasExistingSave, Converter={StaticResource BoolToOpacityConverter}}" />
+
+            <!-- Label บอกว่าไม่มี Save — ซ่อนเมื่อมี Save (InvertedBoolConverter) -->
+            <Label
+                Text="ยังไม่มีข้อมูล Save  —  กด New Game เพื่อเริ่มเล่น"
+                FontSize="12"
+                TextColor="#4A3A5A"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding HasExistingSave, Converter={StaticResource InvertedBoolConverter}}" />
+
+            <!-- ช่องว่างกั้นระหว่างกลุ่มปุ่มหลักกับปุ่ม Ghost -->
+            <BoxView HeightRequest="6" Color="Transparent" />
+
+            <!-- ปุ่ม HISTORY — Ghost / Tertiary Style -->
+            <Button
+                Text="📜   HISTORY"
+                Command="{Binding HistoryCommand}"
+                BackgroundColor="Transparent"
+                TextColor="#645478"
+                FontSize="14"
+                HeightRequest="44"
+                CornerRadius="10"
+                HorizontalOptions="Fill"
+                CharacterSpacing="2"
+                BorderColor="#2A1D48"
+                BorderWidth="1" />
+
+        </VerticalStackLayout>
+
+        <!-- ===== ROW 2: Version Label ===== -->
+        <!-- VerticalOptions="End" + Margin ล่างดัน Text ลงไปติดขอบล่างจอ -->
+        <Label
+            Grid.Row="2"
+            Text="v0.1.0  —  Phase 1 Build"
+            FontSize="11"
+            TextColor="#2A1E3E"
+            HorizontalOptions="Fill"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="End"
+            Margin="0,0,0,30" />
+
+    </Grid>
+
+</ContentPage>

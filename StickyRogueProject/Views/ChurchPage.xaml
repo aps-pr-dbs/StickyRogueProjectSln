@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    หน้า Safe Zone หลังผ่าน Boss
+    ผู้เล่นฮีลเต็ม, บันทึก, หรือสู้ต่อ Loop ถัดไป
+    ไม่มี Business Logic → ทุกอย่างอยู่ใน ChurchViewModel
+-->
+<ContentPage
+    x:Class="StickyRogueProject.Views.ChurchPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
+    x:DataType="vm:ChurchViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#080512">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="28,60,28,36" Spacing="20">
+
+            <!-- ===== ไอคอน + ชื่อหน้า ===== -->
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Label
+                    Text="⛪"
+                    FontSize="56"
+                    HorizontalOptions="Center" />
+                <Label
+                    Text="THE SANCTUARY"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="#E8D5A3"
+                    HorizontalOptions="Fill"
+                    HorizontalTextAlignment="Center"
+                    CharacterSpacing="6" />
+                <BoxView HeightRequest="1" WidthRequest="120" Color="#4A2D7A" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- ===== ข้อความต้อนรับ — ChurchMessage Binding ===== -->
+            <Label
+                Text="{Binding ChurchMessage}"
+                FontSize="14"
+                FontAttributes="Italic"
+                TextColor="#8A7A9A"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                LineHeight="1.5" />
+
+            <!-- ===== สถานะผู้เล่นหลัง Heal ===== -->
+            <Frame
+                BackgroundColor="#130D28"
+                CornerRadius="16"
+                Padding="20,16"
+                HasShadow="False"
+                BorderColor="#2A1D4A">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- ชื่อ + Loop -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <!-- PlayerName Binding -->
+                        <Label
+                            Grid.Column="0"
+                            Text="{Binding PlayerName}"
+                            FontSize="17"
+                            FontAttributes="Bold"
+                            TextColor="#E8D5A3" />
+                        <!-- CurrentLoop Binding -->
+                        <Label
+                            Grid.Column="1"
+                            Text="{Binding CurrentLoop, StringFormat='Loop {0}'}"
+                            FontSize="13"
+                            TextColor="#7B4FBF"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#241840" />
+
+                    <!-- HP ฟื้นฟูแล้ว — HpDisplay Binding -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="❤️" FontSize="16" VerticalOptions="Center" />
+                        <Label
+                            Text="{Binding HpDisplay, StringFormat='HP  {0}  ✅'}"
+                            FontSize="14"
+                            TextColor="#9ACD32"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <!-- MP ฟื้นฟูแล้ว — MpDisplay Binding -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="🔷" FontSize="16" VerticalOptions="Center" />
+                        <Label
+                            Text="{Binding MpDisplay, StringFormat='MP  {0}  ✅'}"
+                            FontSize="14"
+                            TextColor="#4A90D9"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <!-- เหรียญ — Coins Binding -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="💰" FontSize="16" VerticalOptions="Center" />
+                        <Label
+                            Text="{Binding Coins, StringFormat='เหรียญ: {0}'}"
+                            FontSize="14"
+                            TextColor="#FFD700"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ===== ActivityIndicator ขณะบันทึก ===== -->
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#A07ED0"
+                HorizontalOptions="Center"
+                HeightRequest="32" />
+
+            <!-- ===== ปุ่ม Continue — ContinueCommand Binding ===== -->
+            <!-- เริ่ม Loop ถัดไป Wave รีเซ็ต Stats Scale ขึ้น -->
+            <Button
+                Text="⚔️  สู้ต่อ — Loop ถัดไป"
+                Command="{Binding ContinueCommand}"
+                IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                BackgroundColor="#4A2D7A"
+                TextColor="#E8D5A3"
+                FontSize="16"
+                FontAttributes="Bold"
+                HeightRequest="54"
+                CornerRadius="12"
+                HorizontalOptions="Fill"
+                CharacterSpacing="2">
+                <Button.Shadow>
+                    <Shadow Brush="#7B4FBF" Offset="0,3" Radius="10" Opacity="0.45" />
+                </Button.Shadow>
+            </Button>
+
+            <!-- ===== ปุ่ม Save & Exit — SaveAndExitCommand Binding ===== -->
+            <!-- จุดเดียวที่บันทึกแล้วออกเกมได้ปลอดภัย -->
+            <Button
+                Text="💾  บันทึกและออกจากเกม"
+                Command="{Binding SaveAndExitCommand}"
+                IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                BackgroundColor="#1E1040"
+                TextColor="#A090C0"
+                FontSize="14"
+                HeightRequest="48"
+                CornerRadius="12"
+                HorizontalOptions="Fill"
+                BorderColor="#3A2060"
+                BorderWidth="1" />
+
+            <!-- คำเตือน Permadeath -->
+            <Label
+                Text="⚠️  ออกระหว่างการต่อสู้โดยไม่บันทึก\nข้อมูลจะไม่ถูกเก็บ"
+                FontSize="11"
+                TextColor="#4A3A5A"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                LineHeight="1.5" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

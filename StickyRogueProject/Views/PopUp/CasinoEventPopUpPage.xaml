@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+           xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+           x:Class="StickyRogueProject.Views.PopUp.CasinoEventPopUpPage"
+           CanBeDismissedByTappingOutsideOfPopup="False"
+           Opened="OnPopupOpened">
+
+    <Border x:Name="CardContainer"
+            BackgroundColor="#1E1E2E" 
+            Stroke="#FFD700" StrokeThickness="2" 
+            WidthRequest="260" StrokeShape="RoundRectangle 15"
+            HorizontalOptions="Center" VerticalOptions="Center" Scale="0">
+
+        <VerticalStackLayout Spacing="10" Padding="20" HorizontalOptions="Center">
+            <Label Text="🎰" FontSize="48" HorizontalTextAlignment="Center" />
+            <Label Text="เหตุการณ์พิเศษ!" FontSize="20" FontAttributes="Bold" TextColor="#FFD700" HorizontalTextAlignment="Center" />
+            <Label Text="โชคชะตาพาคุณมาถึง Casino!&#x0a;ลองดวงก่อนสู้ต่อ..." FontSize="14" TextColor="White" HorizontalTextAlignment="Center" />
+
+            <Button Text="เข้าสู่คาสิโน" Clicked="OnEnterClicked" BackgroundColor="#FFD700" TextColor="Black" FontAttributes="Bold" Margin="0,15,0,0" CornerRadius="8" />
+        </VerticalStackLayout>
+    </Border>
+
+</mct:Popup>

@@ -1,0 +1,29 @@
+﻿<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:StickyRogueProject"
+             xmlns:converters="clr-namespace:StickyRogueProject.Converters" 
+             x:Class="StickyRogueProject.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converter -->
+
+            <!-- BoolToOpacityConverter: แปลง bool → Opacity (true = 1.0, false = 0.4) -->
+            <!-- ใช้กับปุ่ม Load Game ใน MainPage เมื่อ Disable -->
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
+            
+            <!-- InvertedBoolConverter: กลับค่า Boolean (true → false, false → true) -->
+            <!-- ใช้ซ่อน/แสดง Element ตรงข้ามกับ Property ที่ Bind -->
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            
+            <!-- StatToProgressConverter: แปลงค่า Stat (int) → Progress (0.0-1.0) -->
+            <!-- ใช้ใน ClassSelectPage.xaml สำหรับ ProgressBar Stats -->
+            <converters:StatToProgressConverter x:Key="StatToProgressConverter" />
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

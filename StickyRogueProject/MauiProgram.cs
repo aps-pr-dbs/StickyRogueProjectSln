@@ -1,0 +1,74 @@
+﻿using Microsoft.Extensions.Logging;
+using StickyRogueProject.Data;
+using StickyRogueProject.Services;
+using StickyRogueProject.ViewModels;
+using StickyRogueProject.Views;
+using SkiaSharp.Views.Maui.Controls.Hosting;
+using CommunityToolkit.Maui;
+
+namespace StickyRogueProject;
+
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+
+        builder
+            .UseMauiApp<App>()
+            .UseSkiaSharp()
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("skeleboom.ttf", "skeleboom");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
+
+        // 1. ===== ลงทะเบียน Database & Services =====
+        builder.Services.AddSingleton<DatabaseService>(provider =>
+        {
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "stickyrogue.db3");
+            return new DatabaseService(dbPath);
+        });
+        builder.Services.AddSingleton<SaveService>();
+        builder.Services.AddSingleton<HistoryService>();
+
+        // 2. ===== ลงทะเบียน ViewModels =====
+        builder.Services.AddTransient<MainPageViewModel>();
+        builder.Services.AddTransient<ClassSelectViewModel>();
+        builder.Services.AddTransient<ShopViewModel>();
+        builder.Services.AddTransient<RopViewModel>();
+
+        // 3. ===== ลงทะเบียน Views =====
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<ClassSelectPage>();
+        builder.Services.AddTransient<ShopPage>();
+        builder.Services.AddTransient<RopPage>();
+
+        builder.Services.AddTransient<CombatViewModel>();
+        builder.Services.AddTransient<ChurchViewModel>();
+        builder.Services.AddTransient<CombatPage>();
+        builder.Services.AddTransient<ChurchPage>();
+
+        builder.Services.AddTransient<Views.StoryPage>();
+        builder.Services.AddTransient<ViewModels.StoryViewModel>();
+
+
+#if DEBUG
+        builder.Logging.AddDebug();
+#endif
+
+        // 4. ===== สั่ง Build แอปแค่ "ครั้งเดียว" (แก้บั๊ก Code 0) =====
+        var app = builder.Build();
+
+        // 5. ===== Initialize Database (ทำงานอยู่เบื้องหลัง) =====
+        Task.Run(async () =>
+        {
+            var dbService = app.Services.GetRequiredService<DatabaseService>();
+            await dbService.InitAsync();
+        });
+
+        return app;
+    }
+}

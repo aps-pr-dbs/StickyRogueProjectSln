@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="StickyRogueProject.Views.ShopPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
+    xmlns:models="clr-namespace:StickyRogueProject.Models"
+    x:DataType="vm:ShopViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0D0A1A">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+
+        <!-- ===== ROW 0: Header — เหรียญ + พ่อค้า + Greeting ===== -->
+        <VerticalStackLayout
+            Grid.Row="0"
+            BackgroundColor="#110D22"
+            Padding="0,48,0,16"
+            Spacing="0">
+
+            <!-- แถวเหรียญ — ชิดบนสุด -->
+            <Frame
+                HorizontalOptions="Center"
+                BackgroundColor="#1E0F47"
+                CornerRadius="20"
+                Padding="18,8"
+                HasShadow="False"
+                BorderColor="#3A2070"
+                Margin="0,0,0,14">
+                <!-- PlayerCoins Binding — อัปเดตเมื่อซื้อ Artifact สำเร็จ -->
+                <Label
+                    Text="{Binding PlayerCoins, StringFormat='💰  {0} เหรียญ'}"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    TextColor="#FFD700"
+                    HorizontalOptions="Center" />
+            </Frame>
+
+            <!-- รูปพ่อค้า — ใช้ Image จริงเมื่อมีไฟล์ merchant.png ใน Resources/Images -->
+            <!-- ถ้ายังไม่มีรูป จะแสดง Emoji แทนผ่าน Frame ด้านล่าง -->
+            <Grid HorizontalOptions="Center" Margin="0,0,0,10">
+
+                <!-- Image -->
+                <Grid HorizontalOptions="Center" Margin="0,0,0,10">
+                    <Image
+                    Source="merchant.png"
+                    HeightRequest="110"
+                    WidthRequest="110"
+                    Aspect="AspectFit" />
+                </Grid>
+
+            </Grid>
+
+            <!-- คำทักทายพ่อค้า — MerchantGreeting Binding -->
+            <Label
+                Text="{Binding MerchantGreeting}"
+                FontSize="13"
+                FontAttributes="Italic"
+                TextColor="#8A7A9A"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                Padding="24,0" />
+
+        </VerticalStackLayout>
+
+        <!-- ===== ROW 1: 3 Artifact Cards แนวนอน ===== -->
+        <ScrollView
+            Grid.Row="1"
+            Orientation="Vertical">
+
+            <VerticalStackLayout Spacing="0" Padding="0,16,0,8">
+
+                <!-- Label บนการ์ด -->
+                <Label
+                    Text="✦  สินค้าประจำวัน  ✦"
+                    FontSize="12"
+                    TextColor="#4A3A5A"
+                    CharacterSpacing="2"
+                    HorizontalOptions="Fill"
+                    HorizontalTextAlignment="Center"
+                    Margin="0,0,0,14" />
+
+                <!-- ActivityIndicator ขณะโหลด -->
+                <ActivityIndicator
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}"
+                    Color="#A07ED0"
+                    HorizontalOptions="Center"
+                    HeightRequest="44" />
+
+                <!-- 3 Artifact Cards — BindableLayout แทน CollectionView
+                     เพราะต้องการ Layout แนวนอนพอดี 3 ช่อง ไม่ Scroll Horizontal
+                     BindableLayout.ItemsSource ผูกกับ ShopItems (ObservableCollection) -->
+                <Grid
+                    IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    ColumnDefinitions="*,*,*"
+                    ColumnSpacing="8"
+                    Padding="12,0">
+
+                    <!-- ใช้ BindableLayout บน Grid ไม่ได้โดยตรง
+                         จึงแสดงทีละ Card โดย Index แทน
+                         ShopItems[0], [1], [2] ถูก Bind ผ่าน Converter หรือ IndexedItem
+                         วิธีที่ง่ายและ Error-Proof ที่สุดคือใช้ CollectionView + HorizontalGrid -->
+                    <CollectionView
+                        Grid.Column="0"
+                        Grid.ColumnSpan="3"
+                        ItemsSource="{Binding ShopItems}"
+                        HeightRequest="300">
+
+                        <CollectionView.ItemsLayout>
+                            <!-- แสดงแนวนอน แบ่ง 3 คอลัมน์ -->
+                            <GridItemsLayout
+                                Orientation="Vertical"
+                                Span="3"
+                                HorizontalItemSpacing="8"
+                                VerticalItemSpacing="0" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ArtifactItem">
+
+                                <!-- Card แต่ละ Artifact -->
+                                <Frame
+                                    BackgroundColor="#130D28"
+                                    CornerRadius="14"
+                                    Padding="10,12"
+                                    HasShadow="False"
+                                    BorderColor="#241840"
+                                    Margin="0,0,0,0">
+
+                                    <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+
+                                        <!-- รูป Artifact — ใช้ Image จริง / Emoji Placeholder -->
+                                        <Grid HorizontalOptions="Center">
+                                            <Image
+                                                Source="{Binding ImageSource}"
+                                                HeightRequest="56"
+                                                WidthRequest="56"
+                                                Aspect="AspectFit"
+                                                IsVisible="True" />
+
+                                        </Grid>
+
+                                        <!-- ชื่อ Artifact — Name Binding -->
+                                        <Label
+                                            Text="{Binding Name}"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            TextColor="#E0D0F8"
+                                            HorizontalOptions="Fill"
+                                            HorizontalTextAlignment="Center"
+                                            LineBreakMode="WordWrap" />
+
+                                        <!-- Level — LevelDisplay Binding เช่น "Lv.0/10" -->
+                                        <Label
+                                            Text="{Binding LevelDisplay}"
+                                            FontSize="11"
+                                            TextColor="#7B4FBF"
+                                            HorizontalOptions="Fill"
+                                            HorizontalTextAlignment="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    TargetType="Label"
+                                                    Binding="{Binding IsMaxLevel}"
+                                                    Value="True">
+                                                    <Setter Property="TextColor" Value="#FFD700" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+
+                                        <!-- คำอธิบาย Stat — Description Binding -->
+                                        <Label
+                                            Text="{Binding Description}"
+                                            FontSize="11"
+                                            TextColor="#60507A"
+                                            HorizontalOptions="Fill"
+                                            HorizontalTextAlignment="Center" />
+
+                                        <!-- ราคา — Price Binding -->
+                                        <Label
+                                            Text="{Binding Price, StringFormat='{0} 🪙'}"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            TextColor="#FFD700"
+                                            HorizontalOptions="Fill"
+                                            HorizontalTextAlignment="Center" />
+
+                                        <!-- ปุ่ม Buy — ส่ง ArtifactItem ตัวเองเป็น CommandParameter -->
+                                        <!-- Command ต้อง AncestorType ขึ้นไปหา ShopViewModel เพราะอยู่ใน DataTemplate -->
+                                        <Button
+                                            Text="{Binding BuyButtonText}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.BuyArtifactCommand}"
+                                            CommandParameter="{Binding .}"
+                                            IsEnabled="{Binding IsMaxLevel, Converter={StaticResource InvertedBoolConverter}}"
+                                            Opacity="{Binding BuyButtonOpacity}"
+                                            BackgroundColor="#3A2070"
+                                            TextColor="#C8B0F0"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            HeightRequest="38"
+                                            CornerRadius="8"
+                                            Padding="4,0">
+                                            <Button.Triggers>
+                                                <DataTrigger
+                                                    TargetType="Button"
+                                                    Binding="{Binding IsMaxLevel}"
+                                                    Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#2E2410" />
+                                                    <Setter Property="TextColor" Value="#FFD700" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+
+                                    </VerticalStackLayout>
+                                </Frame>
+
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </Grid>
+
+                <!-- Feedback Toast — แสดงผลการซื้อชั่วคราว -->
+                <!-- IsFeedbackVisible Binding ควบคุมการแสดง -->
+                <Frame
+                    BackgroundColor="#1A0F35"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    HasShadow="False"
+                    BorderColor="#3A2070"
+                    Margin="16,12,16,0"
+                    IsVisible="{Binding IsFeedbackVisible}">
+                    <Label
+                        Text="{Binding FeedbackMessage}"
+                        FontSize="13"
+                        TextColor="#C8B0F0"
+                        HorizontalOptions="Fill"
+                        HorizontalTextAlignment="Center"
+                        LineHeight="1.4" />
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ===== ROW 2: ปุ่ม PLAY ROP + ออกร้าน ===== -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            BackgroundColor="#0D0A1A"
+            Padding="20,10,20,34"
+            Spacing="10">
+
+            <!-- ปุ่ม PLAY ROP — MapsToRopCommand Binding -->
+            <Button
+                Text="🎮  PLAY  R O P"
+                Command="{Binding MapsToRopCommand}"
+                BackgroundColor="#2A0D4A"
+                TextColor="#C890F0"
+                FontSize="16"
+                FontAttributes="Bold"
+                HeightRequest="52"
+                CornerRadius="10"
+                HorizontalOptions="Fill"
+                CharacterSpacing="3"
+                BorderColor="#5A2A90"
+                BorderWidth="1">
+                <Button.Shadow>
+                    <Shadow
+                        Brush="#7B2FBE"
+                        Offset="0,3"
+                        Radius="10"
+                        Opacity="0.4" />
+                </Button.Shadow>
+            </Button>
+
+            <!-- ปุ่มกลับ -->
+            <Button
+                Text="← ออกจากร้าน"
+                Clicked="OnExitClicked"
+                BackgroundColor="Transparent"
+                TextColor="#4A3A5A"
+                FontSize="13"
+                HeightRequest="38"
+                HorizontalOptions="Fill" />
+
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

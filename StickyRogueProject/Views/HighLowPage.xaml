@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.HighLowPage"
+             Title="High Or Low"
+             BackgroundColor="#5C0000" 
+             NavigationPage.HasNavigationBar="False">
+    <Grid RowDefinitions="Auto, *, Auto, Auto" Padding="20">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="10" HorizontalOptions="Center" Margin="0,20,0,0">
+            <Label Text=" HIGH OR LOW " TextColor="Gold" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+            <Label x:Name="lblStreak" Text="Streak : 0 / 3" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+            <Label x:Name="lblStatus" Text="What you think about next card?" TextColor="LightGray" FontSize="16" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <HorizontalStackLayout x:Name="stackCards" Grid.Row="1" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
+        </HorizontalStackLayout>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="15" Margin="0,0,0,30">
+            <Button x:Name="btnHigh" Text="High" BackgroundColor="DarkGreen" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="10" HeightRequest="60" Clicked="BtnHigh_Clicked" Grid.Column="0"/>
+            <Button x:Name="btnLow" Text="Low" BackgroundColor="DarkBlue" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="10" HeightRequest="60" Clicked="BtnLow_Clicked" Grid.Column="1"/>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="15">
+            <Button x:Name="btnNewGame" Text="Restart" BackgroundColor="Goldenrod" TextColor="Black" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Clicked="BtnNewGame_Clicked" IsVisible="False"/>
+            <!--Button Text="ออกไปเมนูหลัก" BackgroundColor="Black" TextColor="White" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Clicked="BtnExitToMenu_Clicked"/-->
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

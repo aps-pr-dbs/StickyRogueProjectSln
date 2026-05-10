@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.PopUp.CharacterStatusPage"
+             BackgroundColor="#B3000000">
+    <Grid>
+        <Border VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                WidthRequest="320"
+                Padding="20"
+                BackgroundColor="#2C2C2C"
+                Stroke="#FFD700"
+                StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="15">
+                <Label Text="{Binding Name}" 
+                       FontSize="26" 
+                       FontAttributes="Bold" 
+                       TextColor="#FFD700" 
+                       HorizontalOptions="Center" />
+
+                <Label Text="{Binding CharacterClass}" 
+                       FontSize="16" 
+                       TextColor="LightGray" 
+                       HorizontalOptions="Center" />
+
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="HP Status" TextColor="White" />
+                    <ProgressBar Progress="1.0" ProgressColor="#9ACD32" HeightRequest="10" />
+
+                    <Label Text="MP Status" TextColor="White" Margin="0,10,0,0"/>
+                    <ProgressBar Progress="1.0" ProgressColor="#1E90FF" HeightRequest="10" />
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*, *" Margin="0,10">
+                    <Label Grid.Column="0" Text="{Binding AttackPower, StringFormat='ATK: {0}'}" TextColor="#FF4500" FontAttributes="Bold"/>
+                    <Label Grid.Column="1" Text="{Binding MagicPower, StringFormat='MATK: {0}'}" TextColor="#BA55D3" FontAttributes="Bold" HorizontalOptions="End"/>
+                </Grid>
+
+                <Button Text="CLOSE"
+                        Clicked="OnCloseClicked"
+                        BackgroundColor="#E63946"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HeightRequest="50"
+                        Margin="0,10,0,0" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>
