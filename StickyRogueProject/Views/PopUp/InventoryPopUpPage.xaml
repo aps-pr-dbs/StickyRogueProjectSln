@@ -1,12 +1,176 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
              x:Class="StickyRogueProject.Views.PopUp.InventoryPopUpPage"
-             Title="InventoryPopUpPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:InventoryPopUpViewModel"
+             BackgroundColor="Transparent"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Overlay -->
+        <BoxView Color="#000000" Opacity="0.6">
+            <BoxView.GestureRecognizers>
+                <!-- เปลี่ยนจาก Tapped เป็น Command -->
+                <TapGestureRecognizer Command="{Binding CloseCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- Popup Card -->
+        <Border BackgroundColor="#F5F5F0"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                WidthRequest="340"
+                Padding="0">
+
+            <VerticalStackLayout Spacing="0">
+
+                <!-- ── Header ── -->
+                <Border BackgroundColor="#2C2C2C"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 24"
+                        Padding="20,14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="🎒 Inventory"
+                                   FontSize="20" FontFamily="skeleboom" TextColor="#FFFFFF"/>
+                            <Label Text="{Binding SlotCountText}"
+                                   FontSize="11" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                BackgroundColor="{Binding SlotBadgeColor}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12,6" VerticalOptions="Center">
+                            <Label Text="{Binding SlotBadgeText}" FontSize="18" FontFamily="skeleboom"
+                                   TextColor="#2C2C2C" HorizontalOptions="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- ── Body ── -->
+                <VerticalStackLayout Padding="14,14" Spacing="12">
+
+                    <!-- ── 6 Artifact Slots ── -->
+                    <Border BackgroundColor="#EEEEEE"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14"
+                            Padding="12,10">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="💠 Equipped Artifacts (Max 6)"
+                                   FontSize="12" FontFamily="skeleboom"
+                                   TextColor="#555555"/>
+
+                            <!-- ใช้ FlexLayout วนลูปวาดช่อง Artifact อัตโนมัติ -->
+                            <FlexLayout BindableLayout.ItemsSource="{Binding ArtifactSlots}" Wrap="Wrap" JustifyContent="SpaceBetween">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:InventorySlotUI">
+                                        <Border BackgroundColor="{Binding BackgroundColor}"
+                                                Stroke="{Binding BorderColor}"
+                                                StrokeThickness="1.5" StrokeShape="RoundRectangle 10"
+                                                HeightRequest="75" WidthRequest="75" Margin="0,4">
+                                            <Border.GestureRecognizers>
+                                                <!-- Command กลับไปหา ViewModel ตัวแม่ -->
+                                                <TapGestureRecognizer 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=ArtifactSlotTappedCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center"/>
+                                                <Label Text="{Binding Name}" FontSize="8" TextColor="#555555"
+                                                       HorizontalOptions="Center" LineBreakMode="TailTruncation"
+                                                       MaxLines="2" HorizontalTextAlignment="Center"/>
+                                                <Label Text="{Binding Tag}" FontSize="7" TextColor="#999999" HorizontalOptions="Center"/>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── 6 Bag Slots ── -->
+                    <Border BackgroundColor="#EEEEEE"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14"
+                            Padding="12,10">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="🎒 Bag Inventory (Max 6)"
+                                   FontSize="12" FontFamily="skeleboom"
+                                   TextColor="#555555"/>
+
+                            <!-- ใช้ FlexLayout วนลูปวาดช่องกระเป๋าอัตโนมัติ -->
+                            <FlexLayout BindableLayout.ItemsSource="{Binding BagSlots}" Wrap="Wrap" JustifyContent="SpaceBetween">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:InventorySlotUI">
+                                        <Border BackgroundColor="{Binding BackgroundColor}"
+                                                Stroke="{Binding BorderColor}"
+                                                StrokeThickness="1.5" StrokeShape="RoundRectangle 10"
+                                                HeightRequest="75" WidthRequest="75" Margin="0,4">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=BagSlotTappedCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center"/>
+                                                <Label Text="{Binding Name}" FontSize="8" TextColor="#555555"
+                                                       HorizontalOptions="Center" LineBreakMode="TailTruncation"
+                                                       MaxLines="2" HorizontalTextAlignment="Center"/>
+                                                <Label Text="{Binding Tag}" FontSize="7" TextColor="#999999" HorizontalOptions="Center"/>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── New Drop Banner ── -->
+                    <Border BackgroundColor="#FFF8E1"
+                            Stroke="#F5C518"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="12,10"
+                            IsVisible="{Binding HasNewLoot}">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="✨ New Item Drop!"
+                                   FontSize="13" FontFamily="skeleboom" TextColor="#7A6000"/>
+                            <Border BackgroundColor="#F5C518"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10,8">
+                                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Text="{Binding NewDropIcon}" FontSize="22" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" Text="{Binding NewDropName}" FontSize="14" FontFamily="skeleboom" TextColor="#2C2C2C" VerticalOptions="Center"/>
+
+                                    <!-- ปุ่ม Discard ใช้ Command -->
+                                    <Button Grid.Column="2" Text="Discard"
+                                            Command="{Binding DiscardNewDropCommand}"
+                                            BackgroundColor="#CC0000" TextColor="White"
+                                            CornerRadius="8" FontSize="11"
+                                            HeightRequest="32" WidthRequest="64"
+                                            VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Label Text="{Binding HintText}"
+                           TextColor="{Binding HintTextColor}"
+                           FontSize="11" HorizontalOptions="Center" LineBreakMode="WordWrap"/>
+
+                    <!-- ปุ่ม Close ใช้ Command -->
+                    <Button Text="Close"
+                            Command="{Binding CloseCommand}"
+                            BackgroundColor="#2C2C2C" TextColor="#FFFFFF"
+                            CornerRadius="20" HeightRequest="46"
+                            FontFamily="skeleboom" FontSize="15"/>
+
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
 </ContentPage>

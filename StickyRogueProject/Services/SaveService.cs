@@ -37,10 +37,6 @@ public class SaveService
     }
 
     // สร้าง Save ใหม่เมื่อกด "New Game"
-    // กฎสำคัญ:
-    //   - Coins = 0 เสมอ
-    //   - Inventory ว่างเปล่าทุกช่อง
-    //   - ลบ Save เก่าก่อน (ถ้ามี) เพื่อป้องกันข้อมูลซ้ำ
     // <param name="save">Object ActiveSave ที่สร้างจาก ViewModel</param>
     public async Task CreateNewSaveAsync(ActiveSave save)
     {
@@ -51,14 +47,8 @@ public class SaveService
 
             // ตรวจสอบให้แน่ใจว่าปฏิบัติตามกฎเกมก่อน Insert
             save.Coins = 0;           // เหรียญเริ่มต้นที่ 0 เสมอ
-            save.Slot1 = string.Empty; // Inventory ว่างทุกช่อง
-            save.Slot2 = string.Empty;
-            save.Slot3 = string.Empty;
-            save.Slot4 = string.Empty;
-            save.Slot5 = string.Empty;
-            save.Slot6 = string.Empty;
-            save.CreatedAt = DateTime.UtcNow;
-            save.LastSavedAt = DateTime.UtcNow;
+            save.Inventory = new List<InventoryItem>(); // ล้างกระเป๋า
+            save.Artifacts = new List<InventoryItem>(); // ล้าง Artifact
 
             // บันทึกลงฐานข้อมูล
             await _db.InsertAsync(save);
@@ -75,7 +65,6 @@ public class SaveService
     {
         try
         {
-            save.LastSavedAt = DateTime.UtcNow;
             await _db.UpdateAsync(save);
         }
         catch (Exception ex)
@@ -101,9 +90,7 @@ public class SaveService
         }
     }
 
-
     // ตรวจสอบว่ามี Save อยู่หรือไม่ — ใช้ในหน้า Main Menu
-    // เพื่อเปิด/ปิดปุ่ม "Load Game"
     public async Task<bool> HasSaveAsync()
     {
         try

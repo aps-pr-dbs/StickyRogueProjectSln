@@ -76,7 +76,7 @@ public partial class MainPageViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine($"[MainPageViewModel] Navigate New Game ล้มเหลว: {ex.Message}");
 
             // แสดง Alert ถ้า Navigation ไม่ได้
-            await Shell.Current.DisplayAlert(
+            await Shell.Current.DisplayAlertAsync(
                 "เกิดข้อผิดพลาด",
                 "ไม่สามารถเริ่มเกมใหม่ได้ กรุณาลองอีกครั้ง",
                 "ตกลง");
@@ -98,7 +98,7 @@ public partial class MainPageViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"[MainPageViewModel] Navigate Load Game ล้มเหลว: {ex.Message}");
 
-            await Shell.Current.DisplayAlert(
+            await Shell.Current.DisplayAlertAsync(
                 "เกิดข้อผิดพลาด",
                 "ไม่สามารถโหลดเกมได้ กรุณาลองอีกครั้ง",
                 "ตกลง");
@@ -125,7 +125,7 @@ public partial class MainPageViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"[MainPageViewModel] Navigate History ล้มเหลว: {ex.Message}");
 
-            await Shell.Current.DisplayAlert(
+            await Shell.Current.DisplayAlertAsync(
                 "เกิดข้อผิดพลาด",
                 "ไม่สามารถเปิดหน้าประวัติได้",
                 "ตกลง");

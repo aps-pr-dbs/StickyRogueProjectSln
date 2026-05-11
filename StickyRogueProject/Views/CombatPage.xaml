@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
-<!--
-    Layout ตาม Mockup ของทีม (JRPG Style):
-      บนซ้าย  = Enemy Status Card (ชื่อ, Level, HP Bar)
-      บนขวา   = Enemy Image
-      กลางซ้าย = Player Image (กดเพื่อ Status Popup)
-      กลางขวา = Player Status Card (ชื่อ, Level, HP, XP)
-      ล่าง    = Action Buttons (Attack, Defend, Magic, Run) + Inventory
-    Color Palette: Dark Fantasy (#0D0A1A, #1A0D35, #E8D5A3)
--->
-
 <ContentPage
     x:Class="StickyRogueProject.Views.CombatPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -17,106 +6,103 @@
     xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
     x:DataType="vm:CombatViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0D0A1A">
+    BackgroundColor="#574E79">
 
     <!-- Grid หลัก 3 แถว: Enemy Zone / Player Zone / Action Bar -->
-    <Grid RowDefinitions="Auto,*,Auto" Margin="14" RowSpacing="12">
+    <Grid Margin="15" RowDefinitions="Auto, *, Auto" RowSpacing="20">
 
-        <!-- ===== ROW 0: Wave Label + Enemy Zone ===== -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8">
+        <!-- ==========================================
+             Row 0: Enemy info + Enemy image (Top)
+             ========================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="15">
 
-            <!-- Wave Label — WaveLabel Binding -->
-            <Label
-                Text="{Binding WaveLabel}"
-                FontSize="13"
-                FontAttributes="Bold"
-                TextColor="#A090B8"
-                HorizontalOptions="Fill"
-                HorizontalTextAlignment="Center"
-                CharacterSpacing="2" />
-
-            <!-- Enemy Zone: Status Card ซ้าย + ภาพขวา -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-
-                <!-- Enemy Status Card — แตะเพื่อเปิด EnemyStatus Popup -->
-                <Border
-                    Grid.Column="0"
-                    BackgroundColor="#1A0D35"
+            <!-- Enemy Status Card -->
+            <Border Grid.Column="0"
+                    BackgroundColor="#9583D5"
                     StrokeThickness="0.5"
-                    Stroke="#3A2060"
+                    Stroke="#C2B194"
                     StrokeShape="RoundRectangle 14"
                     Padding="14,12">
-                    <Border.GestureRecognizers>
-                        <!-- ShowEnemyStatusCommand Binding -->
-                        <TapGestureRecognizer Command="{Binding ShowEnemyStatusCommand}" />
-                    </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="8">
-                        <!-- ชื่อ + Level — EnemyName, EnemyLevel Binding -->
-                        <Grid ColumnDefinitions="*,Auto">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowEnemyStatusCommand}" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="8">
+                    <!-- ชื่อ + Level -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label
+                            Grid.Column="0"
+                            Text="{Binding EnemyName}"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#FFFFFF" />
+                        <Label
+                            Grid.Column="1"
+                            Text="{Binding EnemyLevel, StringFormat='Lv.{0}'}"
+                            FontSize="13"
+                            TextColor="#574E79" />
+                    </Grid>
+
+                    <!-- HP Bar (ปรับเป็นแบบเดียวกับ XP) -->
+                    <VerticalStackLayout Spacing="2">
+                        <Grid ColumnDefinitions="Auto,*">
                             <Label
                                 Grid.Column="0"
-                                Text="{Binding EnemyName}"
-                                FontSize="15"
+                                Text="HP"
+                                FontSize="11"
                                 FontAttributes="Bold"
-                                TextColor="#E8D5A3" />
+                                TextColor="#C2B194"
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="1"
-                                Text="{Binding EnemyLevel, StringFormat='Lv.{0}'}"
-                                FontSize="13"
-                                TextColor="#8A7A9A" />
-                        </Grid>
-                        <!-- HP Bar — EnemyHpProgress, EnemyHpText Binding -->
-                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="HP" FontSize="13" TextColor="#D45050" VerticalOptions="Center" />
-                            <ProgressBar
-                                Progress="{Binding EnemyHpProgress}"
-                                ProgressColor="#9ACD32"
-                                BackgroundColor="#2A1D45"
-                                WidthRequest="70"
-                                HeightRequest="7"
-                                VerticalOptions="Center" />
-                            <Label
                                 Text="{Binding EnemyHpText}"
-                                FontSize="12"
-                                TextColor="#9A8AAA"
+                                FontSize="10"
+                                FontAttributes="Bold"
+                                TextColor="#FFFFFF"
+                                HorizontalOptions="End"
                                 VerticalOptions="Center" />
-                        </HorizontalStackLayout>
+                        </Grid>
+                        <ProgressBar
+                            Progress="{Binding EnemyHpProgress}"
+                            ProgressColor="#B5BC9A"
+                            BackgroundColor="#574E79"
+                            HeightRequest="5" />
                     </VerticalStackLayout>
-                </Border>
+                </VerticalStackLayout>
+            </Border>
 
-                <!-- Enemy Image Box -->
-                <Border
-                    Grid.Column="1"
-                    BackgroundColor="#130930"
-                    StrokeThickness="0.5"
-                    Stroke="#3A2060"
-                    StrokeShape="RoundRectangle 14"
-                    HeightRequest="130">
-                    <!-- EnemyImageSource Binding -->
-                    <Image
-                        Source="{Binding EnemyImageSource}"
-                        Aspect="AspectFit"
-                        Margin="10" />
-                </Border>
+            <!-- Enemy Image Box -->
+            <Border
+                Grid.Column="1"
+                BackgroundColor="#9583D5"
+                StrokeThickness="0.5"
+                Stroke="#C2B194"
+                StrokeShape="RoundRectangle 14"
+                HeightRequest="130">
+                <Image
+                    Source="{Binding EnemyImageSource}"
+                    Aspect="AspectFit"
+                    Margin="10" />
+            </Border>
 
-            </Grid>
-        </VerticalStackLayout>
+        </Grid>
 
-        <!-- ===== ROW 1: Combat Log + Player Zone ===== -->
+        <!-- ==========================================
+             Row 1: Combat Log + Player Zone ===== -->
         <Grid Grid.Row="1" RowDefinitions="*,Auto" RowSpacing="12">
 
-            <!-- Combat Log / Dialog Box — CombatLog Binding -->
+            <!-- Combat Log -->
             <Border
                 Grid.Row="0"
-                BackgroundColor="#110D22"
+                BackgroundColor="#C5A8E1"
                 StrokeThickness="0.5"
-                Stroke="#2E204A"
+                Stroke="#C2B194"
                 StrokeShape="RoundRectangle 14"
                 Padding="16,12">
                 <Label
                     Text="{Binding CombatLog}"
                     FontSize="14"
-                    TextColor="#C8B8D8"
+                    FontAttributes="Bold"
+                    TextColor="#574E79"
                     LineHeight="1.5"
                     VerticalOptions="End" />
             </Border>
@@ -124,8 +110,7 @@
             <!-- Player Zone: ภาพซ้าย + Status Card ขวา -->
             <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
 
-                
-                <!-- CharacterImageSource Binding -->
+                <!-- Player Image -->
                 <Image
                     Grid.Column="0"
                     Source="{Binding CharacterImageSource}"
@@ -136,14 +121,13 @@
                     VerticalOptions="End"
                     InputTransparent="True"
                     Margin="0, 0, 0, 0" />
-                <!-- กดเพื่อ PlayerStatus Popup -->
-                
+
                 <!-- Player Status Card -->
                 <Border
                     Grid.Column="1"
-                    BackgroundColor="#1A0D35"
+                    BackgroundColor="#9583D5"
                     StrokeThickness="0.5"
-                    Stroke="#3A2060"
+                    Stroke="#C2B194"
                     StrokeShape="RoundRectangle 14"
                     Padding="14,12"
                     VerticalOptions="End"
@@ -159,66 +143,89 @@
                                     Text="{Binding CharacterName}"
                                     FontSize="15"
                                     FontAttributes="Bold"
-                                    TextColor="#E8D5A3" />
+                                    TextColor="#FFFFFF" />
                                 <Label
                                     Grid.Column="1"
                                     Text="{Binding CharacterLevel, StringFormat='Lv.{0}'}"
                                     FontSize="13"
-                                    TextColor="#8A7A9A" />
+                                    TextColor="#574E79" />
                             </Grid>
 
-                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                                <Label Text="HP" FontSize="13" TextColor="#D45050" VerticalOptions="Center" />
+                            <!-- HP bar (ปรับเป็นแบบเดียวกับ XP) -->
+                            <VerticalStackLayout Spacing="2">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="HP"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        TextColor="#C2B194"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding CharacterHpText}"
+                                        FontSize="10"
+                                        FontAttributes="Bold"
+                                        TextColor="#FFFFFF"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Center" />
+                                </Grid>
                                 <ProgressBar
                                     Progress="{Binding CharacterHpProgress}"
-                                    ProgressColor="#9ACD32"
-                                    BackgroundColor="#2A1D45"
-                                    WidthRequest="55"
-                                    HeightRequest="7"
-                                    VerticalOptions="Center" />
-                                <Label
-                                    Text="{Binding CharacterHpText}"
-                                    FontSize="11"
-                                    TextColor="#9A8AAA"
-                                    VerticalOptions="Center" />
-                            </HorizontalStackLayout>
+                                    ProgressColor="#B5BC9A"
+                                    BackgroundColor="#574E79"
+                                    HeightRequest="5" />
+                            </VerticalStackLayout>
 
-                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                                <Label Text="MP" FontSize="13" TextColor="#4A90D9" VerticalOptions="Center" />
+                            <!-- MP bar (ปรับเป็นแบบเดียวกับ XP) -->
+                            <VerticalStackLayout Spacing="2">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="MP"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        TextColor="#C5A8E1"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding CharacterMpText}"
+                                        FontSize="10"
+                                        FontAttributes="Bold"
+                                        TextColor="#FFFFFF"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Center" />
+                                </Grid>
                                 <ProgressBar
                                     Progress="{Binding CharacterMpProgress}"
-                                    ProgressColor="#1E90FF"
-                                    BackgroundColor="#2A1D45"
-                                    WidthRequest="55"
-                                    HeightRequest="7"
-                                    VerticalOptions="Center" />
-                                <Label
-                                    Text="{Binding CharacterMpText}"
-                                    FontSize="11"
-                                    TextColor="#9A8AAA"
-                                    VerticalOptions="Center" />
-                            </HorizontalStackLayout>
+                                    ProgressColor="#C5A8E1"
+                                    BackgroundColor="#574E79"
+                                    HeightRequest="5" />
+                            </VerticalStackLayout>
 
+                            <!-- XP bar -->
                             <VerticalStackLayout Spacing="2">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Label
                                         Grid.Column="0"
                                         Text="XP"
                                         FontSize="11"
-                                        TextColor="#6A5A7A"
+                                        FontAttributes="Bold"
+                                        TextColor="#C2B194"
                                         VerticalOptions="Center" />
                                     <Label
                                         Grid.Column="1"
                                         Text="{Binding XpDisplay}"
                                         FontSize="10"
-                                        TextColor="#6A5A7A"
+                                        FontAttributes="Bold"
+                                        TextColor="#FFFFFF"
                                         HorizontalOptions="End"
                                         VerticalOptions="Center" />
                                 </Grid>
                                 <ProgressBar
                                     Progress="{Binding CharacterXpProgress}"
-                                    ProgressColor="#F5C518"
-                                    BackgroundColor="#2A1D45"
+                                    ProgressColor="#C2B194"
+                                    BackgroundColor="#574E79"
                                     HeightRequest="5" />
                             </VerticalStackLayout>
 
@@ -232,9 +239,9 @@
         <!-- ===== ROW 2: Action Buttons ===== -->
         <Border
             Grid.Row="2"
-            BackgroundColor="#1A1035"
+            BackgroundColor="#C5A8E1"
             StrokeThickness="0.5"
-            Stroke="#3A2060"
+            Stroke="#C2B194"
             StrokeShape="RoundRectangle 18"
             Padding="14">
 
@@ -248,83 +255,86 @@
                     RowSpacing="10"
                     ColumnSpacing="10">
 
-                    <!-- Attack — AttackCommand Binding -->
+                    <!-- Attack -->
                     <Button
                         Grid.Row="0" Grid.Column="0"
                         Text="⚔️  Attack"
                         Command="{Binding AttackCommand}"
-                        BackgroundColor="#2A1050"
-                        TextColor="#E8D5A3"
+                        BackgroundColor="#9583D5"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
                         FontSize="14"
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Defend — DefendCommand Binding -->
+                    <!-- Defend -->
                     <Button
                         Grid.Row="0" Grid.Column="1"
                         Text="🛡️  Defend"
                         Command="{Binding DefendCommand}"
-                        BackgroundColor="#2A1050"
-                        TextColor="#E8D5A3"
+                        BackgroundColor="#9583D5"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
                         FontSize="14"
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Magic — MagicCommand Binding -->
+                    <!-- Magic -->
                     <Button
                         Grid.Row="1" Grid.Column="0"
                         Text="✨  Magic"
                         Command="{Binding MagicCommand}"
-                        BackgroundColor="#2A1050"
-                        TextColor="#C8B0F0"
+                        BackgroundColor="#9583D5"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
                         FontSize="14"
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Run — RunCommand Binding -->
+                    <!-- Run -->
                     <Button
                         Grid.Row="1" Grid.Column="1"
                         Text="🏃  Run"
                         Command="{Binding RunCommand}"
-                        BackgroundColor="#2A1050"
-                        TextColor="#A09080"
+                        BackgroundColor="#9583D5"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
                         FontSize="14"
                         CornerRadius="20"
                         HeightRequest="48" />
 
                 </Grid>
 
-                <!-- Inventory Button (ขวา) — OpenInventoryCommand Binding -->
-                <!-- แสดงจำนวน Potion ด้วย -->
+                <!-- Inventory Button & Shortcuts -->
                 <VerticalStackLayout Grid.Column="1" Spacing="6">
                     <Button
                         Text="🎒 Inventory"
                         Command="{Binding OpenInventoryCommand}"
-                        BackgroundColor="#1E0F47"
-                        TextColor="#C8B0F0"
+                        BackgroundColor="#574E79"
+                        TextColor="#C2B194"
+                        FontAttributes="Bold"
                         FontSize="13"
                         CornerRadius="16"
                         VerticalOptions="Fill" />
 
-                    <!-- Shortcut ปุ่ม HP Potion -->
-                    <!-- UseItemCommand รับ "HP" เป็น CommandParameter -->
                     <Button
                         Text="{Binding HpPotionCount, StringFormat='💊 ×{0}'}"
                         Command="{Binding UseItemCommand}"
                         CommandParameter="HP"
-                        BackgroundColor="#2A1040"
-                        TextColor="#D45050"
+                        BackgroundColor="#574E79"
+                        TextColor="#B5BC9A"
+                        FontAttributes="Bold"
                         FontSize="12"
                         CornerRadius="14"
                         HeightRequest="34" />
 
-                    <!-- Shortcut ปุ่ม MP Potion -->
                     <Button
                         Text="{Binding MpPotionCount, StringFormat='🧪 ×{0}'}"
                         Command="{Binding UseItemCommand}"
                         CommandParameter="MP"
-                        BackgroundColor="#2A1040"
-                        TextColor="#4A90D9"
+                        BackgroundColor="#574E79"
+                        TextColor="#C5A8E1"
+                        FontAttributes="Bold"
                         FontSize="12"
                         CornerRadius="14"
                         HeightRequest="34" />

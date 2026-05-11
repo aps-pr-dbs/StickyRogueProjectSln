@@ -6,6 +6,7 @@ namespace StickyRogueProject.Views;
 public partial class CombatPage : ContentPage
 {
     private readonly CombatViewModel _viewModel;
+    private bool _isInitialized = false;
 
     public CombatPage(CombatViewModel viewModel)
     {
@@ -39,18 +40,21 @@ public partial class CombatPage : ContentPage
 
         // Delegate สำหรับ Alert (ให้ ViewModel ใช้ DisplayAlert โดยไม่ต้องรู้จัก Page)
         _viewModel.ShowAlert = async (title, message) =>
-            await DisplayAlert(title, message, "ตกลง");
+            await DisplayAlertAsync(title, message, "ตกลง");
 
         // Delegate สำหรับ Confirm Dialog
         _viewModel.ShowConfirm = async (title, message, accept, cancel) =>
-            await DisplayAlert(title, message, accept, cancel);
+            await DisplayAlertAsync(title, message, accept, cancel);
     }
 
-    // เรียก InitializeCommand ทุกครั้งที่หน้า CombatPage ปรากฏ
-    // รวมถึงเมื่อ PopModal กลับจาก Casino, Shop, Church
+    // เรียก InitializeCommand เฉพาะครั้งแรกที่หน้า CombatPage ปรากฏ
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeCommand.ExecuteAsync(null);
+        if (!_isInitialized)
+        {
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
+            _isInitialized = true;
+        }
     }
 }

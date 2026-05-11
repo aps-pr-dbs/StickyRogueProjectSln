@@ -36,12 +36,12 @@ public partial class RandomEventPopUpPage : Popup
         int outcome = new Random().Next(0, 2);
         if (outcome == 1)
         {
-            await Shell.Current.DisplayAlert("Success!", "Congratulations! You gained +5 to all stats", "OK");
+            await Shell.Current.DisplayAlert("รอดตัวไป!", "ดีใจด้วย! คุณได้รับ ATK, DEF, INT +20 และ MAX HP, MAX MP +50  ", "OK");
             await CloseWithAnimation("DealerWin");
         }
         else
         {
-            await Shell.Current.DisplayAlert("Failure...", "Unfortunately, you lost -5 to all stats", "OK");
+            await Shell.Current.DisplayAlert("ดวงแตก...", "เสียใจด้วย , ค่า ATK, DEF, INT ของคุณลดลง -10 รวมไปถึง MAX HP, MAX MP ลดลง -20", "OK");
             await CloseWithAnimation("DealerLose");
         }
     }
@@ -52,11 +52,11 @@ public partial class RandomEventPopUpPage : Popup
         if (escapeChance == 1)
         {
             RunAwayBtn.IsVisible = false;
-            await Shell.Current.DisplayAlert("Caught!", "He blocked your way! You can't escape. You must accept his deal.", "Oh no!");
+            await Shell.Current.DisplayAlert("โดนกระโดดจับตัว!", "เขาบล็อคไม่ให้คุณหนี! คุณหนีไม่สำเร็จ. คุณถูกบังคับให้ต้องดื่มยา", "โอ้ ไม่!");
         }
         else
         {
-            await Shell.Current.DisplayAlert("Safe", "You ran away safely!", "OK");
+            await Shell.Current.DisplayAlert("รอดตัวไป", "คุณหนีสำเร็จ!", "OK");
             await CloseWithAnimation("Escaped");
         }
     }
