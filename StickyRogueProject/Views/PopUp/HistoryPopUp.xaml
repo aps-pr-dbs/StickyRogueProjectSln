@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.PopUp.HistoryPopUp"
+             BackgroundColor="#B3000000">
+
+    <Grid>
+        <BoxView Color="#80000000" Opacity="0.8" />
+
+        <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="340" HeightRequest="500"
+                Padding="20" BackgroundColor="#1A1A1A" Stroke="#BA55D3" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto, *, Auto">
+                <Label Grid.Row="0" Text="📜 HALL OF FAME" FontSize="22" FontAttributes="Bold" TextColor="#BA55D3" HorizontalOptions="Center" Margin="0,0,0,15" />
+
+                <CollectionView Grid.Row="1" ItemsSource="{Binding Histories}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="#2C2C2C" Margin="0,0,0,10" Padding="10" StrokeShape="RoundRectangle 10">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding ClassName}" FontAttributes="Bold" TextColor="White" />
+                                        <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy HH:mm}'}" FontSize="10" TextColor="Gray" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Score, StringFormat='{0} Pts'}" TextColor="Gold" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Grid.Row="2" Text="CLOSE" Clicked="OnCloseClicked" 
+                        BackgroundColor="#2C2C2C" TextColor="White" CornerRadius="25" HeightRequest="50" Margin="0,15,0,0" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

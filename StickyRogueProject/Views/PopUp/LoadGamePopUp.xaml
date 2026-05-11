@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.PopUp.LoadGamePopUp"
+             BackgroundColor="#B3000000">
+
+    <Grid>
+        <BoxView Color="#80000000" Opacity="0.8" />
+
+        <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="320"
+                Padding="20" BackgroundColor="#1A1A1A" Stroke="#FFD700" StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="15">
+                <Label Text="💾 LOAD SAVE" FontSize="24" FontAttributes="Bold" TextColor="#FFD700" HorizontalOptions="Center" />
+
+                <Border IsVisible="{Binding HasSave}" BackgroundColor="#2C2C2C" Padding="15" StrokeThickness="0" StrokeShape="RoundRectangle 15">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding SaveData.ClassName}" FontSize="20" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="{Binding SaveData.Level, StringFormat='Level {0}'}" TextColor="LightGray" />
+                        <Label Text="{Binding SaveData.Coins, StringFormat='🪙 {0} Coins'}" TextColor="Gold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="-- ไม่พบข้อมูลการเล่น --" IsVisible="{Binding HasNoSave}" TextColor="Gray" HorizontalOptions="Center" />
+
+                <VerticalStackLayout Spacing="10" Margin="0,10,0,0">
+                    <Button Text="CONTINUE" IsEnabled="{Binding HasSave}" Clicked="OnLoadClicked" 
+                            BackgroundColor="#2A7A4A" TextColor="White" CornerRadius="25" HeightRequest="50" />
+                    <Button Text="BACK" Clicked="OnCloseClicked" 
+                            BackgroundColor="Transparent" BorderColor="#D45050" BorderWidth="1" TextColor="#D45050" CornerRadius="25" HeightRequest="50" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

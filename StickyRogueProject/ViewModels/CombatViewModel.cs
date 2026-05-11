@@ -381,6 +381,19 @@ public partial class CombatViewModel : ObservableObject
             // Loop ปกติ → ไป Church
             AppendLog("👑 Boss พ่ายแพ้! ผ่าน Loop นี้แล้ว!");
             await SafeAlert("👑 Boss Defeated!", $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่ Church...");
+
+            // ⚡ แก้บัคติดลูป: อัปเดตเซฟล่วงหน้าให้กลายเป็นลูปถัดไปทันที!
+            CurrentLoop++;
+            CurrentWave = 1;
+            _save!.CurrentLoop = CurrentLoop;
+            _save.CurrentWave = CurrentWave;
+
+            // ⚡ แถม: ฮีลเลือดและมานาให้เต็มก่อนส่งไปเตรียมตัวลุยลูปใหม่
+            _save.CurrentHp = _save.MaxHp;
+            _save.CurrentMp = _save.MaxMp;
+
+            await _saveService.UpdateSaveAsync(_save); // บันทึกเซฟเป็นลูปใหม่เรียบร้อย!
+
             await Shell.Current.GoToAsync("ChurchPage");
             return;
         }
