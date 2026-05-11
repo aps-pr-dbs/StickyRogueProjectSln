@@ -7,53 +7,47 @@ public partial class HighLowPage : ContentPage
 {
     private HighLowViewModel _viewModel;
 
-    public HighLowPage()
+    public HighLowPage(HighLowViewModel viewModel)
     {
         InitializeComponent();
-
-        // ผูก View เข้ากับ ViewModel
-        _viewModel = new HighLowViewModel();
+        _viewModel = viewModel;
         BindingContext = _viewModel;
 
-        // --- เตรียมแอนิเมชันรอรับคำสั่งจาก ViewModel ---
-        _viewModel.OnInitCards = async (current, next) =>
-        {
+        _viewModel.OnInitCards = async (current, next) => {
             stackCards.Children.Clear();
             stackCards.Children.Add(CreateCardUI(current, false));
             await AnimateCardIn(next, true);
         };
 
-        _viewModel.OnShowNextCard = async (next) =>
-        {
+        _viewModel.OnShowNextCard = async (next) => {
             stackCards.Children[1] = CreateCardUI(next, false);
             await Task.CompletedTask;
         };
 
-        _viewModel.OnProceedToNextRound = async (current, next) =>
-        {
+        _viewModel.OnProceedToNextRound = async (current, next) => {
             var oldCardUI = (Border)stackCards.Children[0];
             var newCardUI = (Border)stackCards.Children[1];
-            uint animDuration = 500;
-
             await Task.WhenAll(
-                oldCardUI.TranslateTo(-this.Width, 0, animDuration, Easing.CubicIn),
-                oldCardUI.FadeTo(0, animDuration, Easing.Linear),
-                newCardUI.TranslateTo(-130, 0, animDuration, Easing.CubicInOut)
+                oldCardUI.TranslateTo(-this.Width, 0, 500, Easing.CubicIn),
+                oldCardUI.FadeTo(0, 500, Easing.Linear),
+                newCardUI.TranslateTo(-130, 0, 500, Easing.CubicInOut)
             );
-
             stackCards.Children.Clear();
             stackCards.Children.Add(CreateCardUI(current, false));
             await AnimateCardIn(next, true);
+        };
+
+        // ⚡ เปิดหน้าจอดำเมื่อโดนโกง
+        _viewModel.OnShowBlackScreenDialog = async (msg) => {
+            await Navigation.PushModalAsync(new CasinoDialogPage(msg));
         };
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await Task.Delay(100);
-        _viewModel.StartNewGameCommand.Execute(null);
+        await _viewModel.InitializeCommand.ExecuteAsync(null);
     }
-
     protected override bool OnBackButtonPressed() => true;
 
     private async Task AnimateCardIn(PlayingCard card, bool isHidden)
@@ -62,11 +56,7 @@ public partial class HighLowPage : ContentPage
         cardUI.Opacity = 0;
         cardUI.TranslationX = this.Width > 0 ? this.Width : 1000;
         stackCards.Children.Add(cardUI);
-
-        await Task.WhenAll(
-            cardUI.TranslateTo(0, 0, 400, Easing.CubicOut),
-            cardUI.FadeTo(1, 400, Easing.Linear)
-        );
+        await Task.WhenAll(cardUI.TranslateTo(0, 0, 400, Easing.CubicOut), cardUI.FadeTo(1, 400, Easing.Linear));
     }
 
     private Border CreateCardUI(PlayingCard card, bool isHidden)
@@ -80,7 +70,6 @@ public partial class HighLowPage : ContentPage
             StrokeThickness = 3,
             StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(10) }
         };
-
         if (!isHidden)
         {
             Grid cardGrid = new Grid { Padding = 5 };

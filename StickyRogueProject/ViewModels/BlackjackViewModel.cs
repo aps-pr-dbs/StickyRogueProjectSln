@@ -1,11 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StickyRogueProject.Models;
+using StickyRogueProject.Services;
 using System.Collections.ObjectModel;
 
 namespace StickyRogueProject.ViewModels;
 
 public partial class BlackjackViewModel : ObservableObject
 {
+    private readonly SaveService _saveService;
+    private ActiveSave? _save;
+
     private List<PlayingCard> _deck = new();
     public List<PlayingCard> PlayerHand { get; private set; } = new();
     public List<PlayingCard> DealerHand { get; private set; } = new();
@@ -16,18 +21,65 @@ public partial class BlackjackViewModel : ObservableObject
     [ObservableProperty] private string _dealerScoreText = "Dealer : ?";
     [ObservableProperty] private string _statusText = "Your Turn";
     [ObservableProperty] private Color _statusColor = Colors.White;
-    [ObservableProperty] private bool _isGameOver;
-    [ObservableProperty] private bool _isGameActive = true;
-    [ObservableProperty] private string _restartButtonText = "เริ่มเกมใหม่";
+    [ObservableProperty] private string _restartButtonText = "Next round";
 
-    // ⚡ Delegates สำหรับสั่ง View ให้เล่นแอนิเมชันจั่วไพ่
-    public Func<List<PlayingCard>, bool, bool, Task> OnHitCard { get; set; }
-    public Action OnClearBoard { get; set; }
-    public Action<int, int> OnUpdateMatchDots { get; set; }
-    public Action OnFlipDealerCard { get; set; }
+    // ⚡ Betting System
+    [ObservableProperty] private int _coins;
+    [ObservableProperty] private bool _isBettingPhase = true;
+    [ObservableProperty] private int _currentBet = 0;
+    [ObservableProperty] private string _dealerTaunt = "อยากวัดดวงงั้นรึ? วางเงินมาเลย!";
+
+    [ObservableProperty] private bool _isGameOver;
+    [ObservableProperty] private bool _isGameActive = false;
+
+    // ⚡ Delegates
+    public Func<List<PlayingCard>, bool, bool, Task>? OnHitCard { get; set; }
+    public Action? OnClearBoard { get; set; }
+    public Action<int, int>? OnUpdateMatchDots { get; set; }
+    public Action? OnFlipDealerCard { get; set; }
+    public Func<string, Task>? OnShowBlackScreenDialog { get; set; }
+
+    public BlackjackViewModel(SaveService saveService)
+    {
+        _saveService = saveService;
+    }
 
     [RelayCommand]
-    public async Task StartNewGameAsync()
+    public async Task InitializeAsync()
+    {
+        _save = await _saveService.LoadSaveAsync();
+        Coins = _save?.Coins ?? 0;
+        IsBettingPhase = true;
+        IsGameActive = false;
+        IsGameOver = false;
+        DealerTaunt = CasinoRigService.RandomOpeningTaunt();
+    }
+
+    [RelayCommand]
+    public async Task PlaceBetAsync(string amountStr)
+    {
+        if (_save == null || !int.TryParse(amountStr, out int amount)) return;
+
+        int actualBet = amount == -1 ? _save.Coins : amount;
+
+        if (actualBet <= 0 || _save.Coins < actualBet)
+        {
+            DealerTaunt = "เงินไม่พอ! อย่ามาทำตัวกระจอกแถวนี้!";
+            return;
+        }
+
+        _save.Coins -= actualBet;
+        Coins = _save.Coins;
+        CurrentBet = actualBet;
+        await _saveService.UpdateSaveAsync(_save);
+
+        IsBettingPhase = false; // ⚡ ซ่อนปุ่มเดิมพันตอนเล่น
+        await DealCardsAsync();
+    }
+
+    // ⚡ เมื่อกดปุ่ม Next Round / Reset ให้กลับมาหน้าเดิมพัน
+    [RelayCommand]
+    public void StartNewGame()
     {
         if (PlayerMatchScore >= 3 || DealerMatchScore >= 3)
         {
@@ -37,25 +89,53 @@ public partial class BlackjackViewModel : ObservableObject
         }
 
         IsGameOver = false;
-        IsGameActive = true;
-        StatusText = "Your Turn";
+        IsBettingPhase = true; // ⚡ โชว์ปุ่มเดิมพันใหม่
+        StatusText = "วางเงินเดิมพัน";
         StatusColor = Colors.White;
+        DealerTaunt = "รอบต่อไป... เอาเงินมาวางซะดีๆ!";
 
         PlayerHand.Clear();
         DealerHand.Clear();
         OnClearBoard?.Invoke();
 
+        PlayerScoreText = "Your : 0";
+        DealerScoreText = "Dealer : ?";
+    }
+
+    // ⚡ เริ่มแจกไพ่หลังวางเงินเสร็จ
+    private async Task DealCardsAsync()
+    {
+        IsGameOver = false;
+        IsGameActive = true;
+        StatusText = "Your Turn";
+        StatusColor = Colors.White;
+        DealerTaunt = "หึ... แจกไพ่!";
+
         CreateDeck();
 
-        if (OnHitCard != null)
-        {
-            await OnHitCard(PlayerHand, false, false);
-            await OnHitCard(DealerHand, true, true); // ใบแรกบอทคว่ำ
-            await OnHitCard(PlayerHand, false, false);
-            await OnHitCard(DealerHand, false, false);
-        }
+        await DrawCardAsync(PlayerHand, false, false);
+        await DrawCardAsync(DealerHand, true, true);
+        await DrawCardAsync(PlayerHand, false, false);
+        await DrawCardAsync(DealerHand, false, true); // ⚡ แก้แล้ว: isDealer = true (ไพ่ไม่บินไปหาผู้เล่นแล้ว)
 
         UpdateScores(false);
+
+        if (CalculateScore(PlayerHand) == 21)
+        {
+            await DetermineWinnerAsync();
+        }
+    }
+
+    private async Task DrawCardAsync(List<PlayingCard> hand, bool isHidden, bool isDealer)
+    {
+        if (_deck.Count == 0) return;
+
+        var card = _deck[0];
+        _deck.RemoveAt(0);
+        hand.Add(card);
+
+        if (OnHitCard != null)
+            await OnHitCard(hand, isHidden, isDealer);
     }
 
     private void CreateDeck()
@@ -78,13 +158,13 @@ public partial class BlackjackViewModel : ObservableObject
     [RelayCommand]
     public async Task HitAsync()
     {
-        if (IsGameOver || OnHitCard == null) return;
+        if (IsGameOver) return;
 
-        await OnHitCard(PlayerHand, false, false);
+        await DrawCardAsync(PlayerHand, false, false);
         UpdateScores(false);
 
         if (CalculateScore(PlayerHand) > 21)
-            EndGame("Bust! Dealer Win", Colors.Red, 2);
+            await HandleLossAsync("Bust! Dealer Win", 2);
     }
 
     [RelayCommand]
@@ -98,44 +178,104 @@ public partial class BlackjackViewModel : ObservableObject
 
         while (CalculateScore(DealerHand) < 17)
         {
-            await Task.Delay(200);
-            await OnHitCard(DealerHand, false, false);
+            await Task.Delay(400); // เพิ่ม Delay นิดหน่อยให้ดูสมจริงขึ้น
+            await DrawCardAsync(DealerHand, false, true); // ⚡ แก้แล้ว: isDealer = true
             UpdateScores(true);
         }
 
-        DetermineWinner();
+        await DetermineWinnerAsync();
     }
 
-    private void DetermineWinner()
+    private async Task DetermineWinnerAsync()
     {
         int p = CalculateScore(PlayerHand);
         int d = CalculateScore(DealerHand);
 
-        if (d > 21) EndGame("Dealer Bust! Your Win!", Colors.LightGreen, 1);
-        else if (p > d) EndGame("Your Win!", Colors.LightGreen, 1);
-        else if (d > p) EndGame("Dealer Win!", Colors.Red, 2);
-        else EndGame("Push", Colors.Yellow, 0);
+        if (d > 21) await HandleWinAsync("Dealer Bust! Your Win!", 1);
+        else if (p > d) await HandleWinAsync("Your Win!", 1);
+        else if (d > p) await HandleLossAsync("Dealer Win!", 2);
+        else
+        {
+            if (_save != null)
+            {
+                _save.Coins += CurrentBet;
+                Coins = _save.Coins;
+                await _saveService.UpdateSaveAsync(_save);
+            }
+            EndGame("Push", Colors.Yellow, 0);
+        }
+    }
+
+    private async Task HandleWinAsync(string msg, int winner)
+    {
+        if (_save == null) return;
+
+        var (result, coinDelta, dealerLine, debuff) = CasinoRigService.ResolveWin(CurrentBet);
+
+        _save.Coins += (CurrentBet + coinDelta);
+        if (result == CasinoWinResult.Cheated && debuff.HasValue)
+        {
+            CasinoRigService.ApplyDebuff(_save, debuff.Value);
+        }
+
+        Coins = _save.Coins;
+        await _saveService.UpdateSaveAsync(_save);
+        DealerTaunt = dealerLine;
+
+        if (result == CasinoWinResult.Cheated)
+        {
+            EndGame("CHEATED!", Colors.Red, 2);
+            if (OnShowBlackScreenDialog != null) await OnShowBlackScreenDialog(dealerLine);
+        }
+        else
+        {
+            EndGame(result == CasinoWinResult.DoubleWin ? "JACKPOT!" : msg, Colors.Gold, winner);
+        }
+    }
+
+    private async Task HandleLossAsync(string msg, int winner)
+    {
+        if (_save == null) return;
+        var (result, dealerLine) = CasinoRigService.ResolveLoss();
+
+        if (result == CasinoLossResult.ItemStolen)
+        {
+            string stealMsg = CasinoRigService.StealItem(_save);
+            dealerLine += $"\n(เสีย {stealMsg})";
+        }
+
+        Coins = _save.Coins;
+        await _saveService.UpdateSaveAsync(_save);
+        DealerTaunt = dealerLine;
+
+        EndGame(msg, Colors.Red, winner);
+
+        if (result == CasinoLossResult.ItemStolen)
+        {
+            if (OnShowBlackScreenDialog != null) await OnShowBlackScreenDialog(dealerLine);
+        }
     }
 
     private void EndGame(string msg, Color color, int winner)
     {
         IsGameOver = true;
         IsGameActive = false;
+        IsBettingPhase = false; // ⚡ แก้แล้ว: ปิดโซนเดิมพันตอนเกมจบ จะได้ไม่ทับปุ่ม Next Round
 
         if (winner == 1) PlayerMatchScore++;
         else if (winner == 2) DealerMatchScore++;
 
         OnUpdateMatchDots?.Invoke(PlayerMatchScore, DealerMatchScore);
 
-        if (PlayerMatchScore >= 3) { StatusText = "Your the champ!"; StatusColor = Colors.Gold; RestartButtonText = "Reset"; }
-        else if (DealerMatchScore >= 3) { StatusText = "You lose"; StatusColor = Colors.Red; RestartButtonText = "Reset"; }
+        if (PlayerMatchScore >= 3) { StatusText = "You're the champ!"; StatusColor = Colors.Gold; RestartButtonText = "Reset Match"; }
+        else if (DealerMatchScore >= 3) { StatusText = "You lose the match"; StatusColor = Colors.Red; RestartButtonText = "Reset Match"; }
         else { StatusText = msg; StatusColor = color; RestartButtonText = "Next round"; }
     }
 
     private void UpdateScores(bool showDealer)
     {
         PlayerScoreText = $"Your : {CalculateScore(PlayerHand)}";
-        DealerScoreText = showDealer ? $"Dealer : {CalculateScore(DealerHand)}" : $"Dealer : {DealerHand[1].Value} + ?";
+        DealerScoreText = showDealer || DealerHand.Count < 2 ? $"Dealer : {CalculateScore(DealerHand)}" : $"Dealer : {DealerHand[1].Value} + ?";
     }
 
     private int CalculateScore(List<PlayingCard> hand)
@@ -144,5 +284,12 @@ public partial class BlackjackViewModel : ObservableObject
         int aces = hand.Count(c => c.Rank == "A");
         while (s > 21 && aces > 0) { s -= 10; aces--; }
         return s;
+    }
+    // ⚡ คำสั่งสำหรับกดปุ่มย้อนกลับออกจากโต๊ะพนัน
+    [RelayCommand]
+    public async Task ExitGameAsync()
+    {
+        // สั่งให้ปิดหน้าต่างนี้ (PopModal) เพื่อกลับไปหน้าเมนูคาสิโน
+        await Application.Current.MainPage.Navigation.PopModalAsync();
     }
 }

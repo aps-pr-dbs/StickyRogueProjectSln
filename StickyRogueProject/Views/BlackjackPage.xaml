@@ -4,44 +4,65 @@
              x:Class="StickyRogueProject.Views.BlackjackPage"
              xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
              x:DataType="vm:BlackjackViewModel"
-             Title="Blackjack 21"
-             BackgroundColor="DarkGreen"
-             NavigationPage.HasNavigationBar="False"
-             Shell.NavBarIsVisible="False">
+             BackgroundColor="#0A1A10"
+             NavigationPage.HasNavigationBar="False">
 
-    <Grid RowDefinitions="*, Auto, *, Auto" Padding="20">
+    <Grid RowDefinitions="Auto, *, Auto, *, Auto" Padding="20">
 
-        <VerticalStackLayout Grid.Row="0" Spacing="10" VerticalOptions="Start">
-            <Label x:Name="lblDealerScore" Text="{Binding DealerScoreText}" TextColor="White" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
-            <HorizontalStackLayout x:Name="stackDealerMatchScore" Spacing="5" HorizontalOptions="Center" Margin="0,0,0,10">
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Grid ColumnDefinitions="Auto, *">
+                <Button Grid.Column="0" Text="🔙 ออก" Command="{Binding ExitGameCommand}" BackgroundColor="Transparent" TextColor="#D45050" FontSize="16" FontAttributes="Bold" Padding="0" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="{Binding Coins, StringFormat='🪙 {0} เหรียญ'}" TextColor="Gold" FontSize="20" FontAttributes="Bold" HorizontalOptions="End" VerticalOptions="Center" />
+            </Grid>
+            <Border BackgroundColor="#1A0A0A" Stroke="#D45050" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="15">
+                <Label Text="{Binding DealerTaunt}" TextColor="#E8D5A3" FontSize="16" FontAttributes="Italic" HorizontalTextAlignment="Center" />
+            </Border>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="5" VerticalOptions="Center">
+            <Label Text="{Binding DealerScoreText}" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+            <HorizontalStackLayout x:Name="stackDealerMatchScore" Spacing="5" HorizontalOptions="Center" Margin="0,0,0,5">
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
             </HorizontalStackLayout>
             <ScrollView Orientation="Horizontal" HorizontalOptions="Center">
                 <HorizontalStackLayout x:Name="stackDealerCards" Spacing="-30" />
             </ScrollView>
         </VerticalStackLayout>
 
-        <Label x:Name="lblStatus" Grid.Row="1" Text="{Binding StatusText}" TextColor="{Binding StatusColor}" FontFamily="Jersey20" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+        <Label Grid.Row="2" Text="{Binding StatusText}" TextColor="{Binding StatusColor}" FontFamily="Jersey20" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
 
-        <VerticalStackLayout Grid.Row="2" Spacing="10" VerticalOptions="End">
-            <Label x:Name="lblPlayerScore" Text="{Binding PlayerScoreText}" TextColor="White" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
-            <HorizontalStackLayout x:Name="stackPlayerMatchScore" Spacing="5" HorizontalOptions="Center" Margin="0,0,0,10">
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
-                <Ellipse WidthRequest="15" HeightRequest="15" Fill="Gray" Stroke="White" StrokeThickness="1" />
-            </HorizontalStackLayout>
+        <VerticalStackLayout Grid.Row="3" Spacing="5" VerticalOptions="Center">
             <ScrollView Orientation="Horizontal" HorizontalOptions="Center">
                 <HorizontalStackLayout x:Name="stackPlayerCards" Spacing="-30" />
             </ScrollView>
+            <HorizontalStackLayout x:Name="stackPlayerMatchScore" Spacing="5" HorizontalOptions="Center" Margin="0,5,0,0">
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="Gray" Stroke="White" StrokeThickness="1" />
+            </HorizontalStackLayout>
+            <Label Text="{Binding PlayerScoreText}" TextColor="White" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
-        <Grid Grid.Row="3" ColumnDefinitions="*, *" ColumnSpacing="15" Margin="0,30,0,0">
-            <Button x:Name="btnHit" Text="Hit" Command="{Binding HitCommand}" IsVisible="{Binding IsGameActive}" FontFamily="Jersey20" BackgroundColor="DarkRed" TextColor="White" FontAttributes="Bold" CornerRadius="10" Grid.Column="0"/>
-            <Button x:Name="btnStand" Text="Stand" Command="{Binding StandCommand}" IsVisible="{Binding IsGameActive}" FontFamily="Jersey20" BackgroundColor="DarkBlue" TextColor="White" FontAttributes="Bold" CornerRadius="10" Grid.Column="1"/>
+        <Grid Grid.Row="4" Margin="0,15,0,0">
+            <VerticalStackLayout IsVisible="{Binding IsBettingPhase}" Spacing="10">
+                <Label Text="วางเดิมพัน:" TextColor="White" HorizontalOptions="Center" />
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Button Text="5" Command="{Binding PlaceBetCommand}" CommandParameter="5" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
+                    <Button Text="10" Command="{Binding PlaceBetCommand}" CommandParameter="10" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
+                    <Button Text="20" Command="{Binding PlaceBetCommand}" CommandParameter="20" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
+                    <Button Text="50" Command="{Binding PlaceBetCommand}" CommandParameter="50" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
+                    <Button Text="All In" Command="{Binding PlaceBetCommand}" CommandParameter="-1" BackgroundColor="#D45050" TextColor="White" WidthRequest="70" HeightRequest="55" CornerRadius="10" FontAttributes="Bold" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
 
-            <Button x:Name="btnNewGame" Text="{Binding RestartButtonText}" Command="{Binding StartNewGameCommand}" IsVisible="{Binding IsGameOver}" BackgroundColor="Goldenrod" TextColor="Black" FontAttributes="Bold" CornerRadius="10" Grid.ColumnSpan="2"/>
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="15" IsVisible="{Binding IsGameActive}">
+                <Button Text="Hit" Command="{Binding HitCommand}" BackgroundColor="DarkRed" TextColor="White" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Grid.Column="0"/>
+                <Button Text="Stand" Command="{Binding StandCommand}" BackgroundColor="DarkBlue" TextColor="White" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Grid.Column="1"/>
+            </Grid>
+
+            <Button Text="{Binding RestartButtonText}" Command="{Binding StartNewGameCommand}" IsVisible="{Binding IsGameOver}" BackgroundColor="Goldenrod" TextColor="Black" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" />
         </Grid>
 
     </Grid>
