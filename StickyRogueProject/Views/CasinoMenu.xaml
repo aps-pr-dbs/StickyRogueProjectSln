@@ -1,51 +1,78 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="StickyRogueProject.Views.HighLowPage"
-             xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
-             x:DataType="vm:HighLowViewModel"
-             BackgroundColor="#3A0A0A" 
-             NavigationPage.HasNavigationBar="False">
+             x:Class="StickyRogueProject.Views.CasinoMenu"
+             Title="Casino Menu"
+             BackgroundColor="#0D0A1A"
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto, *, Auto, Auto" Padding="20">
+    <Grid RowDefinitions="3*, Auto, 3*" Padding="20">
 
-        <VerticalStackLayout Grid.Row="0" Spacing="10">
-            <Grid ColumnDefinitions="Auto, *">
-                <Button Grid.Column="0" Text="🔙 ออก" Command="{Binding ExitGameCommand}" BackgroundColor="Transparent" TextColor="#D45050" FontSize="16" FontAttributes="Bold" Padding="0" HorizontalOptions="Start" VerticalOptions="Center"/>
-                <Label Grid.Column="1" Text="{Binding Coins, StringFormat='🪙 {0} เหรียญ'}" TextColor="Gold" FontSize="20" FontAttributes="Bold" HorizontalOptions="End" VerticalOptions="Center" />
-            </Grid>
-
-            <Border BackgroundColor="#1A0A0A" Stroke="#D45050" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="15">
-                <Label Text="{Binding DealerTaunt}" TextColor="#E8D5A3" FontSize="16" FontAttributes="Italic" HorizontalTextAlignment="Center" />
-            </Border>
-
-            <Label Text="{Binding StreakText}" TextColor="{Binding StreakColor}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0"/>
-            <Label Text="{Binding StatusText}" TextColor="{Binding StatusColor}" FontSize="16" HorizontalOptions="Center"/>
+        <VerticalStackLayout Grid.Row="0" VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,0,40">
+            <Label Text="🎰 STICK 🎰" 
+                   FontFamily="Jersey20" 
+                   FontSize="45" 
+                   FontAttributes="Bold" 
+                   TextColor="#E8D5A3" 
+                   HorizontalOptions="Center" />
+            <Label Text="CASINO" 
+                   FontFamily="Jersey20" 
+                   FontSize="45" 
+                   FontAttributes="Bold" 
+                   TextColor="#D45050" 
+                   HorizontalOptions="Center" />
+            <Label Text="เข้ามากระเป๋าตุง... หรือเดินนุ่งลมห่มฟ้า?" 
+                   FontFamily="skeleboom" 
+                   FontSize="16" 
+                   TextColor="#8A7A9A" 
+                   HorizontalOptions="Center" 
+                   Margin="0,10,0,0"/>
         </VerticalStackLayout>
 
-        <HorizontalStackLayout x:Name="stackCards" Grid.Row="1" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center" />
+        <VerticalStackLayout Grid.Row="1" Spacing="20" HorizontalOptions="Center">
+            <Button x:Name="btnBlackjack" 
+                    Text="Blackjack 21" 
+                    FontFamily="Jersey20" 
+                    FontSize="20" 
+                    FontAttributes="Bold" 
+                    BackgroundColor="#2A1050" 
+                    TextColor="#E8D5A3" 
+                    WidthRequest="330" 
+                    HeightRequest="65" 
+                    CornerRadius="15" 
+                    Clicked="BtnBlackjack_Clicked">
+                <Button.Shadow>
+                    <Shadow Brush="#1A0D35" Offset="0,5" Radius="10" Opacity="0.8"/>
+                </Button.Shadow>
+            </Button>
 
-        <Grid Grid.Row="2" Margin="0,0,0,30">
-            <VerticalStackLayout IsVisible="{Binding IsBettingPhase}" Spacing="10">
-                <Label Text="วางเดิมพัน:" TextColor="White" HorizontalOptions="Center" />
-                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Button Text="5" Command="{Binding PlaceBetCommand}" CommandParameter="5" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
-                    <Button Text="10" Command="{Binding PlaceBetCommand}" CommandParameter="10" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
-                    <Button Text="20" Command="{Binding PlaceBetCommand}" CommandParameter="20" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
-                    <Button Text="50" Command="{Binding PlaceBetCommand}" CommandParameter="50" BackgroundColor="#2A1050" TextColor="Gold" WidthRequest="55" HeightRequest="55" CornerRadius="10" />
-                    <Button Text="All In" Command="{Binding PlaceBetCommand}" CommandParameter="-1" BackgroundColor="#D45050" TextColor="White" WidthRequest="70" HeightRequest="55" CornerRadius="10" FontAttributes="Bold" />
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-
-            <Grid ColumnDefinitions="*, *" ColumnSpacing="15" IsVisible="{Binding IsGameActive}">
-                <Button Text="High" Command="{Binding GuessCommand}" CommandParameter="High" BackgroundColor="DarkGreen" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="10" HeightRequest="60" Grid.Column="0"/>
-                <Button Text="Low" Command="{Binding GuessCommand}" CommandParameter="Low" BackgroundColor="DarkBlue" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="10" HeightRequest="60" Grid.Column="1"/>
-            </Grid>
-        </Grid>
-
-        <VerticalStackLayout Grid.Row="3" Spacing="15" IsVisible="{Binding IsGameOver}">
-            <Button Text="Restart" Command="{Binding InitializeCommand}" BackgroundColor="Goldenrod" TextColor="Black" FontAttributes="Bold" CornerRadius="10" HeightRequest="50" />
+            <Button x:Name="btnHighLow" 
+                    Text="High Or Low" 
+                    FontFamily="Jersey20" 
+                    FontSize="20" 
+                    FontAttributes="Bold" 
+                    BackgroundColor="#2A1050" 
+                    TextColor="#E8D5A3" 
+                    WidthRequest="330" 
+                    HeightRequest="65" 
+                    CornerRadius="15" 
+                    Clicked="BtnHighLow_Clicked">
+                <Button.Shadow>
+                    <Shadow Brush="#1A0D35" Offset="0,5" Radius="10" Opacity="0.8"/>
+                </Button.Shadow>
+            </Button>
         </VerticalStackLayout>
 
+        <Button Grid.Row="2" 
+                Text="Exit Casino" 
+                Clicked="BtnExit_Clicked" 
+                BackgroundColor="#1E0F47" 
+                TextColor="#C8B0F0" 
+                FontFamily="skeleboom" 
+                WidthRequest="200" 
+                HeightRequest="50" 
+                CornerRadius="25" 
+                VerticalOptions="Start" 
+                Margin="0,40,0,0" />
     </Grid>
 </ContentPage>

@@ -8,6 +8,9 @@ public partial class RandomEventPopUpPage : Popup
 {
     public string ResultAction { get; set; } = string.Empty;
 
+    // ⚡ เพิ่มตัวล็อก
+    private bool _isClosing = false;
+
     public RandomEventPopUpPage(GameEvent gameEvent)
     {
         InitializeComponent();
@@ -21,6 +24,10 @@ public partial class RandomEventPopUpPage : Popup
 
     private async Task CloseWithAnimation(string action)
     {
+        // ⚡ ถ้ากดปิดไปแล้ว ห้ามทำซ้ำ!
+        if (_isClosing) return;
+        _isClosing = true;
+
         ResultAction = action;
         await CardContainer.ScaleTo(0, 200, Easing.SpringIn);
         await CloseAsync();
@@ -33,6 +40,9 @@ public partial class RandomEventPopUpPage : Popup
 
     private async void OnAcceptDealerClicked(object sender, EventArgs e)
     {
+        // ⚡ ป้องกันกรณีกดเบิ้ลตรงปุ่มนี้แล้วสุ่ม 2 รอบ
+        if (_isClosing) return;
+
         int outcome = new Random().Next(0, 2);
         if (outcome == 1)
         {
@@ -48,6 +58,9 @@ public partial class RandomEventPopUpPage : Popup
 
     private async void OnRunAwayClicked(object sender, EventArgs e)
     {
+        // ⚡ ป้องกันกรณีกดเบิ้ลตรงปุ่มนี้แล้วสุ่ม 2 รอบ
+        if (_isClosing) return;
+
         int escapeChance = new Random().Next(1, 5);
         if (escapeChance == 1)
         {

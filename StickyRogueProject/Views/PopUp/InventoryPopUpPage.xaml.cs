@@ -8,6 +8,9 @@ public partial class InventoryPopUpPage : ContentPage
 {
     private readonly InventoryPopUpViewModel _viewModel;
 
+    // ⚡ เพิ่มตัวล็อก
+    private bool _isClosing = false;
+
     public InventoryPopUpPage(ActiveSave save)
         : this(save, new List<InventoryItem>()) { }
 
@@ -32,8 +35,13 @@ public partial class InventoryPopUpPage : ContentPage
             ShowAlert = async (title, message) =>
                 await DisplayAlert(title, message, "OK"),
 
+            // ⚡ ใส่ตัวล็อกกันการกดเบิ้ลตรงนี้
             ClosePopupAction = async () =>
-                await Navigation.PopModalAsync()
+            {
+                if (_isClosing) return;
+                _isClosing = true;
+                await Navigation.PopModalAsync();
+            }
         };
 
         BindingContext = _viewModel;

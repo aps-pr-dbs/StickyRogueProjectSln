@@ -4,6 +4,9 @@ namespace StickyRogueProject.Views.PopUp;
 
 public partial class CasinoEventPopUpPage : Popup
 {
+    // ⚡ เพิ่มตัวล็อก
+    private bool _isClosing = false;
+
     public CasinoEventPopUpPage()
     {
         InitializeComponent();
@@ -17,8 +20,13 @@ public partial class CasinoEventPopUpPage : Popup
 
     private async void OnEnterClicked(object sender, EventArgs e)
     {
+        // ⚡ กันคนกดเข้าคาสิโนรัวๆ
+        if (_isClosing) return;
+        _isClosing = true;
+
         // หดลงก่อนปิด
         await CardContainer.ScaleTo(0, 200, Easing.SpringIn);
         await CloseAsync();
+        // ปิดเสร็จระบบหน้าจอหลักน่าจะพาเด้งไป CasinoMenu ให้เองตามที่เขียนไว้ครับ
     }
 }

@@ -10,10 +10,7 @@
     <Grid>
         <!-- Overlay -->
         <BoxView Color="#000000" Opacity="0.6">
-            <BoxView.GestureRecognizers>
-                <!-- เปลี่ยนจาก Tapped เป็น Command -->
-                <TapGestureRecognizer Command="{Binding CloseCommand}"/>
-            </BoxView.GestureRecognizers>
+
         </BoxView>
 
         <!-- Popup Card -->

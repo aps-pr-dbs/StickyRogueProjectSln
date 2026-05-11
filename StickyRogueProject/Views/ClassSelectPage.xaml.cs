@@ -25,6 +25,6 @@ public partial class ClassSelectPage : ContentPage
     private async void OnBackClicked(object sender, EventArgs e)
     {
         // ".." หมายถึงย้อนกลับไปหน้าก่อนหน้าใน Navigation Stack
-        await Shell.Current.GoToAsync("..");
+        await Shell.Current.GoToAsync("MainPage");
     }
 }

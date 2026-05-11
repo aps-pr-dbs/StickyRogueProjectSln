@@ -132,6 +132,9 @@
                     Padding="14,12"
                     VerticalOptions="End"
                     Margin="0, 0, 0, 7">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ShowPlayerStatusCommand}" />
+                    </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
 
