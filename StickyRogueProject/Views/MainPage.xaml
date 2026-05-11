@@ -44,7 +44,7 @@
 
             <!-- Subtitle ใต้ชื่อเกม -->
             <Label
-                Text="⚔  Turn-Based Rogue-Lite  ⚔"
+                Text="⚔  Turn-Based RogueLike  ⚔"
                 FontSize="13"
                 TextColor="#7A6A8A"
                 HorizontalOptions="Fill"

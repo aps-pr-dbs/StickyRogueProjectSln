@@ -1,25 +1,41 @@
-// รับ ActiveSave เข้ามาผ่าน Constructor
-// แสดงข้อมูล Inventory Slots และ Potion Counts
-// ปิดด้วย PopModalAsync
-
 using StickyRogueProject.Models;
+using StickyRogueProject.Services;
+using StickyRogueProject.ViewModels;
 
 namespace StickyRogueProject.Views.PopUp;
 
 public partial class InventoryPopUpPage : ContentPage
 {
-    public InventoryPopUpPage(ActiveSave? save)
+    private readonly InventoryPopUpViewModel _viewModel;
+
+    public InventoryPopUpPage(ActiveSave save)
+        : this(save, new List<InventoryItem>()) { }
+
+    public InventoryPopUpPage(ActiveSave save, List<string> newLootStrings)
+        : this(save, newLootStrings.Select(InventoryItem.FromString).ToList()) { }
+
+    public InventoryPopUpPage(ActiveSave save, List<InventoryItem> newLoot)
     {
         InitializeComponent();
 
-        // BindingContext ผูกกับ ActiveSave โดยตรง
-        // XAML สามารถ Bind Slot1-Slot6, HpPotionCount, MpPotionCount ได้ทันที
-        BindingContext = save;
-    }
+        var saveService = IPlatformApplication.Current?.Services.GetService<SaveService>()
+            ?? throw new InvalidOperationException("SaveService not found in DI container");
 
-    // ปุ่ม Close — ปิด Modal กลับไป CombatPage
-    private async void OnCloseClicked(object sender, EventArgs e)
-    {
-        await Navigation.PopModalAsync();
+        _viewModel = new InventoryPopUpViewModel(save, newLoot, saveService)
+        {
+            ShowActionSheet = async (title, cancel, destroy, buttons) =>
+                await DisplayActionSheet(title, cancel, destroy, buttons),
+
+            ShowConfirm = async (title, message, accept, cancel) =>
+                await DisplayAlert(title, message, accept, cancel),
+
+            ShowAlert = async (title, message) =>
+                await DisplayAlert(title, message, "OK"),
+
+            ClosePopupAction = async () =>
+                await Navigation.PopModalAsync()
+        };
+
+        BindingContext = _viewModel;
     }
 }

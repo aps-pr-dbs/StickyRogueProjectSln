@@ -23,6 +23,7 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("skeleboom.ttf", "skeleboom");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+
             });
 
         // 1. ===== ลงทะเบียน Database & Services =====

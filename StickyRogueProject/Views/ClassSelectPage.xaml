@@ -74,27 +74,26 @@
                         Command="{Binding PreviousClassCommand}" />
 
                     <!-- กรอบรูปภาพตัวละคร -->
-                    <Frame
+                    <Border
                         Grid.Column="1"
                         BackgroundColor="#180E32"
-                        CornerRadius="16"
                         Padding="0"
                         HeightRequest="190"
-                        HasShadow="False"
-                        BorderColor="{Binding AccentColor}">
+                        Stroke="{Binding AccentColor}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
 
                         <Grid>
-                            
                             <!-- Source Binding -->
                             <Image
                                 Source="{Binding ClassImage}"
                                 Aspect="AspectFit"
                                 Margin="24"
                                 IsVisible="true" />
-
                         </Grid>
 
-                    </Frame>
+                    </Border>
 
                     <!-- ลูกศรขวา -->
                     <Button
@@ -143,14 +142,19 @@
 
                 </VerticalStackLayout>
 
-                <!-- ===== Stats Panel ===== -->
-                <Frame
+                <!-- ===== Stats Panel (ปรับปรุงจาก Frame เป็น Border สำหรับ .NET 10) ===== -->
+                <Border
                     BackgroundColor="#110C26"
-                    CornerRadius="14"
                     Padding="18,14"
-                    HasShadow="False"
-                    BorderColor="#271A45"
                     Margin="0,0,0,4">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="14" />
+                    </Border.StrokeShape>
+
+                    <Border.Stroke>
+                        <SolidColorBrush Color="#271A45" />
+                    </Border.Stroke>
 
                     <VerticalStackLayout Spacing="12">
 
@@ -248,6 +252,7 @@
                                 HorizontalOptions="End"
                                 VerticalOptions="Center" />
                         </Grid>
+
                         <!-- MP Row -->
                         <Grid ColumnDefinitions="26,*,Auto" ColumnSpacing="10">
                             <Label Grid.Column="0" Text="💧" FontSize="15" VerticalOptions="Center" />
@@ -257,7 +262,7 @@
                                 FontSize="14"
                                 TextColor="#B0A0C0"
                                 VerticalOptions="Center" />
-                            <!-- StatHp Binding ยังคงเดิม -->
+                            <!-- StatMp Binding ยังคงเดิม -->
                             <Label
                                 Grid.Column="2"
                                 Text="{Binding StatMp}"
@@ -268,9 +273,8 @@
                                 VerticalOptions="Center" />
                         </Grid>
 
-
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>

@@ -117,12 +117,13 @@ public partial class ClassSelectViewModel : ObservableObject
             IsSaving = true;
             var selectedClass = _classList[_currentIndex];
 
-            // สร้าง Save ใหม่พร้อมค่า MP
+            // สร้าง Save ใหม่พร้อมกำหนดค่าพื้นฐานให้ตรงกับโมเดลปัจจุบัน
             var newSave = new ActiveSave
             {
                 ClassName = selectedClass.Name,
                 Level = 1,
-                CurrentStage = 1,
+                CurrentWave = 1,     // อัปเดตเป็น CurrentWave
+                CurrentLoop = 1,
                 MaxHp = selectedClass.BaseMaxHp,
                 CurrentHp = selectedClass.BaseMaxHp,
                 MaxMp = selectedClass.BaseMaxMp,      
@@ -130,7 +131,10 @@ public partial class ClassSelectViewModel : ObservableObject
                 Atk = selectedClass.BaseAtk,
                 Def = selectedClass.BaseDef,
                 Int = selectedClass.BaseInt,
-                Coins = 0
+                Coins = 0,
+                // กำหนด List ว่างให้กระเป๋าเพื่อป้องกัน NullReference
+                Inventory = new List<InventoryItem>(),
+                Artifacts = new List<InventoryItem>()
             };
 
             await _saveService.CreateNewSaveAsync(newSave);
@@ -139,7 +143,7 @@ public partial class ClassSelectViewModel : ObservableObject
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ClassSelectViewModel] Error: {ex.Message}");
-            await Shell.Current.DisplayAlert("ข้อผิดพลาด", "ไม่สามารถเริ่มเกมได้", "ตกลง");
+            await Shell.Current.DisplayAlert("ข้อผิดพลาด", $"ไม่สามารถเริ่มเกมได้: {ex.Message}", "ตกลง");
         }
         finally
         {

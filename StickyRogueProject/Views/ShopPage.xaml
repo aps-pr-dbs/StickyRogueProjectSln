@@ -18,15 +18,16 @@
             Padding="0,48,0,16"
             Spacing="0">
 
-            <!-- แถวเหรียญ — ชิดบนสุด -->
-            <Frame
+            <!-- แถวเหรียญ — ชิดบนสุด (อัปเดตเป็น Border สำหรับ .NET 10) -->
+            <Border
                 HorizontalOptions="Center"
                 BackgroundColor="#1E0F47"
-                CornerRadius="20"
                 Padding="18,8"
-                HasShadow="False"
-                BorderColor="#3A2070"
+                Stroke="#3A2070"
                 Margin="0,0,0,14">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
                 <!-- PlayerCoins Binding — อัปเดตเมื่อซื้อ Artifact สำเร็จ -->
                 <Label
                     Text="{Binding PlayerCoins, StringFormat='💰  {0} เหรียญ'}"
@@ -34,7 +35,7 @@
                     FontAttributes="Bold"
                     TextColor="#FFD700"
                     HorizontalOptions="Center" />
-            </Frame>
+            </Border>
 
             <!-- รูปพ่อค้า — ใช้ Image จริงเมื่อมีไฟล์ merchant.png ใน Resources/Images -->
             <!-- ถ้ายังไม่มีรูป จะแสดง Emoji แทนผ่าน Frame ด้านล่าง -->
@@ -82,22 +83,23 @@
 
                 <!-- Sold Out Banner — แสดงเมื่อซื้อแล้ว 1 ชิ้น (IsSoldOut Binding) -->
                 <!-- IsVisible ผูกกับ IsSoldOut โดยตรง — ไม่ต้อง Converter -->
-                <Frame
+                <Border
                     BackgroundColor="#2A1040"
-                    CornerRadius="10"
                     Padding="10,7"
-                    HasShadow="False"
-                    BorderColor="#5A2A80"
+                    Stroke="#5A2A80"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsSoldOut}"
                     Margin="0,0,0,10">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
                     <Label
                         Text="🔒  ซื้อแล้ว 1 ชิ้น — กลับมาครั้งหน้า!"
                         FontSize="12"
                         FontAttributes="Bold"
                         TextColor="#C890F0"
                         HorizontalOptions="Center" />
-                </Frame>
+                </Border>
 
                 <!-- Spacer เมื่อไม่มี Banner -->
                 <BoxView
@@ -144,14 +146,15 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ArtifactItem">
 
-                                <!-- Card แต่ละ Artifact -->
-                                <Frame
+                                <!-- Card แต่ละ Artifact (อัปเดตเป็น Border) -->
+                                <Border
                                     BackgroundColor="#130D28"
-                                    CornerRadius="14"
                                     Padding="10,12"
-                                    HasShadow="False"
-                                    BorderColor="#241840"
+                                    Stroke="#241840"
                                     Margin="0,0,0,0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="14" />
+                                    </Border.StrokeShape>
 
                                     <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
 
@@ -163,7 +166,6 @@
                                                 WidthRequest="56"
                                                 Aspect="AspectFit"
                                                 IsVisible="True" />
-
                                         </Grid>
 
                                         <!-- ชื่อ Artifact — Name Binding -->
@@ -251,7 +253,7 @@
                                         </Button>
 
                                     </VerticalStackLayout>
-                                </Frame>
+                                </Border>
 
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -261,14 +263,15 @@
 
                 <!-- Feedback Toast — แสดงผลการซื้อชั่วคราว -->
                 <!-- IsFeedbackVisible Binding ควบคุมการแสดง -->
-                <Frame
+                <Border
                     BackgroundColor="#1A0F35"
-                    CornerRadius="10"
                     Padding="14,10"
-                    HasShadow="False"
-                    BorderColor="#3A2070"
+                    Stroke="#3A2070"
                     Margin="16,12,16,0"
                     IsVisible="{Binding IsFeedbackVisible}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
                     <Label
                         Text="{Binding FeedbackMessage}"
                         FontSize="13"
@@ -276,7 +279,7 @@
                         HorizontalOptions="Fill"
                         HorizontalTextAlignment="Center"
                         LineHeight="1.4" />
-                </Frame>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>

@@ -35,7 +35,7 @@ public class HistoryService
             {
                 ClassName = completedRun.ClassName,
                 LevelReached = completedRun.Level,
-                StageDiedAt = completedRun.CurrentStage,
+                StageDiedAt = completedRun.CurrentWave, // เปลี่ยนจาก CurrentStage เป็น CurrentWave
                 CoinsAtDeath = completedRun.Coins,
                 CauseOfDeath = causeOfDeath,
                 DiedAt = DateTime.UtcNow

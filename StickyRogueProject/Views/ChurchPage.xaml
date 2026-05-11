@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-    หน้า Safe Zone หลังผ่าน Boss
-    ผู้เล่นฮีลเต็ม, บันทึก, หรือสู้ต่อ Loop ถัดไป
-    ไม่มี Business Logic → ทุกอย่างอยู่ใน ChurchViewModel
--->
+<!-- หน้า Safe Zone หลังผ่าน Boss: ผู้เล่นฮีลเต็ม, บันทึก, หรือสู้ต่อ Loop ถัดไป -->
+<!-- ไม่มี Business Logic → ทุกอย่างอยู่ใน ChurchViewModel -->
 <ContentPage
     x:Class="StickyRogueProject.Views.ChurchPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -43,13 +40,20 @@
                 HorizontalTextAlignment="Center"
                 LineHeight="1.5" />
 
-            <!-- ===== สถานะผู้เล่นหลัง Heal ===== -->
-            <Frame
+            <!-- ===== สถานะผู้เล่นหลัง Heal (อัปเดตเป็น Border สำหรับ .NET 10) ===== -->
+            <Border
                 BackgroundColor="#130D28"
-                CornerRadius="16"
-                Padding="20,16"
-                HasShadow="False"
-                BorderColor="#2A1D4A">
+                Padding="20,16">
+
+                <!-- กำหนดความโค้งของกรอบ -->
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+
+                <!-- กำหนดสีกรอบ -->
+                <Border.Stroke>
+                    <SolidColorBrush Color="#2A1D4A" />
+                </Border.Stroke>
 
                 <VerticalStackLayout Spacing="12">
 
@@ -104,7 +108,7 @@
                     </HorizontalStackLayout>
 
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- ===== ActivityIndicator ขณะบันทึก ===== -->
             <ActivityIndicator
@@ -148,9 +152,9 @@
                 BorderColor="#3A2060"
                 BorderWidth="1" />
 
-            <!-- คำเตือน Permadeath -->
+            <!-- คำเตือน Permadeath (เปลี่ยน \n เป็น &#x0a; ตามมาตรฐาน XAML) -->
             <Label
-                Text="⚠️  ออกระหว่างการต่อสู้โดยไม่บันทึก\nข้อมูลจะไม่ถูกเก็บ"
+                Text="⚠️  ออกระหว่างการต่อสู้โดยไม่บันทึก&#x0a;ข้อมูลจะไม่ถูกเก็บ"
                 FontSize="11"
                 TextColor="#4A3A5A"
                 HorizontalOptions="Fill"
