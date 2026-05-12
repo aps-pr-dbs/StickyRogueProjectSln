@@ -1,30 +1,57 @@
-// Code-Behind ทำหน้าที่เพียง:
-//   1. รับ ViewModel ผ่าน Dependency Injection
-//   2. ผูก BindingContext
-//   3. จัดการปุ่ม Back ที่ต้อง Navigate กลับ (เหตุผล: Shell.NavBarIsVisible="False")
-
+using StickyRogueProject.Services;
 using StickyRogueProject.ViewModels;
 
 namespace StickyRogueProject.Views;
 
 public partial class ClassSelectPage : ContentPage
 {
-    // Constructor รับ ViewModel จาก DI Container
-    public ClassSelectPage(ClassSelectViewModel viewModel)
+    private readonly ClassSelectViewModel _viewModel;
+    private readonly SoundService _soundService;
+    private readonly SaveService _saveService; // ⚡ ต้องเพิ่มตัวนี้ด้วยเพราะมีการใช้ใน selectClassBtnClicked
+
+    // Constructor รับ ViewModel และ Services ต่างๆ จาก DI Container
+    public ClassSelectPage(ClassSelectViewModel viewModel, SoundService soundService, SaveService saveService)
     {
         InitializeComponent();
 
+        _viewModel = viewModel;
+        _soundService = soundService;
+        _saveService = saveService;
+
         // ผูก ViewModel กับ Page
-        BindingContext = viewModel;
+        BindingContext = _viewModel;
     }
 
-    // OnBackClicked — จัดการการกดปุ่ม Back ที่วาดเองใน XAML
-    // เนื่องจากซ่อน NavBar ไว้ (Shell.NavBarIsVisible="False")
-    // จึงต้องวาดปุ่ม Back เองและเรียก GoToAsync จาก Code-Behind
-    // การ Navigate กลับไม่ถือเป็น Business Logic จึงทำได้ในที่นี้
+    // ฟังก์ชันเมื่อกดเลือก Class
+    private async void selectClassRightBtnClicked(object sender, EventArgs e)
+    {
+        // ⚡ 1. เล่นเสียงคลิก
+        _soundService.PlayClickSound();
+    }
+
+    private async void selectClassleftBtnClicked(object sender, EventArgs e)
+    {
+        // ⚡ 1. เล่นเสียงคลิก
+        _soundService.PlayClickSound();
+
+        // ⚡ 2. เปิด Popup 
+    }
+
+    private async void selectClassBtnClicked(object sender, EventArgs e)
+    {
+        // ⚡ 1. เล่นเสียงคลิก
+        _soundService.PlaySelectSound();
+
+    }
+
+
+    // OnBackClicked — จัดการการกดปุ่ม Back
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        // ".." หมายถึงย้อนกลับไปหน้าก่อนหน้าใน Navigation Stack
+        // ⚡ 1. เล่นเสียงคลิกก่อนย้อนกลับ
+        _soundService.PlayClickSound();
+
+        // ⚡ 2. ย้อนกลับไปหน้าหลัก
         await Shell.Current.GoToAsync("MainPage");
     }
 }

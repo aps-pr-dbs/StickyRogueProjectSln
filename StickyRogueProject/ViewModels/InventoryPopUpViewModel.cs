@@ -11,7 +11,7 @@ namespace StickyRogueProject.ViewModels;
 public partial class InventorySlotUI : ObservableObject
 {
     public int Index { get; set; }
-    public InventoryItem? Item { get; set; }
+    public InventoryArtifac? Item { get; set; }
 
     [ObservableProperty] private string _icon = string.Empty;
     [ObservableProperty] private string _name = string.Empty;
@@ -30,7 +30,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
     private const int MaxArtifactSlots = 6;
 
     private readonly ActiveSave _save;
-    private readonly List<InventoryItem> _newLoot;
+    private readonly List<InventoryArtifac> _newLoot;
     private readonly SaveService _saveService;
     private bool IsBagFull => _save.Inventory?.Count >= MaxBagSlots;
     private bool IsArtifactsFull => _save.Artifacts?.Count >= MaxArtifactSlots;
@@ -57,14 +57,14 @@ public partial class InventoryPopUpViewModel : ObservableObject
     public ObservableCollection<InventorySlotUI> BagSlots { get; } = new();
     public ObservableCollection<InventorySlotUI> ArtifactSlots { get; } = new();
 
-    public InventoryPopUpViewModel(ActiveSave save, List<InventoryItem> newLoot, SaveService saveService)
+    public InventoryPopUpViewModel(ActiveSave save, List<InventoryArtifac> newLoot, SaveService saveService)
     {
         _save = save;
-        _newLoot = newLoot ?? new List<InventoryItem>();
+        _newLoot = newLoot ?? new List<InventoryArtifac>();
         _saveService = saveService;
 
-        _save.Inventory ??= new List<InventoryItem>();
-        _save.Artifacts ??= new List<InventoryItem>(); // เพิ่ม List<InventoryItem> สำหรับ Artifacts ใน ActiveSave ด้วยนะครับ
+        _save.Inventory ??= new List<InventoryArtifac>();
+        _save.Artifacts ??= new List<InventoryArtifac>(); // เพิ่ม List<InventoryItem> สำหรับ Artifacts ใน ActiveSave ด้วยนะครับ
 
         // กำหนดช่อง Bag 6 ช่อง
         for (int i = 0; i < MaxBagSlots; i++)
@@ -147,7 +147,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
         }
     }
 
-    private static void UpdateSlot(InventorySlotUI slot, InventoryItem? item, bool isArtifactSlot)
+    private static void UpdateSlot(InventorySlotUI slot, InventoryArtifac? item, bool isArtifactSlot)
     {
         slot.Item = item;
         slot.HasItem = item is not null;
@@ -314,7 +314,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
 
     // ── Logic ────────────────────────────────────────────
 
-    private bool UseItem(InventoryItem item)
+    private bool UseItem(InventoryArtifac item)
     {
         if (!item.IsUsable) return false;
 
@@ -335,7 +335,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
         return used;
     }
 
-    private void EquipArtifact(InventoryItem item)
+    private void EquipArtifact(InventoryArtifac item)
     {
         if (!item.IsEquipment || IsArtifactsFull) return;
 
@@ -345,7 +345,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
         // นำโบนัสมาบวกให้ตัวละคร
         _save.Atk += item.BonusAtk;
         _save.Def += item.BonusDef;
-        _save.Int += item.BonusMagic;
+        _save.Int += item.BonusInt;
         _save.MaxHp += item.BonusMaxHp;
         _save.MaxMp += item.BonusMaxMp;
         // กรณี MaxHp เด้งขึ้น อาจจะบวกเลือดตามไปด้วย
@@ -353,14 +353,14 @@ public partial class InventoryPopUpViewModel : ObservableObject
         _save.CurrentMp += item.BonusMaxMp;
     }
 
-    private void UnequipArtifact(InventoryItem item)
+    private void UnequipArtifact(InventoryArtifac item)
     {
         if (IsBagFull) return;
 
         // Calculate total bonuses from all current artifacts
         int totalAtkBonus = _save.Artifacts.Sum(a => a.BonusAtk);
         int totalDefBonus = _save.Artifacts.Sum(a => a.BonusDef);
-        int totalIntBonus = _save.Artifacts.Sum(a => a.BonusMagic);
+        int totalIntBonus = _save.Artifacts.Sum(a => a.BonusInt);
         int totalHpBonus = _save.Artifacts.Sum(a => a.BonusMaxHp);
         int totalMpBonus = _save.Artifacts.Sum(a => a.BonusMaxMp);
 
@@ -377,7 +377,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
         // Recalculate bonuses without this artifact
         int newTotalAtkBonus = _save.Artifacts.Sum(a => a.BonusAtk);
         int newTotalDefBonus = _save.Artifacts.Sum(a => a.BonusDef);
-        int newTotalIntBonus = _save.Artifacts.Sum(a => a.BonusMagic);
+        int newTotalIntBonus = _save.Artifacts.Sum(a => a.BonusInt);
         int newTotalHpBonus = _save.Artifacts.Sum(a => a.BonusMaxHp);
         int newTotalMpBonus = _save.Artifacts.Sum(a => a.BonusMaxMp);
 
@@ -395,7 +395,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
         _save.Inventory.Add(item);
     }
 
-    private void DiscardArtifact(InventoryItem item)
+    private void DiscardArtifact(InventoryArtifac item)
     {
         // Try to find artifact in Artifacts list (equipped)
         var artifactToRemove = _save.Artifacts.FirstOrDefault(a => a.Name == item.Name);
@@ -417,7 +417,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
             // Calculate total bonuses from all current equipped artifacts
             int totalAtkBonus = _save.Artifacts.Sum(a => a.BonusAtk);
             int totalDefBonus = _save.Artifacts.Sum(a => a.BonusDef);
-            int totalIntBonus = _save.Artifacts.Sum(a => a.BonusMagic);
+            int totalIntBonus = _save.Artifacts.Sum(a => a.BonusInt);
             int totalHpBonus = _save.Artifacts.Sum(a => a.BonusMaxHp);
             int totalMpBonus = _save.Artifacts.Sum(a => a.BonusMaxMp);
 
@@ -434,7 +434,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
             // Recalculate bonuses without this artifact
             int newTotalAtkBonus = _save.Artifacts.Sum(a => a.BonusAtk);
             int newTotalDefBonus = _save.Artifacts.Sum(a => a.BonusDef);
-            int newTotalIntBonus = _save.Artifacts.Sum(a => a.BonusMagic);
+            int newTotalIntBonus = _save.Artifacts.Sum(a => a.BonusInt);
             int newTotalHpBonus = _save.Artifacts.Sum(a => a.BonusMaxHp);
             int newTotalMpBonus = _save.Artifacts.Sum(a => a.BonusMaxMp);
 
@@ -457,27 +457,27 @@ public partial class InventoryPopUpViewModel : ObservableObject
     }
 
     // ── Helper Methods ────────────────────────────────────
-    private static Color GetSlotColor(InventoryItem item) => item.Type switch
+    private static Color GetSlotColor(InventoryArtifac item) => item.Type switch
     {
         ItemType.Consumable => Color.FromArgb("#E8F5E9"),
         ItemType.Accessory => Color.FromArgb("#F3E5F5"), // ให้ถือว่า Artifact คือ Accessory
         _ => Color.FromArgb("#E8E8E8"),
     };
 
-    private static string GetItemTag(InventoryItem item)
+    private static string GetItemTag(InventoryArtifac item)
     {
         var tags = new List<string>();
         if (item.HpRestore > 0) tags.Add($"HP+{item.HpRestore}");
         if (item.MpRestore > 0) tags.Add($"MP+{item.MpRestore}");
         if (item.BonusAtk > 0) tags.Add($"ATK+{item.BonusAtk}");
         if (item.BonusDef > 0) tags.Add($"DEF+{item.BonusDef}");
-        if (item.BonusMagic > 0) tags.Add($"INT+{item.BonusMagic}");
+        if (item.BonusInt > 0) tags.Add($"INT+{item.BonusInt}");
 
         if (tags.Count == 0) return "Artifact";
         return string.Join(",", tags);
     }
 
-    private static string GetUsePreview(InventoryItem item)
+    private static string GetUsePreview(InventoryArtifac item)
     {
         var parts = new List<string>();
         if (item.HpRestore > 0) parts.Add($"HP+{item.HpRestore}");

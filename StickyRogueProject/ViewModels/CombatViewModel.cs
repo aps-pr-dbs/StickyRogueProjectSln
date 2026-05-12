@@ -40,7 +40,7 @@ public partial class CombatViewModel : ObservableObject
     [ObservableProperty] private double _characterHpProgress = 1.0;
     [ObservableProperty] private string _characterMpText = "0/0";
     [ObservableProperty] private double _characterMpProgress = 1.0;
-    [ObservableProperty] private string _characterImageSource = "player.png";
+    [ObservableProperty] private string _characterImageSource = string.Empty;
 
     [ObservableProperty] private string _xpDisplay = "0 / 100";
     [ObservableProperty] private double _characterXpProgress = 0.0;
@@ -89,10 +89,13 @@ public partial class CombatViewModel : ObservableObject
             CurrentWave = _save.CurrentWave;
             CurrentLoop = _save.CurrentLoop;
 
-            RefreshPlayerUi();
-            SpawnEnemyForWave(CurrentWave);
-            UpdateWaveLabel();
-            AppendLog($"Wave {CurrentWave} — {EnemyName} ปรากฏตัว!");
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                RefreshPlayerUi();
+                SpawnEnemyForWave(CurrentWave);
+                UpdateWaveLabel();
+                AppendLog($"Wave {CurrentWave} — {EnemyName} ปรากฏตัว!");
+            });
         }
         catch (Exception ex)
         {
@@ -185,7 +188,7 @@ public partial class CombatViewModel : ObservableObject
                 return;
             }
 
-            AppendLog("❌ หลบหนีไม่ได้!");
+            AppendLog("❌ หลบหนีไม่สำเร็จ!");
             await DoEnemyTurnAsync(runFailPenalty: true);
         }
         finally { IsBusy = false; }
@@ -292,9 +295,10 @@ public partial class CombatViewModel : ObservableObject
 
         AppendLog($"✅ ชนะ! +{_enemy.XpReward} XP  +{_enemy.CoinReward * 0.5} เหรียญ");
 
-        if (_rng.NextDouble() < 0.50)
+        // โอกาส 75% ที่จะมี Potion ตก
+        if (_rng.NextDouble() < 0.75)
         {
-            if (_rng.NextDouble() < 0.50)
+            if (_rng.NextDouble() < 0.70)
             {
                 _save.HpPotionCount++;
                 AppendLog("💊 ได้รับ HP Potion!");
@@ -306,16 +310,7 @@ public partial class CombatViewModel : ObservableObject
             }
         }
 
-        // 10% chance to drop ArtifactItem
-        if (_rng.NextDouble() < 0.10)
-        {
-            var artifact = GetRandomArtifact();
-            if (artifact != null)
-            {
-                _save.Artifacts.Add(artifact);
-                AppendLog($"✨ ได้รับ Artifact: {artifact.Name}!");
-            }
-        }
+        // ⚡ ลบส่วนดรอป Artifact ออกแล้วตามคำขอครับ
 
         _save.CurrentWave = CurrentWave;
         _save.CurrentLoop = CurrentLoop;
@@ -338,8 +333,8 @@ public partial class CombatViewModel : ObservableObject
 
         if (CurrentWave == 9 && !skipReward)
         {
-            AppendLog("🏪 ทะลุ Wave 9! เข้าร้านค้า...");
-            await SafeAlert("Wave 9 ผ่านแล้ว!", "แวะร้านค้าเพื่อเตรียมพร้อมก่อน Boss!");
+            AppendLog("🏪 กำจัดศัตรูตัวที่ 9! เข้าร้านค้า...");
+            await SafeAlert("คุณกำจัดศัตรูตัวที่ 9 ผ่านแล้ว!", "แวะร้านค้าเพื่อเตรียมพร้อมก่อน Boss!");
             CurrentWave = 10;
             _save.CurrentWave = 10;
             await _saveService.UpdateSaveAsync(_save);
@@ -350,7 +345,6 @@ public partial class CombatViewModel : ObservableObject
 
         if (CurrentWave == 10 && !skipReward)
         {
-            // ── ด่านที่ 100 = Loop 10, Wave 10 → Game Clear ──
             if (CurrentLoop >= 10)
             {
                 AppendLog("🏆 ราชาปีศาจพ่ายแพ้! คุณพิชิตทุกด่านแล้ว!");
@@ -378,21 +372,18 @@ public partial class CombatViewModel : ObservableObject
                 return;
             }
 
-            // Loop ปกติ → ไป Church
             AppendLog("👑 Boss พ่ายแพ้! ผ่าน Loop นี้แล้ว!");
             await SafeAlert("👑 Boss Defeated!", $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่ Church...");
 
-            // ⚡ แก้บัคติดลูป: อัปเดตเซฟล่วงหน้าให้กลายเป็นลูปถัดไปทันที!
             CurrentLoop++;
             CurrentWave = 1;
             _save!.CurrentLoop = CurrentLoop;
             _save.CurrentWave = CurrentWave;
 
-            // ⚡ แถม: ฮีลเลือดและมานาให้เต็มก่อนส่งไปเตรียมตัวลุยลูปใหม่
             _save.CurrentHp = _save.MaxHp;
             _save.CurrentMp = _save.MaxMp;
 
-            await _saveService.UpdateSaveAsync(_save); // บันทึกเซฟเป็นลูปใหม่เรียบร้อย!
+            await _saveService.UpdateSaveAsync(_save);
 
             await Shell.Current.GoToAsync("ChurchPage");
             return;
@@ -405,30 +396,31 @@ public partial class CombatViewModel : ObservableObject
 
         SpawnEnemyForWave(CurrentWave);
         UpdateWaveLabel();
-        AppendLog($"── Wave {CurrentWave} เริ่มต้น! {EnemyName} ปรากฏตัว! ──");
+        AppendLog($"ศัตรูตัวที่ {CurrentWave} {EnemyName} ปรากฏตัว! ");
     }
 
-    // ── Wave 5 Event Handler (อัปเดต 50/50 Casino) ──────────
     private async Task HandleWave5EventAsync()
     {
         double roll = _rng.NextDouble();
 
-        if (roll < 0.15) // 15% Casino
+        if (roll < 0.15)
         {
             AppendLog("🎰 โชคชะตาพาไป Casino!");
 
-            // ⚡ เปลี่ยนมาเรียกใช้ Popup สวยๆ แทน Alert เดิม ⚡
             var casinoPopup = new Views.PopUp.CasinoEventPopUpPage();
             await App.Current.MainPage.ShowPopupAsync(casinoPopup);
+
+            bool isBlackjack = _rng.NextDouble() < 0.5;
+            string gameName = isBlackjack ? "BlackjackPage" : "HighLowPage";
 
             CurrentWave = 6;
             _save!.CurrentWave = 6;
             await _saveService.UpdateSaveAsync(_save);
-            await Shell.Current.GoToAsync("CasinoMenu");
+            await Shell.Current.GoToAsync(gameName);
             SpawnEnemyForWave(6);
             UpdateWaveLabel();
         }
-        else // 50% Random Event Card// 50% Random Event Card // 50% Random Event Card
+        else
         {
             var gameEvent = EventPool.GetRandomEvent();
             AppendLog($"📜 เหตุการณ์บังคับ: {gameEvent.Title}");
@@ -557,7 +549,6 @@ public partial class CombatViewModel : ObservableObject
             var vm = new GameOverViewModel(EnemyName, CurrentLoop, CurrentWave);
             var page = new GameOverPage(vm);
             Application.Current.MainPage = page;
-
         });
     }
 
@@ -566,24 +557,31 @@ public partial class CombatViewModel : ObservableObject
         if (_save is null) return;
 
         CurrentXp += xp;
-        XpToNextLevel = CalculateXpThreshold(_save.Level);
+        bool leveledUp = false;
 
-        if (CurrentXp >= XpToNextLevel)
+        while (CurrentXp >= XpToNextLevel)
         {
             CurrentXp -= XpToNextLevel;
             _save.Level++;
-            _save.Atk += 8;
-            _save.Def += 5;
-            _save.Int += 8;
+
+            _save.Atk += 5;
+            _save.Def += 6;
+            _save.Int += 5;
             _save.MaxHp += 10;
+            _save.MaxMp += 5;
+
             _save.CurrentHp = _save.MaxHp;
-            _save.MaxMp += 20;
             _save.CurrentMp = _save.MaxMp;
 
-            AppendLog($"🎉 Level Up! Lv.{_save.Level}  Stats เพิ่ม + ฮีลเต็ม!");
+            XpToNextLevel = CalculateXpThreshold(_save.Level);
+            leveledUp = true;
         }
 
-        XpToNextLevel = CalculateXpThreshold(_save.Level);
+        if (leveledUp)
+        {
+            AppendLog($"🎉 Level Up! Lv.{_save.Level} คุณแข็งแกร่งขึ้น!");
+        }
+
         XpDisplay = $"{CurrentXp} / {XpToNextLevel}";
         CharacterXpProgress = XpToNextLevel > 0
             ? Math.Clamp((double)CurrentXp / XpToNextLevel, 0.0, 1.0)
@@ -611,7 +609,19 @@ public partial class CombatViewModel : ObservableObject
         SpawnEnemyForWave(1);
         UpdateWaveLabel();
         RefreshPlayerUi();
-        AppendLog($"🌟 Loop {CurrentLoop} เริ่มต้น! ศัตรูแข็งแกร่งขึ้น!");
+        AppendLog($"🌟 รอบที่ {CurrentLoop} เริ่มต้น! ศัตรูแข็งแกร่งขึ้น!");
+    }
+
+    public async Task ReloadSaveDataAsync()
+    {
+        if (_save is null) return;
+
+        var freshSave = await _saveService.LoadSaveAsync();
+        if (freshSave is not null)
+        {
+            _save = freshSave;
+            RefreshPlayerUi();
+        }
     }
 
     private void SpawnEnemyForWave(int wave)
@@ -623,7 +633,7 @@ public partial class CombatViewModel : ObservableObject
         RefreshEnemyUi();
     }
 
-    private void RefreshPlayerUi()
+    public void RefreshPlayerUi()
     {
         if (_save is null) return;
 
@@ -634,10 +644,16 @@ public partial class CombatViewModel : ObservableObject
             case "Warrior": CharacterImageSource = "fighter.png"; break;
             case "Mage": CharacterImageSource = "magecat.png"; break;
             case "Rogue": CharacterImageSource = "therogue.png"; break;
-            default: CharacterImageSource = "player.png"; break;
         }
 
         CharacterLevel = _save.Level;
+
+        XpToNextLevel = CalculateXpThreshold(_save.Level);
+        XpDisplay = $"{CurrentXp} / {XpToNextLevel}";
+        CharacterXpProgress = XpToNextLevel > 0
+            ? Math.Clamp((double)CurrentXp / XpToNextLevel, 0.0, 1.0)
+            : 0.0;
+
         CharacterHpText = $"{_save.CurrentHp}/{_save.MaxHp}";
         CharacterHpProgress = _save.MaxHp > 0
             ? Math.Clamp((double)_save.CurrentHp / _save.MaxHp, 0.0, 1.0)
@@ -665,8 +681,8 @@ public partial class CombatViewModel : ObservableObject
     private void UpdateWaveLabel()
     {
         WaveLabel = CurrentWave == 10
-            ? $"👑 BOSS  (Loop {CurrentLoop})"
-            : $"Wave {CurrentWave} / 10  ·  Loop {CurrentLoop}";
+            ? $"👑 BOSS ของรอบการต่อสู้ที่ {CurrentLoop}"
+            : $"ศัตรูตัวที่ {CurrentWave} / 10  ·  ของรอบการต่อสู้ที่ {CurrentLoop}";
     }
 
     private void AppendLog(string message)
@@ -676,59 +692,6 @@ public partial class CombatViewModel : ObservableObject
     }
 
     private bool CanAct() => !IsBusy;
-
-    private InventoryItem? GetRandomArtifact()
-    {
-        // List of available artifacts to drop
-        var availableArtifacts = new[]
-        {
-            new InventoryItem
-            {
-                Name = "Sword of Power",
-                Icon = "⚔️",
-                Type = ItemType.Weapon,
-                BonusAtk = 15,
-                Description = "+15 ATK",
-            },
-            new InventoryItem
-            {
-                Name = "Guardian's Shield",
-                Icon = "🛡️",
-                Type = ItemType.Armor,
-                BonusDef = 12,
-                BonusMaxHp = 30,
-                Description = "+12 DEF, +30 Max HP",
-            },
-            new InventoryItem
-            {
-                Name = "Mage's Orb",
-                Icon = "🔮",
-                Type = ItemType.Armor,
-                BonusMagic = 18,
-                BonusMaxMp = 40,
-                Description = "+18 Magic, +40 Max MP",
-            },
-            new InventoryItem
-            {
-                Name = "Dragon's Fang",
-                Icon = "⚡",
-                Type = ItemType.Weapon,
-                BonusAtk = 20,
-                BonusMagic = 5,
-                Description = "+20 ATK, +5 Magic",
-            },
-            new InventoryItem
-            {
-                Name = "Stone of Resilience",
-                Icon = "🪨",
-                Type = ItemType.Armor,
-                BonusDef = 15,
-                Description = "+15 DEF",
-            },
-        };
-
-        return availableArtifacts[_rng.Next(availableArtifacts.Length)];
-    }
 
     private async Task SafeAlert(string title, string message)
     {

@@ -4,11 +4,6 @@ using StickyRogueProject.Models;
 
 namespace StickyRogueProject.Services;
 
-// SaveService 
-// ทำหน้าที่ บันทึก, โหลด, และลบ Save ปัจจุบัน
-// กฎ Permadeath ที่ต้องจำ:
-// 1. โหลด Save : ถ้าไม่มีข้อมูล = ยังไม่เคยเล่น
-// 2. ตัวละครตาย : ต้องเรียก DeleteSaveAsync() เสมอ
 public class SaveService
 {
     private readonly SQLiteAsyncConnection _db;
@@ -47,8 +42,8 @@ public class SaveService
 
             // ตรวจสอบให้แน่ใจว่าปฏิบัติตามกฎเกมก่อน Insert
             save.Coins = 0;           // เหรียญเริ่มต้นที่ 0 เสมอ
-            save.Inventory = new List<InventoryItem>(); // ล้างกระเป๋า
-            save.Artifacts = new List<InventoryItem>(); // ล้าง Artifact
+            save.Inventory = new List<InventoryArtifac>(); // ล้างกระเป๋า
+            save.Artifacts = new List<InventoryArtifac>(); // ล้าง Artifact
 
             // บันทึกลงฐานข้อมูล
             await _db.InsertAsync(save);

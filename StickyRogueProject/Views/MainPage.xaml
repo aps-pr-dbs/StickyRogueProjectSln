@@ -9,6 +9,21 @@
     BackgroundColor="#0D0A1A">
 
     <Grid RowDefinitions="*,Auto,*">
+        
+        <Button
+            x:Name="SoundToggleBtn"
+            Grid.Row="0"
+            Text="🔊"
+            Clicked="OnToggleSoundClicked"
+            BackgroundColor="Transparent"
+            TextColor="#E8D5A3"
+            FontSize="24"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="0, 45, 24, 0"
+            WidthRequest="48"
+            HeightRequest="48"
+            ZIndex="1" />
 
         <VerticalStackLayout
             Grid.Row="0"
@@ -58,6 +73,7 @@
             <Button
                 Text="▶ START GAME"
                 Command="{Binding NewGameCommand}"
+                Clicked="OnStartGameBtnClicked"
                 BackgroundColor="#4A2D7A"
                 TextColor="#E8D5A3"
                 FontSize="15"

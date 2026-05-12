@@ -12,12 +12,12 @@ public partial class InventoryPopUpPage : ContentPage
     private bool _isClosing = false;
 
     public InventoryPopUpPage(ActiveSave save)
-        : this(save, new List<InventoryItem>()) { }
+        : this(save, new List<InventoryArtifac>()) { }
 
     public InventoryPopUpPage(ActiveSave save, List<string> newLootStrings)
-        : this(save, newLootStrings.Select(InventoryItem.FromString).ToList()) { }
+        : this(save, newLootStrings.Select(InventoryArtifac.FromString).ToList()) { }
 
-    public InventoryPopUpPage(ActiveSave save, List<InventoryItem> newLoot)
+    public InventoryPopUpPage(ActiveSave save, List<InventoryArtifac> newLoot)
     {
         InitializeComponent();
 

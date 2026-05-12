@@ -5,6 +5,7 @@ using StickyRogueProject.ViewModels;
 using StickyRogueProject.Views;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using CommunityToolkit.Maui;
+using Plugin.Maui.Audio;
 
 namespace StickyRogueProject;
 
@@ -40,30 +41,29 @@ public static class MauiProgram
         builder.Services.AddTransient<ClassSelectViewModel>();
         builder.Services.AddTransient<ShopViewModel>();
         builder.Services.AddTransient<RopViewModel>();
+        builder.Services.AddTransient<ViewModels.StoryViewModel>();
+        builder.Services.AddTransient<CombatViewModel>();
+        builder.Services.AddTransient<ChurchViewModel>();
 
         // 3. ===== ลงทะเบียน Views =====
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<ClassSelectPage>();
         builder.Services.AddTransient<ShopPage>();
         builder.Services.AddTransient<RopPage>();
-
-        builder.Services.AddTransient<CombatViewModel>();
-        builder.Services.AddTransient<ChurchViewModel>();
         builder.Services.AddTransient<CombatPage>();
         builder.Services.AddTransient<ChurchPage>();
-
         builder.Services.AddTransient<Views.StoryPage>();
-        builder.Services.AddTransient<ViewModels.StoryViewModel>();
 
+        builder.Services.AddSingleton<SoundService>();
+        builder.Services.AddSingleton<IAudioManager, AudioManager>();
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
 
-        // 4. ===== สั่ง Build แอปแค่ "ครั้งเดียว" (แก้บั๊ก Code 0) =====
         var app = builder.Build();
 
-        // 5. ===== Initialize Database (ทำงานอยู่เบื้องหลัง) =====
+        // ===== Initialize Database (ทำงานอยู่เบื้องหลัง) =====
         Task.Run(async () =>
         {
             var dbService = app.Services.GetRequiredService<DatabaseService>();

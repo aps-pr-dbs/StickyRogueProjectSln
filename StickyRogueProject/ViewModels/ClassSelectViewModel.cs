@@ -133,8 +133,8 @@ public partial class ClassSelectViewModel : ObservableObject
                 Int = selectedClass.BaseInt,
                 Coins = 0,
                 // กำหนด List ว่างให้กระเป๋าเพื่อป้องกัน NullReference
-                Inventory = new List<InventoryItem>(),
-                Artifacts = new List<InventoryItem>()
+                Inventory = new List<InventoryArtifac>(),
+                Artifacts = new List<InventoryArtifac>()
             };
 
             await _saveService.CreateNewSaveAsync(newSave);

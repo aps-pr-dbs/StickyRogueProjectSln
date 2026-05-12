@@ -90,14 +90,14 @@ public static class CasinoRigService
     };
 
     // ── ResolveWin ───────────────────────────────────────────
-    // 75% → ชนะจริง (ใน 75% มี 25% โอกาส Double Payout)
-    // 25% → โกง! เสียเงิน + Debuff
+    // 80% → ชนะจริง (ใน 80% มี 20% โอกาส Double Payout)
+    // 20% → โกง! เสียเงิน + Debuff
     public static (CasinoWinResult Result, int CoinDelta, string DealerLine, CasinoDebuff? Debuff)
         ResolveWin(int betAmount)
     {
         double roll = _rng.NextDouble();
 
-        if (roll < 0.25) // 25% โกง
+        if (roll < 0.20) // 20% โกง
         {
             var debuff = (CasinoDebuff)_rng.Next(0, 5);
             string taunt = CheatTaunts[_rng.Next(CheatTaunts.Length)];
@@ -105,8 +105,8 @@ public static class CasinoRigService
             return (CasinoWinResult.Cheated, -betAmount, taunt, debuff);
         }
 
-        // 75% ชนะ — ตรวจ Jackpot
-        if (_rng.NextDouble() < 0.25) // 25% ใน 75% = Double
+        // 80% ชนะ — ตรวจ Jackpot
+        if (_rng.NextDouble() < 0.20) // 20% ใน 80% = Double
         {
             string jackpotTaunt = WinTaunts[_rng.Next(WinTaunts.Length)];
             return (CasinoWinResult.DoubleWin, betAmount * 2, jackpotTaunt, null);

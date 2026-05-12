@@ -38,10 +38,10 @@ public class ActiveSave
 
     // 1. Property สำหรับใช้งานในโค้ด
     [Ignore]
-    public List<InventoryItem> Inventory { get; set; } = new();
+    public List<InventoryArtifac> Inventory { get; set; } = new();
 
     [Ignore]
-    public List<InventoryItem> Artifacts { get; set; } = new();
+    public List<InventoryArtifac> Artifacts { get; set; } = new();
 
 
     // 2. Property สำหรับ Save ลง SQLite (แปลง List เป็น JSON String)
@@ -49,15 +49,15 @@ public class ActiveSave
     {
         get => JsonSerializer.Serialize(Inventory);
         set => Inventory = string.IsNullOrWhiteSpace(value)
-            ? new List<InventoryItem>()
-            : JsonSerializer.Deserialize<List<InventoryItem>>(value) ?? new List<InventoryItem>();
+            ? new List<InventoryArtifac>()
+            : JsonSerializer.Deserialize<List<InventoryArtifac>>(value) ?? new List<InventoryArtifac>();
     }
 
     public string ArtifactsJson
     {
         get => JsonSerializer.Serialize(Artifacts);
         set => Artifacts = string.IsNullOrWhiteSpace(value)
-            ? new List<InventoryItem>()
-            : JsonSerializer.Deserialize<List<InventoryItem>>(value) ?? new List<InventoryItem>();
+            ? new List<InventoryArtifac>()
+            : JsonSerializer.Deserialize<List<InventoryArtifac>>(value) ?? new List<InventoryArtifac>();
     }
 }

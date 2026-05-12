@@ -92,13 +92,13 @@ public partial class RopViewModel : ObservableObject
         if (save is null) return;
 
         // ดึงกระเป๋ามาใช้งาน
-        save.Inventory ??= new List<InventoryItem>();
+        save.Inventory ??= new List<InventoryArtifac>();
 
         // สุ่มของรางวัล
         var reward = _artifactPool[_random.Next(_artifactPool.Count)];
 
         // สร้างเป็น Item จริงๆ เพื่อใส่เข้ากระเป๋าผู้เล่น
-        var newItem = new InventoryItem
+        var newItem = new InventoryArtifac
         {
             Name = reward.Name,
             Icon = reward.Icon,
@@ -111,7 +111,7 @@ public partial class RopViewModel : ObservableObject
         {
             case "ATK": newItem.BonusAtk = reward.StatBonus; break;
             case "DEF": newItem.BonusDef = reward.StatBonus; break;
-            case "INT": newItem.BonusMagic = reward.StatBonus; break;
+            case "INT": newItem.BonusInt = reward.StatBonus; break;
             case "MAXMP": newItem.BonusMaxMp = reward.StatBonus; break;
         }
 

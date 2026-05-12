@@ -1,18 +1,23 @@
-using StickyRogueProject.ViewModels;
 using CommunityToolkit.Maui.Views;
+using StickyRogueProject.Services;
+using StickyRogueProject.ViewModels;
 
 namespace StickyRogueProject.Views;
 
 public partial class CombatPage : ContentPage
 {
     private readonly CombatViewModel _viewModel;
+    private readonly SoundService _soundService;
+    private readonly SaveService _saveService; // ⚡ ต้องเพิ่มตัวนี้ด้วยเพราะมีการใช้ใน selectClassBtnClicked
     private bool _isInitialized = false;
 
-    public CombatPage(CombatViewModel viewModel)
+    public CombatPage(CombatViewModel viewModel, SoundService soundService, SaveService saveService)
     {
         InitializeComponent();
         BindingContext = viewModel;
         _viewModel = viewModel;
+        _soundService = soundService;
+        _saveService = saveService;
 
         _viewModel.OpenInventoryPopup = async () =>
         {

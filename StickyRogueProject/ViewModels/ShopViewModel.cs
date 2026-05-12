@@ -53,7 +53,9 @@ public partial class ShopViewModel : ObservableObject
     public ShopViewModel(SaveService saveService)
     {
         _saveService = saveService;
-        _masterPool = BuildDefaultArtifacts();
+
+        // ⚡ ดึงของขายทั้งหมดมาจาก Registry กลางที่เดียวจบ!
+        _masterPool = ArtifactRegistry.GetAllArtifacts();
     }
 
     // ── InitializeCommand ────────────────────────────────────
@@ -83,7 +85,7 @@ public partial class ShopViewModel : ObservableObject
 
             RestoreArtifactLevels(_masterPool, _currentSave.ArtifactData);
 
-            // สุ่ม 3 ชิ้นจาก Master Pool 15 ตัว
+            // สุ่ม 3 ชิ้นจาก Master Pool
             var selected = _masterPool.OrderBy(_ => Guid.NewGuid()).Take(3).ToList();
             ShopItems = new ObservableCollection<ArtifactItem>(selected);
 
@@ -177,25 +179,6 @@ public partial class ShopViewModel : ObservableObject
     }
 
     // ── Private Helpers ──────────────────────────────────────
-
-    private List<ArtifactItem> BuildDefaultArtifacts() => new()
-    {
-        new() { Key="atk_1", Name="Catfood Hammer",    Description="+2 ATK ต่อ Lv",       StatBonus=2,  StatType="ATK",   Price=25, ImageSource="catfood_hammer.png"      },
-        new() { Key="atk_2", Name="Fishbone Sword",    Description="+3 ATK ต่อ Lv",       StatBonus=3,  StatType="ATK",   Price=40, ImageSource="fishbone_sword.png"      },
-        new() { Key="atk_3", Name="Catlitter Blaster", Description="+5 ATK ต่อ Lv",       StatBonus=5,  StatType="ATK",   Price=70, ImageSource="catlitter_blaster.png"   },
-        new() { Key="def_1", Name="Cardbox Armor",     Description="+2 DEF ต่อ Lv",       StatBonus=2,  StatType="DEF",   Price=25, ImageSource="cardbox_armor.png"       },
-        new() { Key="def_2", Name="Laundry Helmet",    Description="+3 DEF ต่อ Lv",       StatBonus=3,  StatType="DEF",   Price=40, ImageSource="laundrybasket_helmet.png" },
-        new() { Key="def_3", Name="Litterbox Armor",   Description="+5 DEF ต่อ Lv",       StatBonus=5,  StatType="DEF",   Price=70, ImageSource="litterbox_armor.png"     },
-        new() { Key="int_1", Name="Noodle Compass",    Description="+2 INT ต่อ Lv",       StatBonus=2,  StatType="INT",   Price=25, ImageSource="noodle_compass.png"      },
-        new() { Key="int_2", Name="Goldfish Staff",    Description="+3 INT ต่อ Lv",       StatBonus=3,  StatType="INT",   Price=40, ImageSource="goldfish_staff.png"      },
-        new() { Key="int_3", Name="Human Tamer Tome",  Description="+5 INT ต่อ Lv",       StatBonus=5,  StatType="INT",   Price=70, ImageSource="humantamer_tome.png"     },
-        new() { Key="hp_1",  Name="Catfood Backpack",  Description="+10 HP สูงสุด ต่อ Lv", StatBonus=10, StatType="HP",  Price=30, ImageSource="catfood_backpack.png"    },
-        new() { Key="hp_2",  Name="King Meow Collar",  Description="+20 HP สูงสุด ต่อ Lv", StatBonus=20, StatType="HP",  Price=55, ImageSource="kingmeow_collar.png"    },
-        new() { Key="hp_3",  Name="9 Lives Collar",    Description="+30 HP สูงสุด ต่อ Lv", StatBonus=30, StatType="HP",  Price=80, ImageSource="ninelives_collar.png"   },
-        new() { Key="mp_1",  Name="Catwitch Hat",      Description="+5 Max MP ต่อ Lv",    StatBonus=5,  StatType="MAXMP", Price=25, ImageSource="catwitch_hat.png"        },
-        new() { Key="mp_2",  Name="Goldfish Orb",      Description="+10 Max MP ต่อ Lv",   StatBonus=10, StatType="MAXMP", Price=40, ImageSource="goldfish_orb.png"        },
-        new() { Key="mp_3",  Name="Ancient Meow Tome", Description="+20 Max MP ต่อ Lv",   StatBonus=20, StatType="MAXMP", Price=70, ImageSource="ancietmeow_tome.png"     },
-    };
 
     private void RestoreArtifactLevels(List<ArtifactItem> pool, string? json)
     {

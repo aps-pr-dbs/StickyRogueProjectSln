@@ -18,7 +18,7 @@ public enum ItemType
 // ─────────────────────────────────────────────────────────────
 //  InventoryItem — แทน string ด้วย object
 // ─────────────────────────────────────────────────────────────
-public class InventoryItem
+public class InventoryArtifac
 {
     // ── Identity ──────────────────────────────────────────────
     public string Name { get; set; } = string.Empty;
@@ -33,7 +33,7 @@ public class InventoryItem
     // ── Equipment stats ───────────────────────────────────────
     public int BonusAtk { get; set; } = 0;
     public int BonusDef { get; set; } = 0;
-    public int BonusMagic { get; set; } = 0;
+    public int BonusInt { get; set; } = 0;
     public int BonusMaxHp { get; set; } = 0;
     public int BonusMaxMp { get; set; } = 0;
 
@@ -42,15 +42,49 @@ public class InventoryItem
     public bool IsEquipment => Type is ItemType.Weapon or ItemType.Armor or ItemType.Accessory;
 
     /// <summary>สร้างจากชื่อผ่าน ItemRegistry (backward compat กับ List&lt;string&gt; เดิม)</summary>
-    public static InventoryItem FromString(string name)
-        => GameItem.Get(name) ?? new InventoryItem
+    /// <summary>สร้างจากชื่อผ่าน ArtifactRegistry (รองรับทั้ง Key และ Name)</summary>
+    public static InventoryArtifac FromString(string keyOrName)
+    {
+        // 1. ลองค้นหาด้วย Key ก่อน (เช่น "atk_1")
+        var artifact = Services.ArtifactRegistry.GetArtifact(keyOrName);
+
+        // 2. ถ้าหาด้วย Key ไม่เจอ ให้ลองค้นหาจาก Name (เช่น "Catfood Hammer")
+        if (artifact == null)
         {
-            Name = name,
+            artifact = Services.ArtifactRegistry.GetAllArtifacts().FirstOrDefault(a => a.Name == keyOrName);
+        }
+
+        // 3. ถ้าหาเจอใน Registry ให้แปลงเป็น InventoryItem
+        if (artifact != null)
+        {
+            var invItem = new InventoryArtifac
+            {
+                Name = artifact.Name,
+                Icon = artifact.ImageSource,
+                Description = artifact.Description,
+                Type = artifact.StatType == "ATK" ? ItemType.Weapon : ItemType.Armor
+            };
+
+            switch (artifact.StatType)
+            {
+                case "ATK": invItem.BonusAtk = artifact.StatBonus; break;
+                case "DEF": invItem.BonusDef = artifact.StatBonus; break;
+                case "INT": invItem.BonusInt = artifact.StatBonus; break;
+                case "HP": invItem.BonusMaxHp = artifact.StatBonus; break;
+                case "MAXMP": invItem.BonusMaxMp = artifact.StatBonus; break;
+            }
+            return invItem;
+        }
+
+        // 4. ถ้าหาไม่เจอจริงๆ ให้คืนค่าเป็นไอเทมขยะ (Fallback)
+        return new InventoryArtifac
+        {
+            Name = keyOrName,
             Icon = "🎁",
             Type = ItemType.Material,
             Description = "Unknown item"
         };
-
+    }
     public override string ToString() => Name;
 }
 
@@ -59,26 +93,26 @@ public class InventoryItem
 // ─────────────────────────────────────────────────────────────
 public class EquipmentSlots
 {
-    public InventoryItem? Weapon { get; private set; }
-    public InventoryItem? Armor { get; private set; }
-    public InventoryItem? Accessory { get; private set; }
+    public InventoryArtifac? Weapon { get; private set; }
+    public InventoryArtifac? Armor { get; private set; }
+    public InventoryArtifac? Accessory { get; private set; }
 
     // ── Bonus stats รวมจากทุก slot ───────────────────────────
     public int TotalBonusAtk => Sum(i => i.BonusAtk);
     public int TotalBonusDef => Sum(i => i.BonusDef);
-    public int TotalBonusMagic => Sum(i => i.BonusMagic);
+    public int TotalBonusInt => Sum(i => i.BonusInt);
     public int TotalBonusMaxHp => Sum(i => i.BonusMaxHp);
     public int TotalBonusMaxMp => Sum(i => i.BonusMaxMp);
 
-    private int Sum(Func<InventoryItem, int> selector)
+    private int Sum(Func<InventoryArtifac, int> selector)
         => (Weapon is not null ? selector(Weapon) : 0)
          + (Armor is not null ? selector(Armor) : 0)
          + (Accessory is not null ? selector(Accessory) : 0);
 
     // ── Equip → คืน item เก่าที่ถูกถอดออก (ใส่กลับ inventory) ──
-    public InventoryItem? Equip(InventoryItem item)
+    public InventoryArtifac? Equip(InventoryArtifac item)
     {
-        InventoryItem? oldItem = null;
+        InventoryArtifac? oldItem = null;
 
         switch (item.Type)
         {
@@ -100,9 +134,9 @@ public class EquipmentSlots
     }
 
     // ── Unequip → คืน item ที่ถอด ────────────────────────────
-    public InventoryItem? Unequip(ItemType slot)
+    public InventoryArtifac? Unequip(ItemType slot)
     {
-        InventoryItem? old = GetSlot(slot);
+        InventoryArtifac? old = GetSlot(slot);
         if (old is null) return null;
 
         switch (slot)
@@ -114,7 +148,7 @@ public class EquipmentSlots
         return old;
     }
 
-    public InventoryItem? GetSlot(ItemType type) => type switch
+    public InventoryArtifac? GetSlot(ItemType type) => type switch
     {
         ItemType.Weapon => Weapon,
         ItemType.Armor => Armor,
@@ -122,7 +156,7 @@ public class EquipmentSlots
         _ => null
     };
 
-    private static InventoryItem? SwapSlot(ref InventoryItem? slot, InventoryItem newItem)
+    private static InventoryArtifac? SwapSlot(ref InventoryArtifac? slot, InventoryArtifac newItem)
     {
         var old = slot;
         slot = newItem;
