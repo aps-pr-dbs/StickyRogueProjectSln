@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.PopUp.GameMessagePopUpPage"
+             BackgroundColor="#CC000000"
+             Shell.NavBarIsVisible="False">
+
+    <Grid HorizontalOptions="Fill" VerticalOptions="Fill" Padding="30">
+        <Border BackgroundColor="#1E1B2E"
+                Stroke="#C2B194"
+                StrokeThickness="2"
+                StrokeShape="RoundRectangle 24"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                WidthRequest="320"
+                Padding="24">
+
+            <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+                <Label x:Name="TitleLabel"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#E8D5A3"
+                       HorizontalTextAlignment="Center"
+                       Text="หัวข้อแจ้งเตือน"/>
+
+                <BoxView HeightRequest="1" Color="#4A3F6B" HorizontalOptions="Fill"/>
+
+                <Label x:Name="MessageLabel"
+                       FontSize="16"
+                       TextColor="#FFFFFF"
+                       HorizontalTextAlignment="Center"
+                       LineHeight="1.4"
+                       Text="เนื้อหาข้อความแจ้งเตือนของคุณ..."/>
+
+                <Button Text="ตกลง"
+                        Clicked="OnOkClicked"
+                        BackgroundColor="#574E79"
+                        TextColor="#E8D5A3"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        Margin="0,10,0,0"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

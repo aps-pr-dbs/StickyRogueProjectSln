@@ -8,15 +8,10 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#574E79">
 
-    <!-- Grid หลัก 3 แถว: Enemy Zone / Player Zone / Action Bar -->
     <Grid Margin="15" RowDefinitions="Auto, *, Auto" RowSpacing="20">
 
-        <!-- ==========================================
-             Row 0: Enemy info + Enemy image (Top)
-             ========================================== -->
         <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="15">
 
-            <!-- Enemy Status Card -->
             <Border Grid.Column="0"
                     BackgroundColor="#9583D5"
                     StrokeThickness="0.5"
@@ -27,7 +22,6 @@
                     <TapGestureRecognizer Command="{Binding ShowEnemyStatusCommand}" />
                 </Border.GestureRecognizers>
                 <VerticalStackLayout Spacing="8">
-                    <!-- ชื่อ + Level -->
                     <Grid ColumnDefinitions="*,Auto">
                         <Label
                             Grid.Column="0"
@@ -42,7 +36,6 @@
                             TextColor="#574E79" />
                     </Grid>
 
-                    <!-- HP Bar (ปรับเป็นแบบเดียวกับ XP) -->
                     <VerticalStackLayout Spacing="2">
                         <Grid ColumnDefinitions="Auto,*">
                             <Label
@@ -67,10 +60,22 @@
                             BackgroundColor="#574E79"
                             HeightRequest="5" />
                     </VerticalStackLayout>
+
+                    <Border BackgroundColor="#4A3F6B"
+                            StrokeThickness="0.5"
+                            Stroke="#C2B194"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8,6"
+                            Margin="0,4,0,0">
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="{Binding EnemyIntentIcon}" FontSize="16" VerticalOptions="Center" />
+                            <Label Text="{Binding EnemyIntentText}" FontSize="11" FontAttributes="Bold" TextColor="#E8D5A3" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Enemy Image Box -->
             <Border
                 Grid.Column="1"
                 BackgroundColor="#9583D5"
@@ -86,11 +91,8 @@
 
         </Grid>
 
-        <!-- ==========================================
-             Row 1: Combat Log + Player Zone ===== -->
         <Grid Grid.Row="1" RowDefinitions="*,Auto" RowSpacing="12">
 
-            <!-- Combat Log -->
             <Border
                 Grid.Row="0"
                 BackgroundColor="#C5A8E1"
@@ -107,10 +109,8 @@
                     VerticalOptions="End" />
             </Border>
 
-            <!-- Player Zone: ภาพซ้าย + Status Card ขวา -->
             <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
 
-                <!-- Player Image -->
                 <Image
                     Grid.Column="0"
                     Source="{Binding CharacterImageSource}"
@@ -122,7 +122,6 @@
                     InputTransparent="True"
                     Margin="0, 0, 0, 0" />
 
-                <!-- Player Status Card -->
                 <Border
                     Grid.Column="1"
                     BackgroundColor="#9583D5"
@@ -154,7 +153,6 @@
                                     TextColor="#574E79" />
                             </Grid>
 
-                            <!-- HP bar (ปรับเป็นแบบเดียวกับ XP) -->
                             <VerticalStackLayout Spacing="2">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Label
@@ -180,7 +178,6 @@
                                     HeightRequest="5" />
                             </VerticalStackLayout>
 
-                            <!-- MP bar (ปรับเป็นแบบเดียวกับ XP) -->
                             <VerticalStackLayout Spacing="2">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Label
@@ -206,7 +203,6 @@
                                     HeightRequest="5" />
                             </VerticalStackLayout>
 
-                            <!-- XP bar -->
                             <VerticalStackLayout Spacing="2">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Label
@@ -239,7 +235,6 @@
             </Grid>
         </Grid>
 
-        <!-- ===== ROW 2: Action Buttons ===== -->
         <Border
             Grid.Row="2"
             BackgroundColor="#C5A8E1"
@@ -250,7 +245,6 @@
 
             <Grid ColumnDefinitions="2*,*" ColumnSpacing="12">
 
-                <!-- 2×2 Grid ปุ่มหลัก -->
                 <Grid
                     Grid.Column="0"
                     RowDefinitions="*,*"
@@ -258,7 +252,6 @@
                     RowSpacing="10"
                     ColumnSpacing="10">
 
-                    <!-- Attack -->
                     <Button
                         Grid.Row="0" Grid.Column="0"
                         Text="⚔️  Attack"
@@ -270,7 +263,6 @@
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Defend -->
                     <Button
                         Grid.Row="0" Grid.Column="1"
                         Text="🛡️  Defend"
@@ -282,7 +274,6 @@
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Magic -->
                     <Button
                         Grid.Row="1" Grid.Column="0"
                         Text="✨  Magic"
@@ -294,7 +285,6 @@
                         CornerRadius="20"
                         HeightRequest="48" />
 
-                    <!-- Run -->
                     <Button
                         Grid.Row="1" Grid.Column="1"
                         Text="🏃  Run"
@@ -308,7 +298,6 @@
 
                 </Grid>
 
-                <!-- Inventory Button & Shortcuts -->
                 <VerticalStackLayout Grid.Column="1" Spacing="6">
                     <Button
                         Text="🎒 Inventory"
@@ -321,6 +310,7 @@
                         VerticalOptions="Fill" />
 
                     <Button
+                        Clicked="HPPotionBtnClicked"
                         Text="{Binding HpPotionCount, StringFormat='💊 ×{0}'}"
                         Command="{Binding UseItemCommand}"
                         CommandParameter="HP"
@@ -332,6 +322,7 @@
                         HeightRequest="34" />
 
                     <Button
+                        Clicked="ManaPotionBtnClicked"
                         Text="{Binding MpPotionCount, StringFormat='🧪 ×{0}'}"
                         Command="{Binding UseItemCommand}"
                         CommandParameter="MP"

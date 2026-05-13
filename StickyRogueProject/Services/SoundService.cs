@@ -11,6 +11,7 @@ public class SoundService
     private IAudioPlayer _manapotionPlayer;
     private IAudioPlayer _hppotionPlayer;
     private IAudioPlayer _playerattackPlayer;
+    private IAudioPlayer _gameOverPlayer;
 
     // ⚡ 1. สร้างตัวแปร Stream ไว้ระดับ Class เพื่อกันระบบแอบลบข้อมูลทิ้ง
     private MemoryStream _clickMemoryStream;
@@ -19,6 +20,7 @@ public class SoundService
     private MemoryStream _manapotionMemoryStream;
     private MemoryStream _hppotionMemoryStream;
     private MemoryStream _playerattackMemoryStream;
+    private MemoryStream _gameOverMemoryStream;
 
     public bool IsMuted { get; private set; } = false;
 
@@ -96,6 +98,18 @@ public class SoundService
 
                 _playerattackPlayer = _audioManager.CreatePlayer(_playerattackMemoryStream);
             }
+           
+
+            // โหลดเสียง Game Over
+            using var gameOverAssetStream = await FileSystem.OpenAppPackageFileAsync("died.mp3");
+            if (gameOverAssetStream != null)
+            {
+                _gameOverMemoryStream = new MemoryStream();
+                await gameOverAssetStream.CopyToAsync(_gameOverMemoryStream);
+                _gameOverMemoryStream.Position = 0;
+
+                _gameOverPlayer = _audioManager.CreatePlayer(_gameOverMemoryStream);
+            }
 
         }
         catch (Exception ex)
@@ -103,6 +117,17 @@ public class SoundService
             Console.WriteLine($"[SoundService] Error loading sound: {ex.Message}");
         }
     }
+    //ฟังก์ชันสำหรับเรียกใช้ตอนตาย
+    public void PlayGameOverSound()
+    {
+        if (!IsMuted && _gameOverPlayer != null)
+        {
+            PauseBgm(); // สั่งปิดเพลงต่อสู้ (BGM) ก่อน
+            _gameOverPlayer.Seek(0); // ย้อนเสียงกลับไปเริ่มใหม่
+            _gameOverPlayer.Play(); // เล่นเสียงตาย!
+        }
+    }
+
     public void PlaySelectSound()
     {
         if (!IsMuted && _selectPlayer != null)

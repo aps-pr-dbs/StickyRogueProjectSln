@@ -22,6 +22,7 @@ public partial class CombatPage : ContentPage
         _viewModel.OpenInventoryPopup = async () =>
         {
             var popup = new PopUp.InventoryPopUpPage(_viewModel.CurrentSave);
+
             await Navigation.PushModalAsync(popup);
         };
 
@@ -49,6 +50,21 @@ public partial class CombatPage : ContentPage
 
         _viewModel.ShowConfirm = async (title, message, accept, cancel) =>
             await DisplayAlertAsync(title, message, accept, cancel);
+    }
+    private async void selectClassRightBtnClicked(object sender, EventArgs e)
+    {
+        // ⚡ 1. เล่นเสียงคลิก
+        _soundService.PlayClickSound();
+    }
+
+    private async void HPPotionBtnClicked(object sender, EventArgs e)
+    {
+        _soundService.PlayHPPotionSound();
+    }
+
+    private async void ManaPotionBtnClicked(object sender, EventArgs e)
+    {
+        _soundService.PlayManaSound();
     }
 
     protected override async void OnAppearing()

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using StickyRogueProject.Models;
 using StickyRogueProject.Services;
 using StickyRogueProject.Views;
+using StickyRogueProject.Views.PopUp;
 using System.Text.Json;
 
 namespace StickyRogueProject.ViewModels;
@@ -13,6 +14,7 @@ public partial class CombatViewModel : ObservableObject
 {
     private readonly SaveService _saveService;
     private readonly HistoryService _historyService;
+    private readonly SoundService _soundService;
     private readonly Random _rng = new();
 
     public Func<Task>? OpenInventoryPopup { get; set; }
@@ -33,6 +35,10 @@ public partial class CombatViewModel : ObservableObject
     [ObservableProperty] private string _enemyHpText = "0/0";
     [ObservableProperty] private double _enemyHpProgress = 1.0;
     [ObservableProperty] private string _enemyImageSource = string.Empty;
+
+    // ⚡ ตัวแปรใหม่สำหรับโชว์หน้า UI ว่ามอนสเตอร์จะทำอะไร ⚡
+    [ObservableProperty] private string _enemyIntentIcon = "❓";
+    [ObservableProperty] private string _enemyIntentText = "กำลังคิด...";
 
     [ObservableProperty] private string _characterName = string.Empty;
     [ObservableProperty] private int _characterLevel = 1;
@@ -63,10 +69,11 @@ public partial class CombatViewModel : ObservableObject
 
     private bool _isDefending = false;
 
-    public CombatViewModel(SaveService saveService, HistoryService historyService)
+    public CombatViewModel(SaveService saveService, HistoryService historyService, SoundService soundService)
     {
         _saveService = saveService;
         _historyService = historyService;
+        _soundService = soundService;
     }
 
     [RelayCommand]
@@ -115,12 +122,28 @@ public partial class CombatViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            double variation = 0.8 + _rng.NextDouble() * 0.4;
-            int rawDmg = (int)(_save.Atk * variation);
-            int finalDmg = _enemy.TakeDamage(rawDmg);
 
-            AppendLog($"⚔️ คุณโจมตี {EnemyName} {finalDmg} ความเสียหาย!");
-            RefreshEnemyUi();
+            // ⚡ โอกาสโจมตีพลาด 10%
+            if (_rng.NextDouble() < 0.10)
+            {
+                AppendLog("💨 คุณโจมตีพลาดเป้า!");
+            }
+            else
+            {
+                double variation = 0.8 + _rng.NextDouble() * 0.4;
+                int rawDmg = (int)(_save.Atk * variation);
+
+                // ⚡ เช็คระบบต้านทาน (Physical)
+                if (_enemy.ResistanceType == "Physical")
+                {
+                    rawDmg /= 2; // ดาเมจลดครึ่งนึง
+                    AppendLog($"🛡️ {_enemy.Name} หนังเหนียว! ต้านทานการโจมตีกายภาพ");
+                }
+
+                int finalDmg = _enemy.TakeDamage(rawDmg);
+                AppendLog($"⚔️ คุณโจมตี {EnemyName} {finalDmg} ความเสียหาย!");
+                RefreshEnemyUi();
+            }
 
             if (_enemy.IsDefeated) { await OnEnemyDefeatedAsync(); return; }
             await DoEnemyTurnAsync();
@@ -135,8 +158,8 @@ public partial class CombatViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            _isDefending = true;
-            AppendLog("🛡️ คุณรับท่าไว้! ความเสียหายรอบนี้ลดลงครึ่งหนึ่ง");
+            _isDefending = true; // ⚡ เปิดโหมดป้องกันสำหรับการตั้งการ์ด
+            AppendLog("🛡️ คุณตั้งการ์ดเตรียมรับการโจมตี!");
             await DoEnemyTurnAsync();
         }
         finally { IsBusy = false; }
@@ -157,14 +180,30 @@ public partial class CombatViewModel : ObservableObject
                 return;
             }
 
-            _save.CurrentMp = Math.Max(0, _save.CurrentMp - mpCost);
-            double variation = 0.85 + _rng.NextDouble() * 0.3;
-            int magicDmg = (int)(_save.Int * variation);
-            _enemy.CurrentHp = Math.Max(0, _enemy.CurrentHp - magicDmg);
+            _save.CurrentMp -= mpCost;
 
-            AppendLog($"✨ เวทย์ถล่ม {EnemyName} {magicDmg} ความเสียหาย! (ทะลุ DEF)");
-            RefreshPlayerUi();
-            RefreshEnemyUi();
+            // ⚡ โอกาสร่ายเวทย์พลาด 10%
+            if (_rng.NextDouble() < 0.10)
+            {
+                AppendLog("💨 ร่ายเวทย์ล้มเหลว พลาดเป้า!");
+            }
+            else
+            {
+                double variation = 0.85 + _rng.NextDouble() * 0.3;
+                int magicDmg = (int)(_save.Int * variation);
+
+                // ⚡ เช็คระบบต้านทาน (Magic)
+                if (_enemy.ResistanceType == "Magic")
+                {
+                    magicDmg /= 2;
+                    AppendLog($"🛡️ {_enemy.Name} มีเกล็ดสะท้อนเวทย์! ต้านทานพลังเวทมนตร์");
+                }
+
+                _enemy.CurrentHp = Math.Max(0, _enemy.CurrentHp - magicDmg);
+                AppendLog($"✨ เวทย์ถล่ม {EnemyName} {magicDmg} ความเสียหาย! (ทะลุ DEF)");
+                RefreshPlayerUi();
+                RefreshEnemyUi();
+            }
 
             if (_enemy.IsDefeated) { await OnEnemyDefeatedAsync(); return; }
             await DoEnemyTurnAsync();
@@ -228,6 +267,9 @@ public partial class CombatViewModel : ObservableObject
 
             RefreshPlayerUi();
             await _saveService.UpdateSaveAsync(_save);
+
+            // ใช้ไอเทมเสร็จ มอนสเตอร์ได้ตีต่อ
+            await DoEnemyTurnAsync();
         }
         catch (Exception ex)
         {
@@ -257,43 +299,130 @@ public partial class CombatViewModel : ObservableObject
             await OpenEnemyStatusPopup();
     }
 
+    // ⚡ ฟังก์ชันทำงานของมอนสเตอร์ (แก้ไขใหม่หมด)
     private async Task DoEnemyTurnAsync(bool runFailPenalty = false)
     {
         if (_save is null || _enemy is null) return;
 
-        await Task.Delay(300);
+        await Task.Delay(600); // หน่วงเวลาให้ผู้เล่นอ่าน Log ทัน
 
-        int rawDmg = _enemy.CalculateAttack();
-        if (runFailPenalty) rawDmg = (int)(rawDmg * 1.15);
+        string intent = _enemy.NextIntent;
+        bool isEnemyMiss = _rng.NextDouble() < 0.10; // มอนสเตอร์ตีพลาด 10%
 
-        int afterDef = Math.Max(1, rawDmg - _save.Def);
+        if (intent == "Heal")
+        {
+            int healAmt = (int)(_enemy.MaxHp * 0.2); // ฮีล 20%
+            _enemy.CurrentHp = Math.Min(_enemy.MaxHp, _enemy.CurrentHp + healAmt);
+            AppendLog($"💚 {EnemyName} ฟื้นฟูพลังชีวิตตัวเอง {healAmt} HP!");
+            RefreshEnemyUi();
+        }
+        else
+        {
+            if (isEnemyMiss)
+            {
+                AppendLog($"💨 {EnemyName} โจมตีพลาดเป้า! คุณรอดตัวไป");
+            }
+            else
+            {
+                int rawDmg = 0;
+                string atkLog = "โจมตี";
 
-        bool wasDefending = _isDefending;
-        _isDefending = false;
-        int finalDmg = wasDefending
-            ? (int)Math.Ceiling(afterDef / 2.0)
-            : afterDef;
+                // เลือกดาเมจตามเจตนา (Intent)
+                if (intent == "Attack") { rawDmg = _enemy.CalculateAttack(); atkLog = "โจมตีปกติ"; }
+                else if (intent == "Heavy") { rawDmg = (int)(_enemy.CalculateAttack() * 1.5); atkLog = "โจมตีอย่างหนัก!"; }
+                else if (intent == "Magic") { rawDmg = (int)(_enemy.Int * (0.8 + _rng.NextDouble() * 0.4)); atkLog = "ร่ายเวทย์ใส่คุณ!"; }
 
-        _save.CurrentHp = Math.Max(0, _save.CurrentHp - finalDmg);
+                if (runFailPenalty) rawDmg = (int)(rawDmg * 1.15); // โทษหลบหนี
 
-        string penaltyNote = runFailPenalty ? " (+15% โทษหลบหนี)" : string.Empty;
-        string defendNote = wasDefending ? " (ลดครึ่งจาก Defend)" : string.Empty;
-        AppendLog($"💀 {EnemyName} โจมตี {finalDmg} ความเสียหาย!{penaltyNote}{defendNote}");
+                // ⚡ ระบบการคำนวณเกราะ (Dynamic DEF) ⚡
+                int effectiveDef = _save.Def / 2; // Passive: ถ้าไม่ป้องกัน เกราะลดดาเมจได้แค่ 50%
+                string guardLog = " (เกราะช่วยซับ 50%)";
 
+                if (_isDefending)
+                {
+                    // โอกาส 80% ป้องกันสำเร็จ / 20% การ์ดแตก
+                    if (_rng.NextDouble() < 0.80)
+                    {
+                        effectiveDef = _save.Def; // Active: เกราะทำงาน 100%
+                        guardLog = " 🛡️ (ตั้งการ์ดสำเร็จ! เกราะทำงาน 100%)";
+                    }
+                    else
+                    {
+                        effectiveDef = 0; // Guard Break: เกราะ 0
+                        guardLog = " 💥 (การ์ดแตก! โดนดาเมจเต็มๆ)";
+                    }
+                }
+
+                int finalDmg = Math.Max(1, rawDmg - effectiveDef);
+                _save.CurrentHp = Math.Max(0, _save.CurrentHp - finalDmg);
+
+                string penaltyNote = runFailPenalty ? " (+15% โทษหลบหนี)" : string.Empty;
+                AppendLog($"💀 {EnemyName} {atkLog} {finalDmg} ดาเมจ!{penaltyNote}{guardLog}");
+            }
+        }
+
+        _isDefending = false; // รีเซ็ตการป้องกัน
         RefreshPlayerUi();
 
         if (_save.CurrentHp <= 0)
+        {
             await OnPlayerDefeatedAsync();
+        }
+        else
+        {
+            // ถ้าไม่ตาย ให้มอนสเตอร์สุ่มท่าต่อไป
+            DetermineNextEnemyIntent();
+        }
+    }
+
+    // ⚡ ฟังก์ชันสุ่มเจตนาของมอนสเตอร์ในเทิร์นถัดไป
+    private void DetermineNextEnemyIntent()
+    {
+        if (_enemy is null) return;
+        double roll = _rng.NextDouble();
+
+        if (CurrentWave == 10) // บอสจะออกท่าโหดบ่อยกว่า
+        {
+            if (roll < 0.35) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมทุบหนัก!"; }
+            else if (roll < 0.65) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; }
+            else if (roll < 0.85) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; }
+            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟูเลือด"; }
+        }
+        else // มอนสเตอร์ปกติ
+        {
+            if (roll < 0.60) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; }
+            else if (roll < 0.80) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมโจมตีหนัก!"; }
+            else if (roll < 0.90) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; }
+            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟู"; }
+        }
+
+        // อัปเดต UI ให้ผู้เล่นเห็น
+        EnemyIntentIcon = _enemy.IntentIcon;
     }
 
     private async Task OnEnemyDefeatedAsync()
     {
         if (_save is null || _enemy is null) return;
 
-        _save.Coins += _enemy.CoinReward;
-        GainXp(_enemy.XpReward * 3);
+        // ⚡ ระบบเพดานเหรียญสูงสุด 65 เหรียญต่อ Loop ⚡
+        int maxLoopCoins = 65;
+        int coinsAvailableToEarn = maxLoopCoins - _save.LoopCoinsCollected;
 
-        AppendLog($"✅ ชนะ! +{_enemy.XpReward} XP  +{_enemy.CoinReward * 0.5} เหรียญ");
+        // ให้เหรียญเท่าที่ไม่เกินเพดานที่เหลืออยู่
+        int actualCoinsEarned = Math.Min(_enemy.CoinReward, coinsAvailableToEarn);
+
+        if (actualCoinsEarned > 0)
+        {
+            _save.Coins += actualCoinsEarned;
+            _save.LoopCoinsCollected += actualCoinsEarned; // นับใส่โควต้า Loop
+            AppendLog($"✅ ชนะ! ได้ {actualCoinsEarned} 🪙 (สะสมรอบนี้: {_save.LoopCoinsCollected}/{maxLoopCoins})");
+        }
+        else
+        {
+            AppendLog($"✅ ชนะ! (เหรียญดรอปครบเพดาน 65 เหรียญในรอบนี้แล้ว!)");
+        }
+
+        GainXp(_enemy.XpReward * 3);
 
         // โอกาส 75% ที่จะมี Potion ตก
         if (_rng.NextDouble() < 0.75)
@@ -309,8 +438,6 @@ public partial class CombatViewModel : ObservableObject
                 AppendLog("🧪 ได้รับ MP Potion!");
             }
         }
-
-        // ⚡ ลบส่วนดรอป Artifact ออกแล้วตามคำขอครับ
 
         _save.CurrentWave = CurrentWave;
         _save.CurrentLoop = CurrentLoop;
@@ -334,7 +461,23 @@ public partial class CombatViewModel : ObservableObject
         if (CurrentWave == 9 && !skipReward)
         {
             AppendLog("🏪 กำจัดศัตรูตัวที่ 9! เข้าร้านค้า...");
-            await SafeAlert("คุณกำจัดศัตรูตัวที่ 9 ผ่านแล้ว!", "แวะร้านค้าเพื่อเตรียมพร้อมก่อน Boss!");
+
+            // ⚡ 1. สร้างตัวรับสัญญาณ
+            var tcs = new TaskCompletionSource<bool>();
+
+            MainThread.BeginInvokeOnMainThread(async () => {
+                var popup = new Views.PopUp.GameMessagePopUpPage(
+                    "คุณกำจัดศัตรูตัวที่ 9 ผ่านแล้ว!",
+                    "แวะร้านค้าเพื่อเตรียมพร้อมก่อน Boss!",
+                    tcs // ⚡ ส่งตัวรับสัญญาณเข้าไปให้ PopUp
+                );
+                await Shell.Current.Navigation.PushModalAsync(popup);
+            });
+
+            // ⚡ 2. สั่งให้โค้ด "หยุดรอ" ตรงนี้จนกว่า PopUp จะส่งสัญญาณกลับมา (จนกว่าจะกดตกลง)
+            await tcs.Task;
+
+            // ⚡ 3. พอกดตกลงปุ๊บ ค่อยทำงานต่อ (เซฟเกมและเด้งไปร้านค้า)
             CurrentWave = 10;
             _save.CurrentWave = 10;
             await _saveService.UpdateSaveAsync(_save);
@@ -379,7 +522,7 @@ public partial class CombatViewModel : ObservableObject
             CurrentWave = 1;
             _save!.CurrentLoop = CurrentLoop;
             _save.CurrentWave = CurrentWave;
-
+            _save.LoopCoinsCollected = 0; // ⚡ เคลียร์โควต้าเหรียญให้เริ่มใหม่ใน Loop ถัดไป
             _save.CurrentHp = _save.MaxHp;
             _save.CurrentMp = _save.MaxMp;
 
@@ -478,7 +621,7 @@ public partial class CombatViewModel : ObservableObject
                 AppendLog("💨 โชคไม่ดีเลย ไม่มีอะไรเกิดขึ้น...");
                 break;
             case EventEffectType.GainCoins:
-                _save.Coins += ev.Value;
+                _save.Coins += ev.Value; // ⚡ รับเงินจาก Event ตรงๆ ทะลุเพดานได้เลย ไม่ผ่าน LoopCoinsCollected
                 AppendLog($"💰 ได้รับ {ev.Value} เหรียญ");
                 break;
             case EventEffectType.LoseCoins:
@@ -532,6 +675,7 @@ public partial class CombatViewModel : ObservableObject
         if (_save is null) return;
 
         AppendLog("💀 คุณพ่ายแพ้...");
+        _soundService.PlayGameOverSound();
         await Task.Delay(1000);
 
         try
@@ -603,6 +747,7 @@ public partial class CombatViewModel : ObservableObject
         _save.CurrentWave = 1;
         _save.CurrentHp = _save.MaxHp;
         _save.CurrentMp = _save.MaxMp;
+        _save.LoopCoinsCollected = 0; // ⚡ เคลียร์โควต้าเหรียญให้เริ่มใหม่ใน Loop ถัดไป
 
         await _saveService.UpdateSaveAsync(_save);
 
@@ -630,6 +775,8 @@ public partial class CombatViewModel : ObservableObject
             ? EnemyFactory.CreateBossEnemy(CurrentLoop)
             : EnemyFactory.CreateNormalEnemy(wave, CurrentLoop);
 
+        // ⚡ เมื่อสุ่มมอนสเตอร์เสร็จ ให้มันคิดท่าโจมตีแรกรอไว้เลย
+        DetermineNextEnemyIntent();
         RefreshEnemyUi();
     }
 

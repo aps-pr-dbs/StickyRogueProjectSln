@@ -16,6 +16,9 @@ public class ActiveSave
     public int CurrentLoop { get; set; } = 1;
     public int Coins { get; set; } = 0;
 
+    // ⚡ เพิ่มตัวนับเหรียญต่อ 1 Loop สำหรับระบบเพดาน 65 เหรียญ ⚡
+    public int LoopCoinsCollected { get; set; } = 0;
+
     // ── สเตตัสตัวละคร ──
     public int MaxHp { get; set; }
     public int CurrentHp { get; set; }
@@ -29,20 +32,18 @@ public class ActiveSave
     public int HpPotionCount { get; set; }
     public int MpPotionCount { get; set; }
 
-    // ── Shop Artifacts ── (👈 เพิ่มกลับเข้ามาสำหรับ ShopViewModel)
+    // ── Shop Artifacts ── 
     public string ArtifactData { get; set; } = string.Empty;
 
     // =========================================================
     // ส่วน Inventory & Artifacts (แบบ List 6 ช่อง)
     // =========================================================
 
-    // 1. Property สำหรับใช้งานในโค้ด
     [Ignore]
     public List<InventoryArtifac> Inventory { get; set; } = new();
 
     [Ignore]
     public List<InventoryArtifac> Artifacts { get; set; } = new();
-
 
     // 2. Property สำหรับ Save ลง SQLite (แปลง List เป็น JSON String)
     public string InventoryJson
