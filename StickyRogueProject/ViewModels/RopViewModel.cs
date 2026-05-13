@@ -22,12 +22,17 @@ public partial class RopViewModel : ObservableObject
     [ObservableProperty] private bool _isVsVisible;
     [ObservableProperty] private string _userChoiceImage = "question_mark.png";
     [ObservableProperty] private string _cpuChoiceImage = "question_mark.png";
-    [ObservableProperty] private string _resultText = "Choose your move!";
+    [ObservableProperty] private string _resultText = "เลือกอาวุธของคุณเลย!";
     [ObservableProperty] private Color _resultColor = Color.FromArgb("#2196F3");
 
-    // IsActionEnabled — ปิดปุ่มขณะประมวลผล
-    // Draw = เปิดคืน, Win/Lose = ปิดจนกว่าจะ Navigate ออก
+    // ⚡ เพิ่มบทพูดของพ่อค้า
+    [ObservableProperty] private string _shopkeeperDialogue = "กล้ามาเดิมพันกับข้าไหมล่ะ? หึหึหึ...";
+
+    // ควบคุมปุ่มเป่ายิ้งฉุบ
     [ObservableProperty] private bool _isActionEnabled = true;
+
+    // ⚡ ควบคุมปุ่มกดออก (จะโผล่มาตอนรู้ผลแพ้ชนะแล้ว)
+    [ObservableProperty] private bool _isGameOver = false;
 
     // คลัง Artifact รางวัลเมื่อชนะ
     private readonly List<RopArtifactReward> _artifactPool = new()
@@ -57,33 +62,41 @@ public partial class RopViewModel : ObservableObject
 
         UserChoiceImage = GetImageFileName(playerChoice);
         CpuChoiceImage = GetImageFileName(cpuChoice);
+
+        // ⚡ จุดสำคัญ: เปลี่ยนให้ `IsVsVisible = true` เพื่อให้รูปค้างอยู่หน้าจอ
         IsVsVisible = true;
 
         string result = DetermineWinner(playerChoice, cpuChoice);
 
         if (result == "DRAW")
         {
-            ResultText = "DRAW! Try again.";
+            ResultText = "DRAW!\nลองใหม่อีกครั้งสิ";
+            ShopkeeperDialogue = "ใจตรงกันซะงั้น! เอาใหม่สิไอ้หนู!";
             ResultColor = Colors.DarkGray;
+
+            // ⚡ เมื่อเสมอ เราเปิดปุ่มเป่ายิ้งฉุบให้กดได้ใหม่ทันที
             IsActionEnabled = true;
+
+            // ⚡ เราจะไม่ปิด `IsVsVisible = false` ที่นี่ เพื่อให้รูปคู่ HAMMER VS SCISSORS ค้างอยู่
             return;
         }
 
+        // --- ส่วนของผลแพ้หรือชนะ (คุณอ๊าฟมีอยู่แล้ว) ---
+        // (เมื่อผลออกมาแพ้/ชนะ โค้ดส่วนนี้จะทำงานต่อและปิดรับเป่ายิ้งฉุบ)
         if (result == "WIN")
         {
-            ResultText = "YOU WIN! 🎉";
             ResultColor = Colors.LimeGreen;
+            ShopkeeperDialogue = "หนอยแน่แก... ไอ้คนชั่ว!\nฝากไว้ก่อนเถอะ!";
             await HandleWinAsync();
         }
         else
         {
-            ResultText = "YOU LOSE! 💀";
             ResultColor = Colors.OrangeRed;
+            ShopkeeperDialogue = "ชิ! แกบังอาจจะมาปล้นฉันหรอ\nทำอะไรก็ควรได้รับผลแบบนั้นแหละนะ หึหึหึ";
             await HandleLoseAsync();
         }
 
-        await Task.Delay(1800);
-        await Shell.Current.GoToAsync("../..");
+        IsGameOver = true;
     }
 
     private async Task HandleWinAsync()
@@ -91,22 +104,17 @@ public partial class RopViewModel : ObservableObject
         var save = await _saveService.LoadSaveAsync();
         if (save is null) return;
 
-        // ดึงกระเป๋ามาใช้งาน
         save.Inventory ??= new List<InventoryArtifac>();
-
-        // สุ่มของรางวัล
         var reward = _artifactPool[_random.Next(_artifactPool.Count)];
 
-        // สร้างเป็น Item จริงๆ เพื่อใส่เข้ากระเป๋าผู้เล่น
         var newItem = new InventoryArtifac
         {
             Name = reward.Name,
             Icon = reward.Icon,
-            Type = ItemType.Accessory, // ให้ Artifact ถือว่าเป็น Accessory ไปก่อน
+            Type = ItemType.Accessory,
             Description = $"+{reward.StatBonus} {reward.StatType}"
         };
 
-        // แจก Stat โบนัส
         switch (reward.StatType)
         {
             case "ATK": newItem.BonusAtk = reward.StatBonus; break;
@@ -115,17 +123,17 @@ public partial class RopViewModel : ObservableObject
             case "MAXMP": newItem.BonusMaxMp = reward.StatBonus; break;
         }
 
-        // ใส่ของลงในช่องเก็บของ ถ้ากระเป๋ายังไม่เต็ม
         if (save.Inventory.Count < 6)
         {
             save.Inventory.Add(newItem);
-            ResultText = $"WIN! 🎉 ได้รับ {reward.Name}\n(+{reward.StatBonus} {reward.StatType})";
+            // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
+            ResultText = $"YOU WIN! 🎉\n\nได้รับ: {reward.Name}\n(+{reward.StatBonus} {reward.StatType})";
         }
         else
         {
-            // ถ้ากระเป๋าเต็มก็ให้แค่ Stat เปล่าๆ ไม่ต้องให้ไอเทม
             ApplyStatBonus(save, reward.StatType, reward.StatBonus);
-            ResultText = $"WIN! 🎉 Bag Full! ดูดกลืนพลัง: +{reward.StatBonus} {reward.StatType}";
+            // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
+            ResultText = $"YOU WIN! 🎉\n\nกระเป๋าเต็ม!\nดูดกลืนพลัง: +{reward.StatBonus} {reward.StatType}";
         }
 
         await _saveService.UpdateSaveAsync(save);
@@ -148,7 +156,8 @@ public partial class RopViewModel : ObservableObject
         }
 
         await _saveService.UpdateSaveAsync(save);
-        ResultText = $"LOSE! 💀 {statName} ลดลง 1";
+        // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
+        ResultText = $"YOU LOSE! 💀\n\nโดนสาป: {statName} ลดลง 1";
     }
 
     private void ApplyStatBonus(ActiveSave save, string statType, int bonus)
@@ -177,5 +186,12 @@ public partial class RopViewModel : ObservableObject
             (user == "Scissors" && cpu == "Paper") ||
             (user == "Paper" && cpu == "Rock")) return "WIN";
         return "LOSE";
+    }
+
+    // ⚡ ปุ่มกดออก (ทำงานเมื่อคลิก)
+    [RelayCommand]
+    private async Task ExitGameAsync()
+    {
+        await Shell.Current.GoToAsync("../..");
     }
 }

@@ -234,7 +234,8 @@ public partial class HighLowViewModel : ObservableObject
     [RelayCommand]
     public async Task ExitGameAsync()
     {
-        // สั่งให้ปิดหน้าต่างนี้ (PopModal) เพื่อกลับไปหน้าเมนูคาสิโน
+        // สั่งให้ปิดหน้าต่างนี้ (PopModal) 
         await Application.Current.MainPage.Navigation.PopModalAsync();
     }
+    
 }

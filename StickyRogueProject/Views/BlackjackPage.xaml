@@ -5,7 +5,8 @@
              xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
              x:DataType="vm:BlackjackViewModel"
              BackgroundColor="#0A1A10"
-             NavigationPage.HasNavigationBar="False">
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="Auto, *, Auto, *, Auto" Padding="20">
 

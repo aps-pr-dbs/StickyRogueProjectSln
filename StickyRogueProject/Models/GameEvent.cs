@@ -56,7 +56,7 @@ public static class EventPool
     {
         int roll = RollWeighted();
         var ev = new GameEvent();
-        int xxx = 0;
+        int xx = 0;
 
         switch (roll)
         {
@@ -67,12 +67,12 @@ public static class EventPool
                 ev.EffectType = EventEffectType.None;
                 break;
             case 2:
-                xxx = _rng.Next(1, 1001);
+                xx = _rng.Next(20, 51); // ⚡ ปรับสมดุล: 20 ถึง 50 เหรียญ
                 ev.Title = "คุณเก็บหวยได้จากข้างทาง";
-                ev.Story = $"คุณมือขึ้น! ถูกหวย, คุณได้รับเงินจำนวน {xxx} เหรียญ!";
+                ev.Story = $"คุณมือขึ้น! ถูกหวย, คุณได้รับเงินจำนวน {xx} เหรียญ!";
                 ev.ImagePath = "event_lottery.png";
                 ev.EffectType = EventEffectType.GainCoins;
-                ev.Value = xxx;
+                ev.Value = xx;
                 break;
             case 3:
                 ev.Title = "คุณเจอบ่อออนเซ็น";
@@ -81,20 +81,20 @@ public static class EventPool
                 ev.EffectType = EventEffectType.HealHalfHp;
                 break;
             case 4:
-                xxx = _rng.Next(1, 201);
+                xx = _rng.Next(5, 16); // ⚡ ปรับสมดุล: โดนขโมย 5 ถึง 15 เหรียญ
                 ev.Title = "หนูกระโดดกัดกระเป๋าตังค์คุณ";
-                ev.Story = $"คุณเสียเงินจำนวน {xxx} เหรียญ";
+                ev.Story = $"คุณเสียเงินจำนวน {xx} เหรียญ";
                 ev.ImagePath = "event_rat.png";
                 ev.EffectType = EventEffectType.LoseCoins;
-                ev.Value = xxx;
+                ev.Value = xx;
                 break;
             case 5:
-                xxx = _rng.Next(1, 101);
+                xx = _rng.Next(15, 41); 
                 ev.Title = "คุณเหยียบกับดัก";
-                ev.Story = $"โอ้ยยย! คุณเสีย {xxx} HP";
+                ev.Story = $"โอ้ยยย! คุณเสีย {xx} HP";
                 ev.ImagePath = "event_trap.png";
                 ev.EffectType = EventEffectType.LoseHp;
-                ev.Value = xxx;
+                ev.Value = xx;
                 break;
             case 6:
                 ev.StatType = _statTypes[_rng.Next(_statTypes.Length)];
@@ -102,7 +102,7 @@ public static class EventPool
                 ev.Story = $"คุณได้รับ 3 {ev.StatType}.";
                 ev.ImagePath = "event_tome.png";
                 ev.EffectType = EventEffectType.GainStat;
-                ev.Value = 5;
+                ev.Value = 3;
                 break;
             case 7:
                 ev.StatType = _statTypes[_rng.Next(_statTypes.Length)];
@@ -110,15 +110,15 @@ public static class EventPool
                 ev.Story = $"คุณเสีย 3 {ev.StatType}";
                 ev.ImagePath = "event_dtome.png";
                 ev.EffectType = EventEffectType.LoseStat;
-                ev.Value = 5;
+                ev.Value = 3;
                 break;
             case 8:
-                xxx = _rng.Next(1, 1001);
+                xx = _rng.Next(15, 31);
                 ev.Title = "คุณเจอคุณป้าที่รวย";
-                ev.Story = $"เธฮบอกคุณว่าคุณหน้าเหมือนหลาน เธอเลยให้เงินคุณจำนวน {xxx} เหรียญ";
+                ev.Story = $"เธอบอกคุณว่าคุณหน้าเหมือนหลาน เธอเลยให้เงินคุณจำนวน {xx} เหรียญ";
                 ev.ImagePath = "event_olady.png";
                 ev.EffectType = EventEffectType.GainCoins;
-                ev.Value = xxx;
+                ev.Value = xx;
                 break;
             case 9:
                 ev.Title = "คุณเจอคนขายยาที่หน้าสงสัย";

@@ -14,7 +14,6 @@ namespace StickyRogueProject
             Routing.RegisterRoute("RopPage", typeof(RopPage));
             Routing.RegisterRoute("CombatPage", typeof(Views.CombatPage));
             Routing.RegisterRoute("ChurchPage", typeof(Views.ChurchPage));
-            Routing.RegisterRoute("CasinoMenu", typeof(Views.CasinoMenu));
             Routing.RegisterRoute("BlackjackPage", typeof(Views.BlackjackPage));
             Routing.RegisterRoute("HighLowPage", typeof(Views.HighLowPage));
             Routing.RegisterRoute("StoryPage", typeof(Views.StoryPage));

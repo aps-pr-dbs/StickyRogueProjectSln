@@ -8,334 +8,135 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#574E79">
 
-    <Grid Margin="15" RowDefinitions="Auto, *, Auto" RowSpacing="20">
+    <Grid>
 
-        <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="15">
+        <Grid Margin="15" RowDefinitions="Auto, *, Auto" RowSpacing="20">
 
-            <Border Grid.Column="0"
-                    BackgroundColor="#9583D5"
-                    StrokeThickness="0.5"
-                    Stroke="#C2B194"
-                    StrokeShape="RoundRectangle 14"
-                    Padding="14,12">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding ShowEnemyStatusCommand}" />
-                </Border.GestureRecognizers>
-                <VerticalStackLayout Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            Text="{Binding EnemyName}"
-                            FontSize="15"
-                            FontAttributes="Bold"
-                            TextColor="#FFFFFF" />
-                        <Label
-                            Grid.Column="1"
-                            Text="{Binding EnemyLevel, StringFormat='Lv.{0}'}"
-                            FontSize="13"
-                            TextColor="#574E79" />
-                    </Grid>
+            <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="15">
 
-                    <VerticalStackLayout Spacing="2">
-                        <Grid ColumnDefinitions="Auto,*">
-                            <Label
-                                Grid.Column="0"
-                                Text="HP"
-                                FontSize="11"
-                                FontAttributes="Bold"
-                                TextColor="#C2B194"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding EnemyHpText}"
-                                FontSize="10"
-                                FontAttributes="Bold"
-                                TextColor="#FFFFFF"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
+                <Border Grid.Column="0"
+                        BackgroundColor="#9583D5"
+                        StrokeThickness="0.5"
+                        Stroke="#C2B194"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,12">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="{Binding EnemyName}" FontSize="15" FontAttributes="Bold" TextColor="#FFFFFF" />
+                            <Label Grid.Column="1" Text="{Binding EnemyLevel, StringFormat='Lv.{0}'}" FontSize="13" TextColor="#574E79" />
                         </Grid>
-                        <ProgressBar
-                            Progress="{Binding EnemyHpProgress}"
-                            ProgressColor="#B5BC9A"
-                            BackgroundColor="#574E79"
-                            HeightRequest="5" />
-                    </VerticalStackLayout>
 
-                    <Border BackgroundColor="#4A3F6B"
-                            StrokeThickness="0.5"
-                            Stroke="#C2B194"
-                            StrokeShape="RoundRectangle 8"
-                            Padding="8,6"
-                            Margin="0,4,0,0">
-                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Label Text="{Binding EnemyIntentIcon}" FontSize="16" VerticalOptions="Center" />
-                            <Label Text="{Binding EnemyIntentText}" FontSize="11" FontAttributes="Bold" TextColor="#E8D5A3" VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-                    </Border>
-
-                </VerticalStackLayout>
-            </Border>
-
-            <Border
-                Grid.Column="1"
-                BackgroundColor="#9583D5"
-                StrokeThickness="0.5"
-                Stroke="#C2B194"
-                StrokeShape="RoundRectangle 14"
-                HeightRequest="130">
-                <Image
-                    Source="{Binding EnemyImageSource}"
-                    Aspect="AspectFit"
-                    Margin="10" />
-            </Border>
-
-        </Grid>
-
-        <Grid Grid.Row="1" RowDefinitions="*,Auto" RowSpacing="12">
-
-            <Border
-                Grid.Row="0"
-                BackgroundColor="#C5A8E1"
-                StrokeThickness="0.5"
-                Stroke="#C2B194"
-                StrokeShape="RoundRectangle 14"
-                Padding="16,12">
-                <Label
-                    Text="{Binding CombatLog}"
-                    FontSize="14"
-                    FontAttributes="Bold"
-                    TextColor="#574E79"
-                    LineHeight="1.5"
-                    VerticalOptions="End" />
-            </Border>
-
-            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
-
-                <Image
-                    Grid.Column="0"
-                    Source="{Binding CharacterImageSource}"
-                    WidthRequest="150"
-                    HeightRequest="150"
-                    Aspect="AspectFit"
-                    HorizontalOptions="Center"
-                    VerticalOptions="End"
-                    InputTransparent="True"
-                    Margin="0, 0, 0, 0" />
-
-                <Border
-                    Grid.Column="1"
-                    BackgroundColor="#9583D5"
-                    StrokeThickness="0.5"
-                    Stroke="#C2B194"
-                    StrokeShape="RoundRectangle 14"
-                    Padding="14,12"
-                    VerticalOptions="End"
-                    Margin="0, 0, 0, 7">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ShowPlayerStatusCommand}" />
-                    </Border.GestureRecognizers>
-
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-
-                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label
-                                    Grid.Column="0"
-                                    Text="{Binding CharacterName}"
-                                    FontSize="15"
-                                    FontAttributes="Bold"
-                                    TextColor="#FFFFFF" />
-                                <Label
-                                    Grid.Column="1"
-                                    Text="{Binding CharacterLevel, StringFormat='Lv.{0}'}"
-                                    FontSize="13"
-                                    TextColor="#574E79" />
+                        <VerticalStackLayout Spacing="2">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Grid.Column="0" Text="HP" FontSize="11" FontAttributes="Bold" TextColor="#C2B194" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding EnemyHpText}" FontSize="10" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="End" VerticalOptions="Center" />
                             </Grid>
-
-                            <VerticalStackLayout Spacing="2">
-                                <Grid ColumnDefinitions="Auto,*">
-                                    <Label
-                                        Grid.Column="0"
-                                        Text="HP"
-                                        FontSize="11"
-                                        FontAttributes="Bold"
-                                        TextColor="#C2B194"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding CharacterHpText}"
-                                        FontSize="10"
-                                        FontAttributes="Bold"
-                                        TextColor="#FFFFFF"
-                                        HorizontalOptions="End"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                                <ProgressBar
-                                    Progress="{Binding CharacterHpProgress}"
-                                    ProgressColor="#B5BC9A"
-                                    BackgroundColor="#574E79"
-                                    HeightRequest="5" />
-                            </VerticalStackLayout>
-
-                            <VerticalStackLayout Spacing="2">
-                                <Grid ColumnDefinitions="Auto,*">
-                                    <Label
-                                        Grid.Column="0"
-                                        Text="MP"
-                                        FontSize="11"
-                                        FontAttributes="Bold"
-                                        TextColor="#C5A8E1"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding CharacterMpText}"
-                                        FontSize="10"
-                                        FontAttributes="Bold"
-                                        TextColor="#FFFFFF"
-                                        HorizontalOptions="End"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                                <ProgressBar
-                                    Progress="{Binding CharacterMpProgress}"
-                                    ProgressColor="#C5A8E1"
-                                    BackgroundColor="#574E79"
-                                    HeightRequest="5" />
-                            </VerticalStackLayout>
-
-                            <VerticalStackLayout Spacing="2">
-                                <Grid ColumnDefinitions="Auto,*">
-                                    <Label
-                                        Grid.Column="0"
-                                        Text="XP"
-                                        FontSize="11"
-                                        FontAttributes="Bold"
-                                        TextColor="#C2B194"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding XpDisplay}"
-                                        FontSize="10"
-                                        FontAttributes="Bold"
-                                        TextColor="#FFFFFF"
-                                        HorizontalOptions="End"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                                <ProgressBar
-                                    Progress="{Binding CharacterXpProgress}"
-                                    ProgressColor="#C2B194"
-                                    BackgroundColor="#574E79"
-                                    HeightRequest="5" />
-                            </VerticalStackLayout>
-
+                            <ProgressBar Progress="{Binding EnemyHpProgress}" ProgressColor="#B5BC9A" BackgroundColor="#574E79" HeightRequest="5" />
                         </VerticalStackLayout>
-                    </Grid>
+
+                        <Border BackgroundColor="#4A3F6B" StrokeThickness="0.5" Stroke="#C2B194" StrokeShape="RoundRectangle 8" Padding="8,6" Margin="0,4,0,0">
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="{Binding EnemyIntentIcon}" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="{Binding EnemyIntentText}" FontSize="11" FontAttributes="Bold" TextColor="#E8D5A3" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
                 </Border>
 
+                <Border Grid.Column="1" BackgroundColor="#9583D5" StrokeThickness="0.5" Stroke="#C2B194" StrokeShape="RoundRectangle 14" HeightRequest="130">
+                    <Grid>
+                        
+                        <Image x:Name="EnemyImage" Source="{Binding EnemyImageSource}" Aspect="AspectFit" Margin="10" />
+                    </Grid>
+                </Border>
             </Grid>
-        </Grid>
 
-        <Border
-            Grid.Row="2"
-            BackgroundColor="#C5A8E1"
-            StrokeThickness="0.5"
-            Stroke="#C2B194"
-            StrokeShape="RoundRectangle 18"
-            Padding="14">
+            <Grid Grid.Row="1" RowDefinitions="Auto, *, Auto" RowSpacing="12">
 
-            <Grid ColumnDefinitions="2*,*" ColumnSpacing="12">
-
-                <Grid
-                    Grid.Column="0"
-                    RowDefinitions="*,*"
-                    ColumnDefinitions="*,*"
-                    RowSpacing="10"
-                    ColumnSpacing="10">
-
-                    <Button
-                        Grid.Row="0" Grid.Column="0"
-                        Text="⚔️  Attack"
-                        Command="{Binding AttackCommand}"
-                        BackgroundColor="#9583D5"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        CornerRadius="20"
-                        HeightRequest="48" />
-
-                    <Button
-                        Grid.Row="0" Grid.Column="1"
-                        Text="🛡️  Defend"
-                        Command="{Binding DefendCommand}"
-                        BackgroundColor="#9583D5"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        CornerRadius="20"
-                        HeightRequest="48" />
-
-                    <Button
-                        Grid.Row="1" Grid.Column="0"
-                        Text="✨  Magic"
-                        Command="{Binding MagicCommand}"
-                        BackgroundColor="#9583D5"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        CornerRadius="20"
-                        HeightRequest="48" />
-
-                    <Button
-                        Grid.Row="1" Grid.Column="1"
-                        Text="🏃  Run"
-                        Command="{Binding RunCommand}"
-                        BackgroundColor="#9583D5"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        CornerRadius="20"
-                        HeightRequest="48" />
-
+                <Grid Grid.Row="0" ColumnDefinitions="*,*" ColumnSpacing="10" MinimumHeightRequest="45">
+                    <Border Grid.Column="0" IsVisible="{Binding IsPlayerDialogueVisible}" BackgroundColor="#4A2D7A" Stroke="#C5A8E1" StrokeThickness="1" StrokeShape="RoundRectangle 15,15,15,0" Padding="12,8">
+                        <Label Text="{Binding PlayerDialogue}" TextColor="#E8D5A3" FontSize="13" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Column="1" IsVisible="{Binding IsEnemyDialogueVisible}" BackgroundColor="#5A1E3E" Stroke="#D9534F" StrokeThickness="1" StrokeShape="RoundRectangle 15,15,0,15" Padding="12,8">
+                        <Label Text="{Binding EnemyDialogue}" TextColor="#FFFFFF" FontSize="13" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                    </Border>
                 </Grid>
 
-                <VerticalStackLayout Grid.Column="1" Spacing="6">
-                    <Button
-                        Text="🎒 Inventory"
-                        Command="{Binding OpenInventoryCommand}"
-                        BackgroundColor="#574E79"
-                        TextColor="#C2B194"
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        CornerRadius="16"
-                        VerticalOptions="Fill" />
+                <Border Grid.Row="1" BackgroundColor="#C5A8E1" StrokeThickness="0.5" Stroke="#C2B194" StrokeShape="RoundRectangle 14" Padding="16,12">
+                    <Label Text="{Binding CombatLog}" FontSize="14" FontAttributes="Bold" TextColor="#574E79" LineHeight="1.5" VerticalOptions="End" />
+                </Border>
 
-                    <Button
-                        Clicked="HPPotionBtnClicked"
-                        Text="{Binding HpPotionCount, StringFormat='💊 ×{0}'}"
-                        Command="{Binding UseItemCommand}"
-                        CommandParameter="HP"
-                        BackgroundColor="#574E79"
-                        TextColor="#B5BC9A"
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        CornerRadius="14"
-                        HeightRequest="34" />
+                <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
 
-                    <Button
-                        Clicked="ManaPotionBtnClicked"
-                        Text="{Binding MpPotionCount, StringFormat='🧪 ×{0}'}"
-                        Command="{Binding UseItemCommand}"
-                        CommandParameter="MP"
-                        BackgroundColor="#574E79"
-                        TextColor="#C5A8E1"
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        CornerRadius="14"
-                        HeightRequest="34" />
-                </VerticalStackLayout>
+                    <Grid Grid.Column="0" HorizontalOptions="Center" VerticalOptions="End">
+                        <Image x:Name="PlayerImage" Source="{Binding CharacterImageSource}" WidthRequest="150" HeightRequest="150" Aspect="AspectFit" InputTransparent="True" />
+                    </Grid>
 
+                    <Border Grid.Column="1" BackgroundColor="#9583D5" StrokeThickness="0.5" Stroke="#C2B194" StrokeShape="RoundRectangle 14" Padding="14,12" VerticalOptions="End" Margin="0, 0, 0, 7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ShowPlayerStatusCommand}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding CharacterName}" FontSize="15" FontAttributes="Bold" TextColor="#FFFFFF" />
+                                    <Label Grid.Column="1" Text="{Binding CharacterLevel, StringFormat='Lv.{0}'}" FontSize="13" TextColor="#574E79" />
+                                </Grid>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="HP" FontSize="11" FontAttributes="Bold" TextColor="#C2B194" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding CharacterHpText}" FontSize="10" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="End" VerticalOptions="Center" />
+                                    </Grid>
+                                    <ProgressBar Progress="{Binding CharacterHpProgress}" ProgressColor="#B5BC9A" BackgroundColor="#574E79" HeightRequest="5" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="MP" FontSize="11" FontAttributes="Bold" TextColor="#C5A8E1" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding CharacterMpText}" FontSize="10" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="End" VerticalOptions="Center" />
+                                    </Grid>
+                                    <ProgressBar Progress="{Binding CharacterMpProgress}" ProgressColor="#C5A8E1" BackgroundColor="#574E79" HeightRequest="5" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="XP" FontSize="11" FontAttributes="Bold" TextColor="#C2B194" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding XpDisplay}" FontSize="10" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="End" VerticalOptions="Center" />
+                                    </Grid>
+                                    <ProgressBar Progress="{Binding CharacterXpProgress}" ProgressColor="#C2B194" BackgroundColor="#574E79" HeightRequest="5" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Grid>
-        </Border>
+
+            <Border Grid.Row="2" BackgroundColor="#C5A8E1" StrokeThickness="0.5" Stroke="#C2B194" StrokeShape="RoundRectangle 18" Padding="14">
+                <Grid ColumnDefinitions="2*,*" ColumnSpacing="12">
+                    <Grid Grid.Column="0" RowDefinitions="*,*" ColumnDefinitions="*,*" RowSpacing="10" ColumnSpacing="10">
+                        <Button Grid.Row="0" Grid.Column="0" Text="⚔️  Attack" Command="{Binding AttackCommand}" BackgroundColor="#9583D5" TextColor="#FFFFFF" FontAttributes="Bold" FontSize="14" CornerRadius="20" HeightRequest="48" />
+                        <Button Grid.Row="0" Grid.Column="1" Text="🛡️  Defend" Command="{Binding DefendCommand}" BackgroundColor="#9583D5" TextColor="#FFFFFF" FontAttributes="Bold" FontSize="14" CornerRadius="20" HeightRequest="48" />
+                        <Button Grid.Row="1" Grid.Column="0" Text="✨  Magic" Command="{Binding MagicCommand}" BackgroundColor="#9583D5" TextColor="#FFFFFF" FontAttributes="Bold" FontSize="14" CornerRadius="20" HeightRequest="48" />
+                        <Button Grid.Row="1" Grid.Column="1" Text="🏃  Run" Command="{Binding RunCommand}" BackgroundColor="#9583D5" TextColor="#FFFFFF" FontAttributes="Bold" FontSize="14" CornerRadius="20" HeightRequest="48" />
+                    </Grid>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Button Text="🎒 Inventory" Command="{Binding OpenInventoryCommand}" BackgroundColor="#574E79" TextColor="#C2B194" FontAttributes="Bold" FontSize="13" CornerRadius="16" VerticalOptions="Fill" />
+                        <Button Clicked="HPPotionBtnClicked" Text="{Binding HpPotionCount, StringFormat='💊 ×{0}'}" Command="{Binding UseItemCommand}" CommandParameter="HP" BackgroundColor="#574E79" TextColor="#B5BC9A" FontAttributes="Bold" FontSize="12" CornerRadius="14" HeightRequest="34" />
+                        <Button Clicked="ManaPotionBtnClicked" Text="{Binding MpPotionCount, StringFormat='🧪 ×{0}'}" Command="{Binding UseItemCommand}" CommandParameter="MP" BackgroundColor="#574E79" TextColor="#C5A8E1" FontAttributes="Bold" FontSize="12" CornerRadius="14" HeightRequest="34" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+        </Grid>
+
+        <Grid IsVisible="{Binding IsBusy}" BackgroundColor="Transparent">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer />
+            </Grid.GestureRecognizers>
+        </Grid>
 
     </Grid>
 </ContentPage>

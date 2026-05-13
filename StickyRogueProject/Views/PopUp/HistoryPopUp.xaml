@@ -8,7 +8,7 @@
         <BoxView Color="#80000000" Opacity="0.8" />
 
         <Border VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="340" HeightRequest="500"
-                Padding="20" BackgroundColor="#1A1A1A" Stroke="#BA55D3" StrokeThickness="2">
+                Padding="20" BackgroundColor="#1E1B2E" Stroke="#BA55D3" StrokeThickness="2">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20" />
             </Border.StrokeShape>
@@ -19,21 +19,44 @@
                 <CollectionView Grid.Row="1" ItemsSource="{Binding Histories}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Border BackgroundColor="#2C2C2C" Margin="0,0,0,10" Padding="10" StrokeShape="RoundRectangle 10">
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <VerticalStackLayout Grid.Column="0">
-                                        <Label Text="{Binding ClassName}" FontAttributes="Bold" TextColor="White" />
-                                        <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy HH:mm}'}" FontSize="10" TextColor="Gray" />
+                            <Border BackgroundColor="#2A1E3E" Margin="0,0,0,12" Padding="15" Stroke="#4A2D7A" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                                <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto" RowSpacing="6">
+
+                                    <VerticalStackLayout Grid.Row="0" Grid.Column="0">
+                                        <Label Text="{Binding ClassName}" FontSize="16" FontAttributes="Bold" TextColor="#E8D5A3" />
+                                        <Label Text="{Binding DiedAtDisplay}" FontSize="11" TextColor="#7A6A8A" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="1" Text="{Binding Score, StringFormat='{0} Pts'}" TextColor="Gold" VerticalOptions="Center" />
+
+                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Start">
+                                        <Label Text="{Binding CoinsAtDeath}" FontSize="14" FontAttributes="Bold" TextColor="#FFD700" />
+                                        <Label Text="🪙" FontSize="12" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+
+                                    <BoxView Grid.Row="1" Grid.ColumnSpan="2" HeightRequest="1" Color="#4A2D7A" Margin="0,4" />
+
+                                    <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="4">
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label Text="{Binding LevelReached, StringFormat='Lv: {0}'}" FontSize="12" TextColor="#B5BC9A" FontAttributes="Bold" />
+                                            <Label Text="|" TextColor="#4A2D7A" FontSize="12" />
+                                            <Label Text="{Binding StageDiedAt, StringFormat='Wave: {0}'}" FontSize="12" TextColor="#9583D5" FontAttributes="Bold" />
+                                            <Label Text="|" TextColor="#4A2D7A" FontSize="12" />
+                                            <Label Text="{Binding LoopReached, StringFormat='Loop: {0}'}" FontSize="12" TextColor="#C5A8E1" FontAttributes="Bold" />
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding CauseOfDeath, StringFormat='💀 {0}'}" FontSize="12" TextColor="#D9534F" FontAttributes="Italic" />
+                                    </VerticalStackLayout>
+
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <Label Text="ยังไม่มีประวัติผู้กล้าที่ร่วงหล่น..." TextColor="#7A6A8A" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,50,0,0" />
+                    </CollectionView.EmptyView>
                 </CollectionView>
 
                 <Button Grid.Row="2" Text="CLOSE" Clicked="OnCloseClicked" 
-                        BackgroundColor="#2C2C2C" TextColor="White" CornerRadius="25" HeightRequest="50" Margin="0,15,0,0" />
+                        BackgroundColor="#4A2D7A" TextColor="#E8D5A3" FontAttributes="Bold" CornerRadius="15" HeightRequest="45" Margin="0,15,0,0" />
             </Grid>
         </Border>
     </Grid>

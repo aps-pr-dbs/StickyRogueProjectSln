@@ -8,7 +8,8 @@
              Shell.NavBarIsVisible="False">
 
     <Grid Margin="20">
-        <Border Stroke="#5A3E7A" StrokeThickness="2" HorizontalOptions="Center" WidthRequest="400" VerticalOptions="Center" BackgroundColor="#1A142A" StrokeShape="RoundRectangle 20">
+        <Border Stroke="#5A3E7A" StrokeThickness="2" HorizontalOptions="Center" WidthRequest="400" 
+                VerticalOptions="Center" BackgroundColor="#1A142A" StrokeShape="RoundRectangle 20">
             <ScrollView>
                 <VerticalStackLayout Padding="20" Spacing="15" HorizontalOptions="Center">
 
@@ -16,6 +17,14 @@
                     <Label Text="ชนะรับฟรี Artifact / แพ้เสียค่า Stat" FontSize="12" TextColor="#8A7A9A" HorizontalOptions="Center" Margin="0,-10,0,10"/>
 
                     <Image Source="merchant.png" HeightRequest="120" WidthRequest="120" HorizontalOptions="Center" />
+
+                    <Border BackgroundColor="#2A1D4A" Stroke="#BA55D3" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="15" Margin="0,5,0,10">
+                        <Label Text="{Binding ShopkeeperDialogue}" 
+                               TextColor="#E8D5A3" 
+                               FontSize="14" 
+                               FontAttributes="Italic" 
+                               HorizontalTextAlignment="Center" />
+                    </Border>
 
                     <HorizontalStackLayout IsVisible="{Binding IsVsVisible}" Spacing="20" HorizontalOptions="Center" Margin="0,10">
                         <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
@@ -35,7 +44,7 @@
                         </VerticalStackLayout>
                     </HorizontalStackLayout>
 
-                    <Label Text="{Binding ResultText}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{Binding ResultColor}" />
+                    <Label Text="{Binding ResultText}" FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="{Binding ResultColor}" />
 
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="15" HorizontalOptions="Center" Margin="0,10" IsEnabled="{Binding IsActionEnabled}">
                         <ImageButton Grid.Column="0" Source="hammer.png" BackgroundColor="#4A2D7A" Padding="15" CornerRadius="20" WidthRequest="90" HeightRequest="90" Command="{Binding PlayRopCommand}" CommandParameter="Rock"/>
@@ -43,9 +52,15 @@
                         <ImageButton Grid.Column="2" Source="paper.png" BackgroundColor="#4A2D7A" Padding="15" CornerRadius="20" WidthRequest="90" HeightRequest="90" Command="{Binding PlayRopCommand}" CommandParameter="Paper"/>
                     </Grid>
 
-                    <!-- Win/Lose: Navigate ไป CombatPage อัตโนมัติใน PlayRopAsync หลัง 1.8 วินาที -->
-                    <!-- Draw: ผู้เล่นเห็นข้อความ "DRAW! Try again." แล้วกดซ้ำได้ทันที -->
-                    <!-- ปุ่ม RETURN TO SHOP ถูกลบออก — ไม่จำเป็นแล้ว -->
+                    <Button Text="RETURN TO COMBAT" 
+                            Command="{Binding ExitGameCommand}" 
+                            IsVisible="{Binding IsGameOver}" 
+                            BackgroundColor="#D9534F" 
+                            TextColor="White" 
+                            FontAttributes="Bold" 
+                            CornerRadius="15" 
+                            HeightRequest="45" 
+                            Margin="0,10,0,0" />
 
                 </VerticalStackLayout>
             </ScrollView>

@@ -44,6 +44,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ViewModels.StoryViewModel>();
         builder.Services.AddTransient<CombatViewModel>();
         builder.Services.AddTransient<ChurchViewModel>();
+        builder.Services.AddTransient<ViewModels.BlackjackViewModel>();
+        builder.Services.AddTransient<ViewModels.HighLowViewModel>();
 
         // 3. ===== ลงทะเบียน Views =====
         builder.Services.AddTransient<MainPage>();
@@ -53,9 +55,10 @@ public static class MauiProgram
         builder.Services.AddTransient<CombatPage>();
         builder.Services.AddTransient<ChurchPage>();
         builder.Services.AddTransient<Views.StoryPage>();
-
         builder.Services.AddSingleton<SoundService>();
         builder.Services.AddSingleton<IAudioManager, AudioManager>();
+        builder.Services.AddTransient<Views.HighLowPage>();
+        builder.Services.AddTransient<Views.BlackjackPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

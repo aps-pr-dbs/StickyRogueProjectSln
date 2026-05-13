@@ -30,18 +30,41 @@ public class HistoryService
     {
         try
         {
-            // แปลงข้อมูลจาก ActiveSave → RunHistory
+            // 1. สร้างและบันทึกประวัติการตายใหม่ล่าสุดลงไปก่อน
             var history = new RunHistory
             {
                 ClassName = completedRun.ClassName,
                 LevelReached = completedRun.Level,
-                StageDiedAt = completedRun.CurrentWave, // เปลี่ยนจาก CurrentStage เป็น CurrentWave
+                StageDiedAt = completedRun.CurrentWave,
+                LoopReached = completedRun.CurrentLoop,
                 CoinsAtDeath = completedRun.Coins,
                 CauseOfDeath = causeOfDeath,
                 DiedAt = DateTime.UtcNow
             };
 
             await _db.InsertAsync(history);
+
+            // ⚡ 2. เริ่มระบบ FIFO (จำกัดสูงสุด 5 รายการ) ⚡
+            // ดึงข้อมูลทั้งหมดในตารางมาเรียงลำดับจาก "ใหม่ที่สุด -> เก่าที่สุด"
+            var allHistory = await _db.Table<RunHistory>()
+                                      .OrderByDescending(h => h.DiedAt)
+                                      .ToListAsync();
+
+            // เช็คว่าถ้ามีประวัติเกิน 5 รายการ
+            if (allHistory.Count > 5)
+            {
+                // ใช้คำสั่ง Skip(5) เพื่อข้าม 5 อันดับแรก (ที่ใหม่สุด) ไป 
+                // แล้วเอาข้อมูลอันที่ 6 เป็นต้นไป (ที่เก่ากว่า) มาจับยัดลง List เพื่อเตรียมลบ
+                var recordsToDelete = allHistory.Skip(5).ToList();
+
+                // สั่งลบประวัติที่เก่าเกินโควต้าทิ้งทีละอัน
+                foreach (var record in recordsToDelete)
+                {
+                    await _db.DeleteAsync(record);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[HistoryService] ทำงานแบบ FIFO: ลบประวัติเก่าทิ้ง {recordsToDelete.Count} รายการ");
+            }
         }
         catch (Exception ex)
         {
