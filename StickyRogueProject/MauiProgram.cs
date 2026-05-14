@@ -60,6 +60,10 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.HighLowPage>();
         builder.Services.AddTransient<Views.BlackjackPage>();
 
+        builder.Services.AddHttpClient<AiEnemyService>();
+
+        builder.Services.AddSingleton<AiEnemyService>();
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

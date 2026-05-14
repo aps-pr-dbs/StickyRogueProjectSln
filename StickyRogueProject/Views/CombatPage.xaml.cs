@@ -40,7 +40,6 @@ public partial class CombatPage : ContentPage
 
         // ── ⚡ ระบบอนิเมชัน (Game Feel) ⚡ ──
 
-        // 1. ตัวละครโดนตี (เปลี่ยนเป็นสั่นรัวๆ)
         // 1. ตัวละครโดนตี (เหลือแค่สั่นรูปภาพ ไม่กระพริบแดงแล้ว)
         _viewModel.OnPlayerHitAnim = async () => {
             uint speed = 40;
@@ -74,6 +73,10 @@ public partial class CombatPage : ContentPage
         };
     }
 
+    // ⚡ ฟังก์ชันเล่นเสียงคลิกปุ่มทั่วไป (Attack, Defend, Magic, Run, Inventory)
+    private void OnGeneralButtonClicked(object sender, EventArgs e) => _soundService.PlayClickSound();
+
+    // ปุ่ม Potion ใช้เสียงแยก
     private void HPPotionBtnClicked(object sender, EventArgs e) => _soundService.PlayHPPotionSound();
     private void ManaPotionBtnClicked(object sender, EventArgs e) => _soundService.PlayManaSound();
 

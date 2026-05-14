@@ -16,12 +16,24 @@ public partial class CombatViewModel : ObservableObject
     private readonly HistoryService _historyService;
     private readonly SoundService _soundService;
     private readonly Random _rng = new();
+    private readonly AiEnemyService _aiEnemyService;
+
+    // ⚡ ตัวเก็บประวัติการต่อสู้ ⚡
+    private readonly List<CombatTurn> _combatHistory = new();
+    private string _lastPlayerAction = "Attack";
 
     public Func<Task>? OpenInventoryPopup { get; set; }
     public Func<Task>? OpenPlayerStatusPopup { get; set; }
     public Func<Task>? OpenEnemyStatusPopup { get; set; }
     public Func<string, string, Task>? ShowAlert { get; set; }
     public Func<string, string, string, string, Task<bool>>? ShowConfirm { get; set; }
+
+    public Action? OnPlayerHitAnim { get; set; }
+    public Action? OnEnemyHitAnim { get; set; }
+    public Action? OnPlayerDodgeAnim { get; set; }
+    public Action? OnEnemyDodgeAnim { get; set; }
+
+    public Action? OnEnemyActionTriggered;
 
     private ActiveSave? _save;
     private Enemy? _enemy;
@@ -36,7 +48,6 @@ public partial class CombatViewModel : ObservableObject
     [ObservableProperty] private double _enemyHpProgress = 1.0;
     [ObservableProperty] private string _enemyImageSource = string.Empty;
 
-    // ⚡ ตัวแปรใหม่สำหรับโชว์หน้า UI ว่ามอนสเตอร์จะทำอะไร ⚡
     [ObservableProperty] private string _enemyIntentIcon = "❓";
     [ObservableProperty] private string _enemyIntentText = "กำลังคิด...";
 
@@ -59,6 +70,13 @@ public partial class CombatViewModel : ObservableObject
 
     [ObservableProperty] private string _combatLog = "Combat Start!";
 
+    // ⚡ ตัวแปรสำหรับเปิด/ปิด และเก็บข้อความช่องแชท 2 ฝั่ง ⚡
+    [ObservableProperty] private string _enemyTauntText = "";
+    [ObservableProperty] private bool _isEnemyTauntVisible = false;
+
+    [ObservableProperty] private string _playerTauntText = "";
+    [ObservableProperty] private bool _isPlayerTauntVisible = false;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AttackCommand))]
     [NotifyCanExecuteChangedFor(nameof(DefendCommand))]
@@ -69,11 +87,13 @@ public partial class CombatViewModel : ObservableObject
 
     private bool _isDefending = false;
 
-    public CombatViewModel(SaveService saveService, HistoryService historyService, SoundService soundService)
+    public CombatViewModel(SaveService saveService, HistoryService historyService,
+                        SoundService soundService, AiEnemyService aiEnemyService)
     {
         _saveService = saveService;
         _historyService = historyService;
         _soundService = soundService;
+        _aiEnemyService = aiEnemyService;
     }
 
     [RelayCommand]
@@ -115,6 +135,9 @@ public partial class CombatViewModel : ObservableObject
         }
     }
 
+    // ==========================================
+    // ⚔️ โหมดโจมตี (Attack)
+    // ==========================================
     [RelayCommand(CanExecute = nameof(CanAct))]
     private async Task AttackAsync()
     {
@@ -122,34 +145,64 @@ public partial class CombatViewModel : ObservableObject
         try
         {
             IsBusy = true;
+            _soundService.PlaySwordSlash();
+
+            // ตัวละครพูดปลุกใจ
+            string[] playerQuotes = { "ย๊ากกกก!", "รับดาบข้าไปซะ!", "เปิดช่องโหว่แล้ว!" };
+            PlayerTauntText = $"💬 {CharacterName}: \"{playerQuotes[_rng.Next(playerQuotes.Length)]}\"";
+            IsPlayerTauntVisible = true;
+
             if (_rng.NextDouble() < 0.10)
             {
                 AppendLog("💨 คุณโจมตีพลาดเป้า!");
-                OnEnemyDodgeAnim?.Invoke(); // ⚡ สั่งศัตรูโยกหลบ
-                FireDialogue(false, EnemyFactory.GetRandomEnemyDodgeQuote());
-                try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); } catch { } // สั่นเบาๆ
+                OnEnemyDodgeAnim?.Invoke(); // ⚡ อนิเมชันมอนสเตอร์โยกหลบ
+
+                _combatHistory.Add(new CombatTurn
+                {
+                    PlayerAction = "Attack",
+                    PlayerDamageDealt = 0,
+                    EnemyHpAfter = _enemy.CurrentHp,
+                    PlayerHpAfter = _save.CurrentHp,
+                    PlayerWasMissed = true
+                });
             }
             else
             {
                 double variation = 0.8 + _rng.NextDouble() * 0.4;
                 int rawDmg = (int)(_save.Atk * variation);
-                if (_enemy.ResistanceType == "Physical") { rawDmg /= 2; AppendLog($"🛡️ {_enemy.Name} ต้านทานการโจมตีกายภาพ"); }
+
+                if (_enemy.ResistanceType == "Physical")
+                {
+                    rawDmg /= 2;
+                    AppendLog($"🛡️ {_enemy.Name} หนังเหนียว! ต้านทานการโจมตีกายภาพ");
+                }
 
                 int finalDmg = _enemy.TakeDamage(rawDmg);
                 AppendLog($"⚔️ คุณโจมตี {EnemyName} {finalDmg} ความเสียหาย!");
 
-                OnEnemyHitAnim?.Invoke(); // ⚡ สั่งศัตรูกระพริบแดง
-                FireDialogue(true, EnemyFactory.GetRandomPlayerAttackQuote());
-                try { HapticFeedback.Default.Perform(HapticFeedbackType.LongPress); } catch { } // สั่นกระแทก
+                OnEnemyHitAnim?.Invoke(); // ⚡ อนิเมชันมอนสเตอร์สั่น (โดนตี)
                 RefreshEnemyUi();
+
+                _combatHistory.Add(new CombatTurn
+                {
+                    PlayerAction = "Attack",
+                    PlayerDamageDealt = finalDmg,
+                    EnemyHpAfter = _enemy.CurrentHp,
+                    PlayerHpAfter = _save.CurrentHp,
+                    PlayerWasMissed = false
+                });
             }
 
             if (_enemy.IsDefeated) { await OnEnemyDefeatedAsync(); return; }
             await DoEnemyTurnAsync();
         }
         finally { IsBusy = false; }
+        _ = DetermineNextEnemyIntentAsync();
     }
 
+    // ==========================================
+    // 🛡️ โหมดป้องกัน (Defend)
+    // ==========================================
     [RelayCommand(CanExecute = nameof(CanAct))]
     private async Task DefendAsync()
     {
@@ -157,13 +210,32 @@ public partial class CombatViewModel : ObservableObject
         try
         {
             IsBusy = true;
-            _isDefending = true; // ⚡ เปิดโหมดป้องกันสำหรับการตั้งการ์ด
+            _soundService.PlayDefend();
+            _isDefending = true;
+
+            PlayerTauntText = $"💬 {CharacterName}: \"เข้ามาเลย! ข้าพร้อมรับมือ!\"";
+            IsPlayerTauntVisible = true;
+
             AppendLog("🛡️ คุณตั้งการ์ดเตรียมรับการโจมตี!");
+
+            _combatHistory.Add(new CombatTurn
+            {
+                PlayerAction = "Defend",
+                PlayerDamageDealt = 0,
+                EnemyHpAfter = _enemy.CurrentHp,
+                PlayerHpAfter = _save.CurrentHp,
+                PlayerWasMissed = false
+            });
+
             await DoEnemyTurnAsync();
         }
         finally { IsBusy = false; }
+        _ = DetermineNextEnemyIntentAsync();
     }
 
+    // ==========================================
+    // ✨ โหมดเวทมนตร์ (Magic)
+    // ==========================================
     [RelayCommand(CanExecute = nameof(CanAct))]
     private async Task MagicAsync()
     {
@@ -172,6 +244,7 @@ public partial class CombatViewModel : ObservableObject
         {
             IsBusy = true;
             const int mpCost = 10;
+
             if (_save.CurrentMp < mpCost)
             {
                 AppendLog("✨ MP ไม่พอ! ต้องการ 10 MP");
@@ -180,18 +253,31 @@ public partial class CombatViewModel : ObservableObject
             }
 
             _save.CurrentMp -= mpCost;
+            _soundService.PlayMagicAtk();
 
-            // ⚡ โอกาสร่ายเวทย์พลาด 10%
+            string[] magicQuotes = { "พลังเวทย์จงสถิตกับข้า!", "จงมอดไหม้!", "หายไปซะ!" };
+            PlayerTauntText = $"💬 {CharacterName}: \"{magicQuotes[_rng.Next(magicQuotes.Length)]}\"";
+            IsPlayerTauntVisible = true;
+
             if (_rng.NextDouble() < 0.10)
             {
                 AppendLog("💨 ร่ายเวทย์ล้มเหลว พลาดเป้า!");
+                OnEnemyDodgeAnim?.Invoke(); // ⚡ อนิเมชันมอนสเตอร์โยกหลบ
+
+                _combatHistory.Add(new CombatTurn
+                {
+                    PlayerAction = "Magic",
+                    PlayerDamageDealt = 0,
+                    EnemyHpAfter = _enemy.CurrentHp,
+                    PlayerHpAfter = _save.CurrentHp,
+                    PlayerWasMissed = true
+                });
             }
             else
             {
                 double variation = 0.85 + _rng.NextDouble() * 0.3;
                 int magicDmg = (int)(_save.Int * variation);
 
-                // ⚡ เช็คระบบต้านทาน (Magic)
                 if (_enemy.ResistanceType == "Magic")
                 {
                     magicDmg /= 2;
@@ -200,16 +286,31 @@ public partial class CombatViewModel : ObservableObject
 
                 _enemy.CurrentHp = Math.Max(0, _enemy.CurrentHp - magicDmg);
                 AppendLog($"✨ เวทย์ถล่ม {EnemyName} {magicDmg} ความเสียหาย! (ทะลุ DEF)");
+
+                OnEnemyHitAnim?.Invoke(); // ⚡ อนิเมชันมอนสเตอร์สั่น (โดนตี)
                 RefreshPlayerUi();
                 RefreshEnemyUi();
+
+                _combatHistory.Add(new CombatTurn
+                {
+                    PlayerAction = "Magic",
+                    PlayerDamageDealt = magicDmg,
+                    EnemyHpAfter = _enemy.CurrentHp,
+                    PlayerHpAfter = _save.CurrentHp,
+                    PlayerWasMissed = false
+                });
             }
 
             if (_enemy.IsDefeated) { await OnEnemyDefeatedAsync(); return; }
             await DoEnemyTurnAsync();
         }
         finally { IsBusy = false; }
+        _ = DetermineNextEnemyIntentAsync();
     }
 
+    // ==========================================
+    // 🏃 โหมดหลบหนี (Run)
+    // ==========================================
     [RelayCommand(CanExecute = nameof(CanAct))]
     private async Task RunAsync()
     {
@@ -219,26 +320,46 @@ public partial class CombatViewModel : ObservableObject
             IsBusy = true;
             bool escaped = _rng.NextDouble() < 0.25;
 
+            PlayerTauntText = $"💬 {CharacterName}: \"ขืนอยู่ต่อตายแน่ ถอยดีกว่า!\"";
+            IsPlayerTauntVisible = true;
+
             if (escaped)
             {
+                _soundService.PlayEscaped();
                 AppendLog("🏃 หลบหนีสำเร็จ!");
                 await AdvanceToNextWaveAsync(skipReward: true);
                 return;
             }
 
             AppendLog("❌ หลบหนีไม่สำเร็จ!");
+            _combatHistory.Add(new CombatTurn
+            {
+                PlayerAction = "Run",
+                PlayerDamageDealt = 0,
+                EnemyHpAfter = _enemy.CurrentHp,
+                PlayerHpAfter = _save.CurrentHp,
+                PlayerWasMissed = false
+            });
             await DoEnemyTurnAsync(runFailPenalty: true);
         }
         finally { IsBusy = false; }
+        _ = DetermineNextEnemyIntentAsync();
     }
 
+    // ==========================================
+    // 💊 โหมดใช้ไอเทม (Use Item)
+    // ==========================================
     [RelayCommand(CanExecute = nameof(CanAct))]
     private async Task UseItemAsync(string? potionType)
     {
-        if (_save is null) return;
+        if (_save is null || _enemy is null) return;
         try
         {
             IsBusy = true;
+
+            PlayerTauntText = $"💬 {CharacterName}: \"ขอดื่มยาฟื้นฟูพลังหน่อย!\"";
+            IsPlayerTauntVisible = true;
+
             if (potionType == "HP")
             {
                 if (_save.HpPotionCount <= 0)
@@ -267,7 +388,15 @@ public partial class CombatViewModel : ObservableObject
             RefreshPlayerUi();
             await _saveService.UpdateSaveAsync(_save);
 
-            // ใช้ไอเทมเสร็จ มอนสเตอร์ได้ตีต่อ
+            _combatHistory.Add(new CombatTurn
+            {
+                PlayerAction = potionType == "HP" ? "Use HP Potion" : "Use MP Potion",
+                PlayerDamageDealt = 0,
+                EnemyHpAfter = _enemy.CurrentHp,
+                PlayerHpAfter = _save.CurrentHp,
+                PlayerWasMissed = false
+            });
+
             await DoEnemyTurnAsync();
         }
         catch (Exception ex)
@@ -275,8 +404,12 @@ public partial class CombatViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine($"[UseItem] Error: {ex.Message}");
         }
         finally { IsBusy = false; }
+        _ = DetermineNextEnemyIntentAsync();
     }
 
+    // ==========================================
+    // ส่วนคำสั่งอื่นๆ (สถานะ, เทิร์นศัตรู, เคลียร์เวฟ ฯลฯ)
+    // ==========================================
     [RelayCommand]
     private async Task OpenInventoryAsync()
     {
@@ -298,114 +431,172 @@ public partial class CombatViewModel : ObservableObject
             await OpenEnemyStatusPopup();
     }
 
-    // ⚡ ฟังก์ชันทำงานของมอนสเตอร์ (แก้ไขใหม่หมด)
     private async Task DoEnemyTurnAsync(bool runFailPenalty = false)
     {
         if (_save is null || _enemy is null) return;
+
         await Task.Delay(600);
+        OnEnemyActionTriggered?.Invoke();
 
         string intent = _enemy.NextIntent;
         bool isEnemyMiss = _rng.NextDouble() < 0.10;
 
         if (intent == "Heal")
         {
+            EnemyTauntText = $"💬 {EnemyName}: \"แผลแค่นี้จิ๊บจ๊อยน่า...\"";
+            IsEnemyTauntVisible = true;
+
             int healAmt = (int)(_enemy.MaxHp * 0.2);
             _enemy.CurrentHp = Math.Min(_enemy.MaxHp, _enemy.CurrentHp + healAmt);
-            AppendLog($"💚 {EnemyName} ฟื้นฟูพลังชีวิต {healAmt} HP!");
+            AppendLog($"💚 {EnemyName} ฟื้นฟูพลังชีวิตตัวเอง {healAmt} HP!");
             RefreshEnemyUi();
         }
         else
         {
             if (isEnemyMiss)
             {
-                AppendLog($"💨 {EnemyName} โจมตีพลาดเป้า!");
-                OnPlayerDodgeAnim?.Invoke(); // ⚡ สั่งเราโยกหลบ
-                FireDialogue(true, EnemyFactory.GetRandomPlayerDodgeQuote());
+                EnemyTauntText = $"💬 {EnemyName}: \"ชิ! แกหลบไวนักนะ!\"";
+                IsEnemyTauntVisible = true;
+
+                PlayerTauntText = $"💬 {CharacterName}: \"ฮ่าๆ ช้าไปนะ!\"";
+                IsPlayerTauntVisible = true;
+
+                AppendLog($"💨 {EnemyName} โจมตีพลาดเป้า! คุณรอดตัวไป");
+                OnPlayerDodgeAnim?.Invoke(); // ⚡ อนิเมชันตัวละครเราโยกหลบ
             }
             else
             {
-                int rawDmg = 0; string atkLog = "โจมตี";
+                string[] enemyAttackQuotes = { "ตายซะไอ้มนุษย์!", "รับนี่ไป!", "หึหึ... อ่อนหัด!" };
+                EnemyTauntText = $"💬 {EnemyName}: \"{enemyAttackQuotes[_rng.Next(enemyAttackQuotes.Length)]}\"";
+                IsEnemyTauntVisible = true;
+
+                _soundService.PlayDaggerSlash();
+
+                int rawDmg = 0;
+                string atkLog = "โจมตี";
+
                 if (intent == "Attack") { rawDmg = _enemy.CalculateAttack(); atkLog = "โจมตีปกติ"; }
                 else if (intent == "Heavy") { rawDmg = (int)(_enemy.CalculateAttack() * 1.5); atkLog = "โจมตีอย่างหนัก!"; }
-                else if (intent == "Magic") { rawDmg = (int)(_enemy.Int * (0.8 + _rng.NextDouble() * 0.4)); atkLog = "ร่ายเวทย์!"; }
+                else if (intent == "Magic") { rawDmg = (int)(_enemy.Int * (0.8 + _rng.NextDouble() * 0.4)); atkLog = "ร่ายเวทย์ใส่คุณ!"; }
 
-                int effectiveDef = _save.Def / 2; string guardLog = " (เกราะซับ 50%)";
+                if (runFailPenalty) rawDmg = (int)(rawDmg * 1.15);
+
+                int effectiveDef = _save.Def / 2;
+                string guardLog = " (เกราะช่วยซับ 50%)";
+
                 if (_isDefending)
                 {
-                    if (_rng.NextDouble() < 0.80) { effectiveDef = _save.Def; guardLog = " 🛡️ (ป้องกัน 100%)"; }
-                    else { effectiveDef = 0; guardLog = " 💥 (การ์ดแตก!)"; }
+                    if (_rng.NextDouble() < 0.80)
+                    {
+                        effectiveDef = _save.Def;
+                        guardLog = " 🛡️ (ตั้งการ์ดสำเร็จ! เกราะทำงาน 100%)";
+                    }
+                    else
+                    {
+                        effectiveDef = 0;
+                        guardLog = " 💥 (การ์ดแตก! โดนดาเมจเต็มๆ)";
+                    }
                 }
 
                 int finalDmg = Math.Max(1, rawDmg - effectiveDef);
                 _save.CurrentHp = Math.Max(0, _save.CurrentHp - finalDmg);
-                AppendLog($"💀 {EnemyName} {atkLog} {finalDmg} ดาเมจ!{guardLog}");
 
-                OnPlayerHitAnim?.Invoke(); // ⚡ สั่งเรากระพริบแดง
-                FireDialogue(false, EnemyFactory.GetRandomEnemyAttackQuote(CurrentWave == 10));
+                string penaltyNote = runFailPenalty ? " (+15% โทษหลบหนี)" : string.Empty;
+                AppendLog($"💀 {EnemyName} {atkLog} {finalDmg} ดาเมจ!{penaltyNote}{guardLog}");
 
-                // ⚡ สั่นสะเทือนมือถือเวลาโดนตี ⚡
-                try
-                {
-                    if (_isDefending && effectiveDef == _save.Def)
-                    {
-                        HapticFeedback.Default.Perform(HapticFeedbackType.Click); // บล็อคได้ สั่นเบาๆ
-                    }
-                    else
-                    {
-                        // โดนตี สั่นแรง (ยิ่งเป็น Heavy ยิ่งสั่นนาน)
-                        int vibrationTime = intent == "Heavy" ? 400 : 150;
-                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(vibrationTime));
-                    }
-                }
-                catch { }
+                // ⚡ ผู้เล่นร้องเจ็บปวด & เล่นอนิเมชันสั่น
+                PlayerTauntText = $"💬 {CharacterName}: \"โอ๊ยยย! เจ็บนะ!\"";
+                IsPlayerTauntVisible = true;
+                OnPlayerHitAnim?.Invoke();
             }
         }
 
         _isDefending = false;
         RefreshPlayerUi();
-        if (_save.CurrentHp <= 0) await OnPlayerDefeatedAsync();
-        else DetermineNextEnemyIntent();
+
+        if (_save.CurrentHp <= 0)
+        {
+            await OnPlayerDefeatedAsync();
+        }
     }
-    // ⚡ ฟังก์ชันสุ่มเจตนาของมอนสเตอร์ในเทิร์นถัดไป (ที่เผลอลบทิ้งไป) ⚡
-    private void DetermineNextEnemyIntent()
+
+    private async Task DetermineNextEnemyIntentAsync()
     {
-        if (_enemy is null) return;
-        double roll = _rng.NextDouble();
+        if (_enemy is null || _save is null) return;
 
-        if (CurrentWave == 10) // บอสจะออกท่าโหดบ่อยกว่า
-        {
-            if (roll < 0.35) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมทุบหนัก!"; }
-            else if (roll < 0.65) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; }
-            else if (roll < 0.85) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; }
-            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟูเลือด"; }
-        }
-        else // มอนสเตอร์ปกติ
-        {
-            if (roll < 0.60) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; }
-            else if (roll < 0.80) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมโจมตีหนัก!"; }
-            else if (roll < 0.90) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; }
-            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟู"; }
-        }
+        EnemyIntentText = "กำลังคิด...";
+        EnemyIntentIcon = "🧠";
 
-        // อัปเดต UI ให้ผู้เล่นเห็น
-        EnemyIntentIcon = _enemy.IntentIcon;
+        try
+        {
+            var decision = await _aiEnemyService.DecideActionAsync(
+                _enemy, _save, CurrentWave, CurrentLoop,
+                _combatHistory);
+
+            _enemy.NextIntent = decision.Action;
+            (_enemy.IntentIcon, EnemyIntentText) = decision.Action switch
+            {
+                "Heavy" => ("💥", "เตรียมทุบหนัก!"),
+                "Magic" => ("✨", "กำลังร่ายเวทย์"),
+                "Heal" => ("💚", "เตรียมฟื้นฟู"),
+                "Defend" => ("🛡️", "ตั้งการ์ด"),
+                _ => ("🗡️", "เตรียมโจมตี"),
+            };
+            EnemyIntentIcon = _enemy.IntentIcon;
+
+            if (!string.IsNullOrEmpty(decision.Taunt))
+            {
+                EnemyTauntText = $"💬 {_enemy.Name}: \"{decision.Taunt}\"";
+                IsEnemyTauntVisible = true;
+            }
+
+            // ⚡ ผู้เล่นตะโกนเตือนภัย (รอนิดนึงให้ข้อความบาดเจ็บหายไปก่อน)
+            await Task.Delay(1000);
+            WarnPlayerAboutIntent();
+        }
+        catch
+        {
+            await Task.Delay(1000); // ⚡ หน่วงเวลาให้ดูอนิเมชันตอนโดนตี
+            FallbackDetermineIntent();
+            WarnPlayerAboutIntent();
+        }
+    }
+
+    // ⚡ ฟังก์ชันสำหรับให้ตัวละครแจ้งเตือนผู้เล่น (Breaking 4th Wall)
+    private void WarnPlayerAboutIntent()
+    {
+        if (_enemy is null || _save is null) return;
+
+        if (_enemy.NextIntent == "Heavy")
+        {
+            PlayerTauntText = $"💬 {CharacterName}: \"มันง้างมาแล้ว! ป้องกันเร็ว!\"";
+            IsPlayerTauntVisible = true;
+        }
+        else if (_enemy.NextIntent == "Magic")
+        {
+            PlayerTauntText = $"💬 {CharacterName}: \"มันกำลังร่ายเวทย์! ระวัง!\"";
+            IsPlayerTauntVisible = true;
+        }
+        else if (_enemy.NextIntent == "Heal")
+        {
+            PlayerTauntText = $"💬 {CharacterName}: \"มันกำลังจะฟื้นฟูเลือด ต้องรีบตี!\"";
+            IsPlayerTauntVisible = true;
+        }
     }
 
     private async Task OnEnemyDefeatedAsync()
     {
         if (_save is null || _enemy is null) return;
 
-        // ⚡ ระบบเพดานเหรียญสูงสุด 65 เหรียญต่อ Loop ⚡
         int maxLoopCoins = 65;
         int coinsAvailableToEarn = maxLoopCoins - _save.LoopCoinsCollected;
 
-        // ให้เหรียญเท่าที่ไม่เกินเพดานที่เหลืออยู่
         int actualCoinsEarned = Math.Min(_enemy.CoinReward, coinsAvailableToEarn);
 
         if (actualCoinsEarned > 0)
         {
             _save.Coins += actualCoinsEarned;
-            _save.LoopCoinsCollected += actualCoinsEarned; // นับใส่โควต้า Loop
+            _save.LoopCoinsCollected += actualCoinsEarned;
             AppendLog($"✅ ชนะ! ได้ {actualCoinsEarned} 🪙 (สะสมรอบนี้: {_save.LoopCoinsCollected}/{maxLoopCoins})");
         }
         else
@@ -415,7 +606,6 @@ public partial class CombatViewModel : ObservableObject
 
         GainXp(_enemy.XpReward * 3);
 
-        // โอกาส 75% ที่จะมี Potion ตก
         if (_rng.NextDouble() < 0.75)
         {
             if (_rng.NextDouble() < 0.70)
@@ -435,7 +625,6 @@ public partial class CombatViewModel : ObservableObject
         await _saveService.UpdateSaveAsync(_save);
 
         RefreshPlayerUi();
-
         await AdvanceToNextWaveAsync(skipReward: false);
     }
 
@@ -453,22 +642,19 @@ public partial class CombatViewModel : ObservableObject
         {
             AppendLog("🏪 กำจัดศัตรูตัวที่ 9! เข้าร้านค้า...");
 
-            // ⚡ 1. สร้างตัวรับสัญญาณ
             var tcs = new TaskCompletionSource<bool>();
 
             MainThread.BeginInvokeOnMainThread(async () => {
                 var popup = new Views.PopUp.GameMessagePopUpPage(
                     "คุณกำจัดศัตรูตัวที่ 9 ผ่านแล้ว!",
                     "แวะร้านค้าเพื่อเตรียมพร้อมก่อน Boss!",
-                    tcs // ⚡ ส่งตัวรับสัญญาณเข้าไปให้ PopUp
+                    tcs
                 );
                 await Shell.Current.Navigation.PushModalAsync(popup);
             });
 
-            // ⚡ 2. สั่งให้โค้ด "หยุดรอ" ตรงนี้จนกว่า PopUp จะส่งสัญญาณกลับมา (จนกว่าจะกดตกลง)
             await tcs.Task;
 
-            // ⚡ 3. พอกดตกลงปุ๊บ ค่อยทำงานต่อ (เซฟเกมและเด้งไปร้านค้า)
             CurrentWave = 10;
             _save.CurrentWave = 10;
             await _saveService.UpdateSaveAsync(_save);
@@ -492,7 +678,6 @@ public partial class CombatViewModel : ObservableObject
                     await _historyService.SaveRunHistoryAsync(_save, causeOfDeath: "GAME CLEAR!");
                     await _saveService.DeleteSaveAsync();
                 }
-
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"[GameClear] Save error: {ex.Message}");
@@ -505,28 +690,11 @@ public partial class CombatViewModel : ObservableObject
                     Application.Current.MainPage = page;
                 });
                 return;
-
             }
 
             AppendLog("👑 Boss พ่ายแพ้! ผ่าน Loop นี้แล้ว!");
+            await SafeAlert("👑 Boss Defeated!", $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่โบสถ์...");
 
-            // ⚡ 1. สร้างตัวรับสัญญาณ เพื่อหยุดรอการกดปุ่ม
-            var tcs = new TaskCompletionSource<bool>();
-
-            MainThread.BeginInvokeOnMainThread(async () => {
-                // ⚡ 2. เรียกใช้ PopUp สวยๆ แทน SafeAlert
-                var popup = new Views.PopUp.GameMessagePopUpPage(
-                    "👑 Boss Defeated!",
-                    $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่ Church...",
-                    tcs // ส่งตัวรับสัญญาณเข้าไป
-                );
-                await Shell.Current.Navigation.PushModalAsync(popup);
-            });
-
-            // ⚡ 3. สั่งให้โค้ด "หยุดรอ" ตรงนี้จนกว่าผู้เล่นจะกด "ตกลง" ใน PopUp
-            await tcs.Task;
-
-            // ⚡ 4. พอกดตกลงแล้ว ค่อยทำงานส่วนที่เหลือต่อ
             CurrentLoop++;
             CurrentWave = 1;
             _save!.CurrentLoop = CurrentLoop;
@@ -537,7 +705,6 @@ public partial class CombatViewModel : ObservableObject
 
             await _saveService.UpdateSaveAsync(_save);
 
-            // วาร์ปไปหน้า Church
             await Shell.Current.GoToAsync("ChurchPage");
             return;
         }
@@ -631,7 +798,7 @@ public partial class CombatViewModel : ObservableObject
                 AppendLog("💨 โชคไม่ดีเลย ไม่มีอะไรเกิดขึ้น...");
                 break;
             case EventEffectType.GainCoins:
-                _save.Coins += ev.Value; // ⚡ รับเงินจาก Event ตรงๆ ทะลุเพดานได้เลย ไม่ผ่าน LoopCoinsCollected
+                _save.Coins += ev.Value;
                 AppendLog($"💰 ได้รับ {ev.Value} เหรียญ");
                 break;
             case EventEffectType.LoseCoins:
@@ -757,7 +924,7 @@ public partial class CombatViewModel : ObservableObject
         _save.CurrentWave = 1;
         _save.CurrentHp = _save.MaxHp;
         _save.CurrentMp = _save.MaxMp;
-        _save.LoopCoinsCollected = 0; // ⚡ เคลียร์โควต้าเหรียญให้เริ่มใหม่ใน Loop ถัดไป
+        _save.LoopCoinsCollected = 0;
 
         await _saveService.UpdateSaveAsync(_save);
 
@@ -785,9 +952,49 @@ public partial class CombatViewModel : ObservableObject
             ? EnemyFactory.CreateBossEnemy(CurrentLoop)
             : EnemyFactory.CreateNormalEnemy(wave, CurrentLoop);
 
-        // ⚡ เมื่อสุ่มมอนสเตอร์เสร็จ ให้มันคิดท่าโจมตีแรกรอไว้เลย
-        DetermineNextEnemyIntent();
+        _combatHistory.Clear();
+
+        // ⚡ รีเซ็ตบทพูดตอนเริ่ม Wave
+        EnemyTauntText = $"💬 {_enemy.Name}: \"เข้ามาเลยไอ้หนู!\"";
+        IsEnemyTauntVisible = true;
+
+        PlayerTauntText = $"💬 {CharacterName}: \"ลุยกันเลย!\"";
+        IsPlayerTauntVisible = true;
+
+        FallbackDetermineIntent();
+        WarnPlayerAboutIntent();
+
         RefreshEnemyUi();
+        _ = DetermineNextEnemyIntentAsync();
+    }
+
+    private void FallbackDetermineIntent()
+    {
+        if (_enemy is null) return;
+
+        double roll = _rng.NextDouble();
+        string randomTaunt = "";
+
+        if (CurrentWave == 10) // บทพูดของ Boss
+        {
+            if (roll < 0.35) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมทุบหนัก!"; randomTaunt = "ข้าจะบดขยี้แกให้แหลก!"; }
+            else if (roll < 0.65) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; randomTaunt = "จงหายไปในความมืดซะ!"; }
+            else if (roll < 0.85) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; randomTaunt = "รับดาบของข้าไป!"; }
+            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟูเลือด"; randomTaunt = "พลังของข้าไร้ขีดจำกัด..."; }
+        }
+        else // บทพูดของมอนสเตอร์ลูกกระจ๊อก
+        {
+            if (roll < 0.60) { _enemy.NextIntent = "Attack"; _enemy.IntentIcon = "🗡️"; EnemyIntentText = "เตรียมโจมตี"; randomTaunt = "ย๊ากกกก เข้ามาเลย!"; }
+            else if (roll < 0.80) { _enemy.NextIntent = "Heavy"; _enemy.IntentIcon = "💥"; EnemyIntentText = "เตรียมโจมตีหนัก!"; randomTaunt = "หลบให้พ้นล่ะไอ้หนู!"; }
+            else if (roll < 0.90) { _enemy.NextIntent = "Magic"; _enemy.IntentIcon = "✨"; EnemyIntentText = "กำลังร่ายเวทย์"; randomTaunt = "ลิ้มรสพลังเวทย์ของข้า!"; }
+            else { _enemy.NextIntent = "Heal"; _enemy.IntentIcon = "💚"; EnemyIntentText = "เตรียมฟื้นฟู"; randomTaunt = "แฮ่กๆ... ขอยาหน่อย!"; }
+        }
+
+        EnemyIntentIcon = _enemy.IntentIcon;
+
+        // เปลี่ยนเป้าหมายจาก Log ไปลงกล่องแชท
+        EnemyTauntText = $"💬 {_enemy.Name}: \"{randomTaunt}\"";
+        IsEnemyTauntVisible = true;
     }
 
     public void RefreshPlayerUi()
@@ -846,31 +1053,6 @@ public partial class CombatViewModel : ObservableObject
     {
         CombatLog = message;
         System.Diagnostics.Debug.WriteLine($"[Combat] {message}");
-    }
-    // ⚡ ตัวแปรบทพูด ⚡
-    [ObservableProperty] private string _playerDialogue = string.Empty;
-    [ObservableProperty] private string _enemyDialogue = string.Empty;
-    [ObservableProperty] private bool _isPlayerDialogueVisible = false;
-    [ObservableProperty] private bool _isEnemyDialogueVisible = false;
-
-    // ⚡ ตัวส่งสัญญาณไปหาหน้า XAML เพื่อเล่นภาพเคลื่อนไหว ⚡
-    public Action? OnPlayerHitAnim { get; set; }
-    public Action? OnEnemyHitAnim { get; set; }
-    public Action? OnPlayerDodgeAnim { get; set; }
-    public Action? OnEnemyDodgeAnim { get; set; }
-
-    // ฟังก์ชันจัดการหลอดแชท (เปิดแล้วปิดเอง)
-    private void FireDialogue(bool isPlayer, string text)
-    {
-        MainThread.BeginInvokeOnMainThread(async () => {
-            if (isPlayer) { PlayerDialogue = text; IsPlayerDialogueVisible = true; }
-            else { EnemyDialogue = text; IsEnemyDialogueVisible = true; }
-
-            await Task.Delay(2500); // โชว์ข้อความ 2.5 วินาที
-
-            if (isPlayer && PlayerDialogue == text) IsPlayerDialogueVisible = false;
-            if (!isPlayer && EnemyDialogue == text) IsEnemyDialogueVisible = false;
-        });
     }
 
     private bool CanAct() => !IsBusy;
