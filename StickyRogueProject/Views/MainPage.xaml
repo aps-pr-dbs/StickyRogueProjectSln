@@ -9,21 +9,6 @@
     BackgroundColor="#0D0A1A">
 
     <Grid RowDefinitions="*,Auto,*">
-        
-        <Button
-            x:Name="SoundToggleBtn"
-            Grid.Row="0"
-            Text="🔊"
-            Clicked="OnToggleSoundClicked"
-            BackgroundColor="Transparent"
-            TextColor="#E8D5A3"
-            FontSize="24"
-            HorizontalOptions="End"
-            VerticalOptions="Start"
-            Margin="0, 45, 24, 0"
-            WidthRequest="48"
-            HeightRequest="48"
-            ZIndex="1" />
 
         <VerticalStackLayout
             Grid.Row="0"
@@ -126,13 +111,27 @@
 
         <Label
             Grid.Row="2"
-            Text="v0.1.0  —  Phase 1 Build"
+            Text="v0.1.0  —  Bata"
             FontSize="11"
             TextColor="#2A1E3E"
             HorizontalOptions="Fill"
             HorizontalTextAlignment="Center"
             VerticalOptions="End"
             Margin="0,0,0,30" />
+
+        <Button
+            Grid.Row="2"
+            Text="⚙️"
+            Clicked="OnSettingsClicked"
+            BackgroundColor="#2A1D48"
+            TextColor="#E8D5A3"
+            FontSize="22"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            Margin="0,0,24,24"
+            WidthRequest="54"
+            HeightRequest="54"
+            CornerRadius="27" />
 
     </Grid>
 </ContentPage>

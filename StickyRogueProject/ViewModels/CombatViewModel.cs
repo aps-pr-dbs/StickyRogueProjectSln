@@ -693,7 +693,18 @@ public partial class CombatViewModel : ObservableObject
             }
 
             AppendLog("👑 Boss พ่ายแพ้! ผ่าน Loop นี้แล้ว!");
-            await SafeAlert("👑 Boss Defeated!", $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่โบสถ์...");
+
+            // เปลี่ยนจาก SafeAlert มาใช้ GameMessagePopUpPage 
+            var tcsBoss = new TaskCompletionSource<bool>();
+            MainThread.BeginInvokeOnMainThread(async () => {
+                var popup = new Views.PopUp.GameMessagePopUpPage(
+                    "👑 Boss Defeated!",
+                    $"Loop {CurrentLoop} สำเร็จ!\nมุ่งหน้าสู่โบสถ์...",
+                    tcsBoss
+                );
+                await Shell.Current.Navigation.PushModalAsync(popup);
+            });
+            await tcsBoss.Task;
 
             CurrentLoop++;
             CurrentWave = 1;
@@ -852,8 +863,8 @@ public partial class CombatViewModel : ObservableObject
         if (_save is null) return;
 
         AppendLog("💀 คุณพ่ายแพ้...");
-        _soundService.PlayGameOverSound();
-        await Task.Delay(1000);
+        
+        await Task.Delay(1500);
 
         try
         {
@@ -870,6 +881,8 @@ public partial class CombatViewModel : ObservableObject
             var vm = new GameOverViewModel(EnemyName, CurrentLoop, CurrentWave);
             var page = new GameOverPage(vm);
             Application.Current.MainPage = page;
+
+            _soundService.PlayGameOverSound();
         });
     }
 

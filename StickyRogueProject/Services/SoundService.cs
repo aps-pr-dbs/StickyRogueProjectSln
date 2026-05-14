@@ -13,7 +13,6 @@ public class SoundService
     private IAudioPlayer _playerattackPlayer;
     private IAudioPlayer _gameOverPlayer;
 
-    // ⚡ ตัวแปรเสียงใหม่ที่เอามาจากเพื่อน
     private IAudioPlayer _swordSlashPlayer;
     private IAudioPlayer _defendPlayer;
     private IAudioPlayer _magicAtkPlayer;
@@ -28,14 +27,19 @@ public class SoundService
     private MemoryStream _playerattackMemoryStream;
     private MemoryStream _gameOverMemoryStream;
 
-    // ⚡ MemoryStream ใหม่
     private MemoryStream _swordSlashMemoryStream;
     private MemoryStream _defendMemoryStream;
     private MemoryStream _magicAtkMemoryStream;
     private MemoryStream _escapedMemoryStream;
     private MemoryStream _daggerSlashMemoryStream;
 
-    public bool IsMuted { get; private set; } = false;
+    // ⚡ ระบบแยกเสียงใหม่ ⚡
+    public bool IsBgmMuted { get; private set; } = false;
+    public bool IsSfxMuted { get; private set; } = false;
+    public double BgmVolume { get; private set; } = 0.5; // ระดับเสียงเริ่มต้น 50%
+
+    // ใช้เพื่อให้ปุ่มลำโพงที่หน้าเมนูหลักยังทำงานได้เหมือนเดิม
+    public bool IsMuted => IsBgmMuted;
 
     public SoundService(IAudioManager audioManager)
     {
@@ -47,7 +51,6 @@ public class SoundService
     {
         try
         {
-            // โหลดเสียงคลิก
             using var clickAssetStream = await FileSystem.OpenAppPackageFileAsync("click.mp3");
             if (clickAssetStream != null)
             {
@@ -57,7 +60,6 @@ public class SoundService
                 _clickSoundPlayer = _audioManager.CreatePlayer(_clickMemoryStream);
             }
 
-            // โหลดเพลง BGM
             using var bgmAssetStream = await FileSystem.OpenAppPackageFileAsync("music1.mp3");
             if (bgmAssetStream != null)
             {
@@ -66,10 +68,10 @@ public class SoundService
                 _bgmMemoryStream.Position = 0;
                 _bgmPlayer = _audioManager.CreatePlayer(_bgmMemoryStream);
                 _bgmPlayer.Loop = true;
+                _bgmPlayer.Volume = BgmVolume; // ⚡ กำหนดความดังตอนเริ่ม
                 PlayBgm();
             }
 
-            // SELECT SOUND
             using var selectAssetStream = await FileSystem.OpenAppPackageFileAsync("select.mp3");
             if (selectAssetStream != null)
             {
@@ -79,7 +81,6 @@ public class SoundService
                 _selectPlayer = _audioManager.CreatePlayer(_selectMemoryStream);
             }
 
-            // HP SOUND
             using var hppotionAssetStream = await FileSystem.OpenAppPackageFileAsync("hppotion.mp3");
             if (hppotionAssetStream != null)
             {
@@ -89,7 +90,6 @@ public class SoundService
                 _hppotionPlayer = _audioManager.CreatePlayer(_hppotionMemoryStream);
             }
 
-            // MANA SOUND
             using var manapotionAssetStream = await FileSystem.OpenAppPackageFileAsync("manapotion.mp3");
             if (manapotionAssetStream != null)
             {
@@ -99,7 +99,6 @@ public class SoundService
                 _manapotionPlayer = _audioManager.CreatePlayer(_manapotionMemoryStream);
             }
 
-            // Player Attack Sound
             using var playerattackAssetStream = await FileSystem.OpenAppPackageFileAsync("playerattack.mp3");
             if (playerattackAssetStream != null)
             {
@@ -109,7 +108,6 @@ public class SoundService
                 _playerattackPlayer = _audioManager.CreatePlayer(_playerattackMemoryStream);
             }
 
-            // โหลดเสียง Game Over
             using var gameOverAssetStream = await FileSystem.OpenAppPackageFileAsync("died.mp3");
             if (gameOverAssetStream != null)
             {
@@ -119,9 +117,6 @@ public class SoundService
                 _gameOverPlayer = _audioManager.CreatePlayer(_gameOverMemoryStream);
             }
 
-            // ==========================================
-            // ⚡ ส่วนที่เพิ่มมาจากไฟล์ของเพื่อน (เสียงการต่อสู้) ⚡
-            // ==========================================
             using var swordSlashAssetStream = await FileSystem.OpenAppPackageFileAsync("swordslash.mp3");
             if (swordSlashAssetStream != null)
             {
@@ -166,7 +161,6 @@ public class SoundService
                 _daggerSlashMemoryStream.Position = 0;
                 _daggerSlashPlayer = _audioManager.CreatePlayer(_daggerSlashMemoryStream);
             }
-
         }
         catch (Exception ex)
         {
@@ -174,112 +168,36 @@ public class SoundService
         }
     }
 
-    public void PlayGameOverSound()
+    // ⚡ คำสั่งจัดการเสียงใหม่ ⚡
+    public void SetBgmVolume(double volume)
     {
-        if (!IsMuted && _gameOverPlayer != null)
+        BgmVolume = volume;
+        if (_bgmPlayer != null)
         {
-            PauseBgm();
-            _gameOverPlayer.Seek(0);
-            _gameOverPlayer.Play();
+            _bgmPlayer.Volume = volume;
         }
     }
 
-    public void PlaySelectSound()
+    public void ToggleBgm()
     {
-        if (!IsMuted && _selectPlayer != null)
-        {
-            _selectPlayer.Seek(0);
-            _selectPlayer.Play();
-        }
+        IsBgmMuted = !IsBgmMuted;
+        if (IsBgmMuted) PauseBgm();
+        else PlayBgm();
     }
 
-    public void PlayPlayerAttackSound()
+    public void ToggleSfx()
     {
-        if (!IsMuted && _playerattackPlayer != null)
-        {
-            _playerattackPlayer.Seek(0);
-            _playerattackPlayer.Play();
-        }
+        IsSfxMuted = !IsSfxMuted;
     }
 
-    public void PlayHPPotionSound()
+    public void ToggleMute()
     {
-        if (!IsMuted && _hppotionPlayer != null)
-        {
-            _hppotionPlayer.Seek(0);
-            _hppotionPlayer.Play();
-        }
+        ToggleBgm(); // ป้องกันปุ่มหน้าแรกพัง
     }
-
-    public void PlayManaSound()
-    {
-        if (!IsMuted && _manapotionPlayer != null)
-        {
-            _manapotionPlayer.Seek(0);
-            _manapotionPlayer.Play();
-        }
-    }
-
-    public void PlayClickSound()
-    {
-        if (!IsMuted && _clickSoundPlayer != null)
-        {
-            _clickSoundPlayer.Seek(0);
-            _clickSoundPlayer.Play();
-        }
-    }
-
-    // ==========================================
-    public void PlaySwordSlash()
-    {
-        if (!IsMuted && _swordSlashPlayer != null)
-        {
-            _swordSlashPlayer.Seek(0);
-            _swordSlashPlayer.Play();
-        }
-    }
-
-    public void PlayDefend()
-    {
-        if (!IsMuted && _defendPlayer != null)
-        {
-            _defendPlayer.Seek(0);
-            _defendPlayer.Play();
-        }
-    }
-
-    public void PlayMagicAtk()
-    {
-        if (!IsMuted && _magicAtkPlayer != null)
-        {
-            _magicAtkPlayer.Seek(0);
-            _magicAtkPlayer.Play();
-        }
-    }
-
-    public void PlayEscaped()
-    {
-        if (!IsMuted && _escapedPlayer != null)
-        {
-            _escapedPlayer.Seek(0);
-            _escapedPlayer.Play();
-        }
-    }
-
-    public void PlayDaggerSlash()
-    {
-        if (!IsMuted && _daggerSlashPlayer != null)
-        {
-            _daggerSlashPlayer.Seek(0);
-            _daggerSlashPlayer.Play();
-        }
-    }
-
-    // ==========================================
 
     public void PlayBgm()
     {
-        if (!IsMuted && _bgmPlayer != null && !_bgmPlayer.IsPlaying)
+        if (!IsBgmMuted && _bgmPlayer != null && !_bgmPlayer.IsPlaying)
         {
             _bgmPlayer.Play();
         }
@@ -293,17 +211,25 @@ public class SoundService
         }
     }
 
-    public void ToggleMute()
+    // --- เล่นเสียงเอฟเฟกต์ (เช็ค IsSfxMuted แทน IsMuted) ---
+    public void PlayGameOverSound()
     {
-        IsMuted = !IsMuted;
-
-        if (IsMuted)
+        PauseBgm();
+        if (!IsSfxMuted && _gameOverPlayer != null)
         {
-            PauseBgm();
-        }
-        else
-        {
-            PlayBgm();
+            _gameOverPlayer.Seek(0);
+            _gameOverPlayer.Play();
         }
     }
+
+    public void PlaySelectSound() { if (!IsSfxMuted && _selectPlayer != null) { _selectPlayer.Seek(0); _selectPlayer.Play(); } }
+    public void PlayPlayerAttackSound() { if (!IsSfxMuted && _playerattackPlayer != null) { _playerattackPlayer.Seek(0); _playerattackPlayer.Play(); } }
+    public void PlayHPPotionSound() { if (!IsSfxMuted && _hppotionPlayer != null) { _hppotionPlayer.Seek(0); _hppotionPlayer.Play(); } }
+    public void PlayManaSound() { if (!IsSfxMuted && _manapotionPlayer != null) { _manapotionPlayer.Seek(0); _manapotionPlayer.Play(); } }
+    public void PlayClickSound() { if (!IsSfxMuted && _clickSoundPlayer != null) { _clickSoundPlayer.Seek(0); _clickSoundPlayer.Play(); } }
+    public void PlaySwordSlash() { if (!IsSfxMuted && _swordSlashPlayer != null) { _swordSlashPlayer.Seek(0); _swordSlashPlayer.Play(); } }
+    public void PlayDefend() { if (!IsSfxMuted && _defendPlayer != null) { _defendPlayer.Seek(0); _defendPlayer.Play(); } }
+    public void PlayMagicAtk() { if (!IsSfxMuted && _magicAtkPlayer != null) { _magicAtkPlayer.Seek(0); _magicAtkPlayer.Play(); } }
+    public void PlayEscaped() { if (!IsSfxMuted && _escapedPlayer != null) { _escapedPlayer.Seek(0); _escapedPlayer.Play(); } }
+    public void PlayDaggerSlash() { if (!IsSfxMuted && _daggerSlashPlayer != null) { _daggerSlashPlayer.Seek(0); _daggerSlashPlayer.Play(); } }
 }
