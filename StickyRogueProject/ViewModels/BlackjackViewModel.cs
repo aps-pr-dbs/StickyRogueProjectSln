@@ -293,8 +293,8 @@ public partial class BlackjackViewModel : ObservableObject
         OnUpdateMatchDots?.Invoke(PlayerMatchScore, DealerMatchScore);
 
         if (PlayerMatchScore >= 3) { StatusText = "You're the champ!"; StatusColor = Colors.Gold; RestartButtonText = "Reset Match"; CompleteMatchAsync(true); }
-        else if (DealerMatchScore >= 3) { StatusText = "You lose the match"; StatusColor = Colors.Red; RestartButtonText = "Reset Match"; CompleteMatchAsync(false); }
-        else { StatusText = msg; StatusColor = color; RestartButtonText = "Next round"; }
+        else if (DealerMatchScore >= 3) { StatusText = "แกแพ้แล้ว! ไอ้ขี้แพ้เอ้ย!ฮ่าๆ"; StatusColor = Colors.Red; RestartButtonText = "Reset Match"; CompleteMatchAsync(false); }
+        else { StatusText = msg; StatusColor = color; RestartButtonText = "ตาถัดไป"; }
     }
 
     // ⚡ Call CasinoRigService only when match ends (someone gets 3 points)

@@ -84,4 +84,5 @@ public partial class HighLowPage : ContentPage
         }
         return cardBorder;
     }
+
 }

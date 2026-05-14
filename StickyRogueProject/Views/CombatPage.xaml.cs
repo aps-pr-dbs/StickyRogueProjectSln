@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using StickyRogueProject.Services;
 using StickyRogueProject.ViewModels;
@@ -18,12 +19,6 @@ public partial class CombatPage : ContentPage
         _viewModel = viewModel;
         _soundService = soundService;
         _saveService = saveService;
-
-        // ── ระบบ Popup ──
-        _viewModel.OpenInventoryPopup = async () =>
-        {
-            await Navigation.PushModalAsync(new PopUp.InventoryPopUpPage(_viewModel.CurrentSave));
-        };
 
         _viewModel.OpenPlayerStatusPopup = async () =>
         {
@@ -83,10 +78,22 @@ public partial class CombatPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // ⚡ บังคับรีโหลดข้อมูลใหม่ทุกครั้งที่หน้าจอนี้โผล่ขึ้นมา (กันบัคของไม่เข้า)
+        if (_viewModel != null)
+        {
+            await _viewModel.ReloadSaveDataAsync();
+        }
+
         if (!_isInitialized)
         {
             await _viewModel.InitializeCommand.ExecuteAsync(null);
             _isInitialized = true;
         }
+    }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
     }
 }

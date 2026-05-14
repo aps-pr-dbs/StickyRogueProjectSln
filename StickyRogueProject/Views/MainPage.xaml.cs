@@ -60,4 +60,9 @@ public partial class MainPage : ContentPage
         await this.ShowPopupAsync(new PopUp.SettingsPopUpPage(_soundService));
 
     }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
 }

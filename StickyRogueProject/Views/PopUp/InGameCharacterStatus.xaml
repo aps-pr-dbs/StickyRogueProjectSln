@@ -6,11 +6,11 @@
              Shell.NavBarIsVisible="False">
 
     <Grid>
-        <BoxView Color="#80000000" Opacity="0.75" />
 
         <Border x:Name="PopupCard"
-                BackgroundColor="#F5F5F0"
-                StrokeThickness="0"
+                BackgroundColor="#2A2431"
+                Stroke="#4A3F54"
+                StrokeThickness="3"
                 StrokeShape="RoundRectangle 24"
                 Padding="0"
                 HorizontalOptions="Center"
@@ -19,114 +19,119 @@
 
             <VerticalStackLayout Spacing="0">
 
-                <Border BackgroundColor="#2C2C2C"
+                <Border BackgroundColor="#1D1721"
                         StrokeThickness="0"
-                        StrokeShape="RoundRectangle 24"
+                        StrokeShape="RoundRectangle 21,21,0,0"
                         Padding="20,16">
                     <Grid ColumnDefinitions="*, Auto">
                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                             <Label Text="{Binding Name}"
-                                   FontSize="20"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
                                    FontFamily="Schoolbell-Regular"
-                                   TextColor="#FFFFFF"/>
+                                   TextColor="#F6E7BF"/>
                             <Label Text="{Binding CharacterClass}"
-                                   FontSize="12"
-                                   TextColor="#AAAAAA"
+                                   FontSize="13"
+                                   TextColor="#A69C95"
                                    FontAttributes="Italic"/>
                         </VerticalStackLayout>
 
                         <Border Grid.Column="1"
-                                BackgroundColor="#F5C518"
+                                BackgroundColor="#D0B56F"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 12"
-                                Padding="10,6"
+                                Padding="12,6"
                                 VerticalOptions="Center">
-                            <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                            <VerticalStackLayout Spacing="-2" HorizontalOptions="Center">
                                 <Label Text="LV"
-                                       FontSize="9"
-                                       TextColor="#2C2C2C"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="#1D1721"
                                        HorizontalOptions="Center"/>
                                 <Label Text="{Binding Level}"
-                                       FontSize="18"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
                                        FontFamily="Schoolbell-Regular"
-                                       TextColor="#2C2C2C"
+                                       TextColor="#1D1721"
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
                 </Border>
 
-                <VerticalStackLayout Padding="20,16" Spacing="14">
+                <VerticalStackLayout Padding="20,18" Spacing="16">
 
-                    <VerticalStackLayout Spacing="5">
+                    <VerticalStackLayout Spacing="6">
                         <Grid ColumnDefinitions="Auto, *">
-                            <Label Grid.Column="0" Text="XP" FontSize="12" TextColor="#888888" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="{Binding XpDisplay}" FontSize="11" TextColor="#888888" HorizontalOptions="End" VerticalOptions="Center"/>
+                            <Label Grid.Column="0" Text="✨ XP" FontSize="12" FontAttributes="Bold" TextColor="#D0B56F" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="{Binding XpDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#D0B56F" HorizontalOptions="End" VerticalOptions="Center"/>
                         </Grid>
-                        <ProgressBar x:Name="XpBar" ProgressColor="#F5C518" BackgroundColor="#DDDDDD" HeightRequest="7"/>
+                        <ProgressBar x:Name="XpBar" ProgressColor="#D0B56F" BackgroundColor="#3A3142" HeightRequest="8"/>
                     </VerticalStackLayout>
 
-                    <BoxView HeightRequest="1" Color="#E0E0E0"/>
+                    <BoxView HeightRequest="2" Color="#3A3142"/>
 
                     <Grid ColumnDefinitions="*, 20, *" ColumnSpacing="0" RowSpacing="10" RowDefinitions="Auto, Auto, Auto, Auto">
-                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6">
                             <Grid ColumnDefinitions="Auto, *">
-                                <Label Grid.Column="0" Text="❤️ HP" FontSize="12" TextColor="#888888" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="{Binding HpDisplay}" FontSize="11" TextColor="#888888" HorizontalOptions="End" VerticalOptions="Center"/>
+                                <Label Grid.Column="0" Text="❤️ HP" FontSize="12" FontAttributes="Bold" TextColor="#E35252" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="{Binding HpDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#E35252" HorizontalOptions="End" VerticalOptions="Center"/>
                             </Grid>
-                            <ProgressBar x:Name="HpBar" ProgressColor="#9ACD32" BackgroundColor="#DDDDDD" HeightRequest="7"/>
+                            <ProgressBar x:Name="HpBar" ProgressColor="#E35252" BackgroundColor="#3A3142" HeightRequest="8"/>
                         </VerticalStackLayout>
 
-                        <BoxView Grid.Row="0" Grid.Column="1" WidthRequest="1" HeightRequest="40" Color="#E0E0E0" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <BoxView Grid.Row="0" Grid.Column="1" WidthRequest="2" HeightRequest="35" Color="#3A3142" HorizontalOptions="Center" VerticalOptions="Center"/>
 
-                        <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="4">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="6">
                             <Grid ColumnDefinitions="Auto, *">
-                                <Label Grid.Column="0" Text="💧 MP" FontSize="12" TextColor="#888888" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="{Binding MpDisplay}" FontSize="11" TextColor="#888888" HorizontalOptions="End" VerticalOptions="Center"/>
+                                <Label Grid.Column="0" Text="💧 MP" FontSize="12" FontAttributes="Bold" TextColor="#5299E3" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="{Binding MpDisplay}" FontSize="11" FontAttributes="Bold" TextColor="#5299E3" HorizontalOptions="End" VerticalOptions="Center"/>
                             </Grid>
-                            <ProgressBar x:Name="MpBar" ProgressColor="#5BA4F5" BackgroundColor="#DDDDDD" HeightRequest="7"/>
+                            <ProgressBar x:Name="MpBar" ProgressColor="#5299E3" BackgroundColor="#3A3142" HeightRequest="8"/>
                         </VerticalStackLayout>
                     </Grid>
 
-                    <BoxView HeightRequest="1" Color="#E0E0E0"/>
+                    <BoxView HeightRequest="2" Color="#3A3142"/>
 
                     <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto" RowSpacing="8" ColumnSpacing="8">
 
-                        <Border Grid.Column="0" BackgroundColor="#EEEEEE" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,10">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="⚔️" FontSize="18" HorizontalOptions="Center"/>
-                                <Label Text="{Binding AttackPower}" FontSize="16" FontFamily="Schoolbell-Regular" TextColor="#333333" HorizontalOptions="Center"/>
-                                <Label Text="ATK" FontSize="10" TextColor="#999999" HorizontalOptions="Center"/>
+                        <Border Grid.Column="0" BackgroundColor="#342A3D" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="⚔️" FontSize="20" HorizontalOptions="Center"/>
+                                <Label Text="{Binding AttackPower}" FontSize="18" FontAttributes="Bold" FontFamily="Schoolbell-Regular" TextColor="#E35252" HorizontalOptions="Center"/>
+                                <Label Text="ATK" FontSize="10" FontAttributes="Bold" TextColor="#A69C95" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
 
-                        <Border Grid.Column="1" BackgroundColor="#EEEEEE" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,10">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="🧠" FontSize="18" HorizontalOptions="Center"/>
-                                <Label Text="{Binding Intelligence}" FontSize="16" FontFamily="Schoolbell-Regular" TextColor="#333333" HorizontalOptions="Center"/>
-                                <Label Text="INT" FontSize="10" TextColor="#999999" HorizontalOptions="Center"/>
+                        <Border Grid.Column="1" BackgroundColor="#342A3D" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="🧠" FontSize="20" HorizontalOptions="Center"/>
+                                <Label Text="{Binding Intelligence}" FontSize="18" FontAttributes="Bold" FontFamily="Schoolbell-Regular" TextColor="#5299E3" HorizontalOptions="Center"/>
+                                <Label Text="INT" FontSize="10" FontAttributes="Bold" TextColor="#A69C95" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
 
-                        <Border Grid.Column="2" BackgroundColor="#EEEEEE" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,10">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="🛡️" FontSize="18" HorizontalOptions="Center"/>
-                                <Label Text="{Binding Defense}" FontSize="16" FontFamily="Schoolbell-Regular" TextColor="#333333" HorizontalOptions="Center"/>
-                                <Label Text="DEF" FontSize="10" TextColor="#999999" HorizontalOptions="Center"/>
+                        <Border Grid.Column="2" BackgroundColor="#342A3D" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="🛡️" FontSize="20" HorizontalOptions="Center"/>
+                                <Label Text="{Binding Defense}" FontSize="18" FontAttributes="Bold" FontFamily="Schoolbell-Regular" TextColor="#8F9E8F" HorizontalOptions="Center"/>
+                                <Label Text="DEF" FontSize="10" FontAttributes="Bold" TextColor="#A69C95" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
 
-                    <BoxView HeightRequest="1" Color="#E0E0E0"/>
+                    <BoxView HeightRequest="2" Color="#3A3142"/>
 
                     <Button Text="CLOSE"
                             Command="{Binding CloseCommand}"
-                            BackgroundColor="#2C2C2C"
-                            TextColor="#FFFFFF"
+                            BackgroundColor="#1D1721"
+                            TextColor="#D0B56F"
+                            BorderColor="#D0B56F"
+                            BorderWidth="2"
                             CornerRadius="20"
-                            HeightRequest="46"
+                            HeightRequest="48"
                             FontFamily="skeleboom"
-                            FontSize="15"/>
+                            FontSize="16"/>
 
                 </VerticalStackLayout>
             </VerticalStackLayout>

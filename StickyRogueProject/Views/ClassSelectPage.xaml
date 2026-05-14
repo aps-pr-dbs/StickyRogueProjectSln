@@ -6,321 +6,291 @@
     xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
     x:DataType="vm:ClassSelectViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0D0A1A">
+    BackgroundColor="Transparent">
 
-    <!-- Grid หลัก: Header / Content (Scrollable) / Select Button -->
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid>
 
-        <!-- ===== ROW 0: Header Bar ===== -->
-        <!-- Padding บน 48dp รองรับ Status Bar บน iOS/Android -->
-        <Grid
-            Grid.Row="0"
-            ColumnDefinitions="48,*,48"
-            Padding="12,48,12,8">
+        <!-- Full screen UI template -->
+        <Image Source="characterpick_ui.png"
+               Aspect="AspectFill"
+               Opacity="1"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill"
+               InputTransparent="True" />
 
-            <Button
-                Grid.Column="0"
-                Text="←"
-                FontSize="18"
-                TextColor="#7A6A8A"
-                BackgroundColor="Transparent"
-                WidthRequest="44"
-                HeightRequest="44"
-                Padding="0"
-                Clicked="OnBackClicked" />
 
-            <!-- หัวข้อ: HorizontalOptions="Fill" + HorizontalTextAlignment="Center" -->
-            <Label
-                Grid.Column="1"
-                Text="Choose Your Class"
-                FontSize="15"
-                FontAttributes="Bold"
-                TextColor="#7A6A8A"
-                HorizontalOptions="Fill"
-                HorizontalTextAlignment="Center"
-                VerticalOptions="Center"
-                CharacterSpacing="1" />
+        <!-- Content overlay -->
+        <AbsoluteLayout>
 
-            <!-- ตัวนับ Class เช่น "2 / 3" — Binding ยังคงเดิม -->
-            <Label
-                Grid.Column="2"
-                Text="{Binding ClassCounter}"
-                FontSize="13"
-                TextColor="#50405E"
-                HorizontalOptions="End"
-                VerticalOptions="Center" />
+            <!-- Back button click layer -->
+            <Button BackgroundColor="Transparent"
+                    Clicked="OnBackClicked"
+                    TextColor="#E8D5A3"
+                    FontSize="340"
+                    AbsoluteLayout.LayoutBounds="0.001,0.0225,0.14,0.06"
+                    AbsoluteLayout.LayoutFlags="All" />
 
-        </Grid>
+            <!-- Header title -->
+            <Label Text="Choose Your Class"
+                   FontSize="17"
+                   FontAttributes="Bold"
+                   TextColor="#E8D5A3"
+                   CharacterSpacing="1"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   AbsoluteLayout.LayoutBounds="0.50,0.0225,0.52,0.06"
+                   AbsoluteLayout.LayoutFlags="All" />
 
-        <!-- ===== ROW 1: Scrollable Content ===== -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="20,4,20,20" Spacing="0">
+            <!-- Class counter -->
+            <Label Text="{Binding ClassCounter}"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#E8D5A3"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   AbsoluteLayout.LayoutBounds="1,0.0225,0.15,0.06"
+                   AbsoluteLayout.LayoutFlags="All" />
 
-                <!-- ===== Carousel: ลูกศร + Portrait ===== -->
-                <!-- ColumnDefinitions: ลูกศรซ้าย 48dp / Portrait ขยาย / ลูกศรขวา 48dp -->
-                <Grid ColumnDefinitions="48,*,48" Margin="0,0,0,20">
+            <!-- Previous class button -->
+            <Button Clicked="selectClassleftBtnClicked"
+                    Command="{Binding PreviousClassCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#B56CFF"
+                    FontSize="38"
+                    AbsoluteLayout.LayoutBounds="0.01,0.27,0.14,0.10"
+                    AbsoluteLayout.LayoutFlags="All" />
 
-                    <!-- ลูกศรซ้าย — PreviousClassCommand Binding ยังคงเดิม -->
-                    <Button
-                        Clicked="selectClassleftBtnClicked"
-                        Grid.Column="0"
-                        Text="‹"
-                        FontSize="32"
-                        TextColor="#7B4FBF"
-                        BackgroundColor="Transparent"
-                        WidthRequest="44"
-                        HeightRequest="44"
-                        Padding="0"
-                        VerticalOptions="Center"
-                        Command="{Binding PreviousClassCommand}" />
+            <!-- Next class button -->
+            <Button Clicked="selectClassRightBtnClicked"
+                    Command="{Binding NextClassCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#B56CFF"
+                    FontSize="38"
+                    AbsoluteLayout.LayoutBounds="1,0.27,0.14,0.10"
+                    AbsoluteLayout.LayoutFlags="All" />
 
-                    <!-- กรอบรูปภาพตัวละคร -->
-                    <Border
-                        Grid.Column="1"
-                        BackgroundColor="#180E32"
-                        Padding="0"
-                        HeightRequest="190"
-                        Stroke="{Binding AccentColor}">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="16" />
-                        </Border.StrokeShape>
+            <!-- Character image -->
+            <Image Source="{Binding ClassImage}"
+                   Aspect="AspectFit"
+                   AbsoluteLayout.LayoutBounds="0.50,0.2,0.48,0.26"
+                   AbsoluteLayout.LayoutFlags="All"
+                   InputTransparent="True" />
 
-                        <Grid>
-                            <!-- Source Binding -->
-                            <Image
-                                Source="{Binding ClassImage}"
-                                Aspect="AspectFit"
-                                Margin="24"
-                                IsVisible="true" />
-                        </Grid>
+            <!-- Class name -->
+            <Label Text="{Binding ClassName}"
+                   FontSize="34"
+                   FontAttributes="Bold"
+                   TextColor="#F4D57A"
+                   CharacterSpacing="4"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   AbsoluteLayout.LayoutBounds="0.50,0.475,0.78,0.07"
+                   AbsoluteLayout.LayoutFlags="All" />
 
-                    </Border>
+            <!-- Class description -->
+            <Label Text="{Binding ClassDescription}"
+                   FontSize="14"
+                   TextColor="Black"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   LineHeight="1.45"
+                   MaxLines="2"
+                   AbsoluteLayout.LayoutBounds="0.50,0.5725,0.82,0.075"
+                   AbsoluteLayout.LayoutFlags="All" />
 
-                    <!-- ลูกศรขวา -->
-                    <Button
-                        Clicked="selectClassRightBtnClicked"
-                        Grid.Column="2"
-                        Text="›"
-                        FontSize="32"
-                        TextColor="#7B4FBF"
-                        BackgroundColor="Transparent"
-                        WidthRequest="44"
-                        HeightRequest="44"
-                        Padding="0"
-                        VerticalOptions="Center"
-                        Command="{Binding NextClassCommand}" />
+            <!-- Stats panel title -->
+            <Label Text="BASE STATS"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="#E8D5A3"
+                   CharacterSpacing="3"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   AbsoluteLayout.LayoutBounds="0.50,0.635,0.50,0.045"
+                   AbsoluteLayout.LayoutFlags="All" />
 
-                </Grid>
+            <!-- ATK row -->
+            <Grid ColumnDefinitions="34,52,*,44"
+                  ColumnSpacing="10"
+                  AbsoluteLayout.LayoutBounds="0.50,0.695,0.76,0.04"
+                  AbsoluteLayout.LayoutFlags="All">
 
-                <!-- ===== ชื่อ Class + เส้นคั่น + คำอธิบาย ===== -->
-                <VerticalStackLayout Spacing="8" Margin="0,0,0,20">
+                <Label Grid.Column="0"
+                       Text="⚔️"
+                       FontSize="17"
+                       VerticalTextAlignment="Center" />
 
-                    <!-- ClassName Binding ยังคงเดิม -->
-                    <Label
-                        Text="{Binding ClassName}"
-                        FontSize="26"
-                        FontAttributes="Bold"
-                        TextColor="#E8D5A3"
-                        HorizontalOptions="Fill"
-                        HorizontalTextAlignment="Center"
-                        CharacterSpacing="4" />
+                <Label Grid.Column="1"
+                       Text="ATK"
+                       FontSize="15"
+                       TextColor="#D8C9E5"
+                       VerticalTextAlignment="Center" />
 
-                    <!-- เส้นคั่น AccentColor Binding ยังคงเดิม -->
-                    <BoxView
-                        HeightRequest="2"
-                        WidthRequest="64"
-                        Color="{Binding AccentColor}"
-                        HorizontalOptions="Center" />
+                <ProgressBar Grid.Column="2"
+                             Progress="{Binding StatAtk, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
+                             ProgressColor="#C94F35"
+                             BackgroundColor="#160C22"
+                             HeightRequest="6"
+                             VerticalOptions="Center" />
 
-                    <!-- ClassDescription Binding ยังคงเดิม -->
-                    <Label
-                        Text="{Binding ClassDescription}"
-                        FontSize="13"
-                        TextColor="#70607E"
-                        HorizontalOptions="Fill"
-                        HorizontalTextAlignment="Center"
-                        LineHeight="1.55"
-                        Margin="0,4,0,0" />
+                <Label Grid.Column="3"
+                       Text="{Binding StatAtk}"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       TextColor="#F4D57A"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center" />
+            </Grid>
 
-                </VerticalStackLayout>
+            <!-- DEF row -->
+            <Grid ColumnDefinitions="34,52,*,44"
+                  ColumnSpacing="10"
+                  AbsoluteLayout.LayoutBounds="0.50,0.735,0.76,0.04"
+                  AbsoluteLayout.LayoutFlags="All">
 
-                <!-- ===== Stats Panel (ปรับปรุงจาก Frame เป็น Border สำหรับ .NET 10) ===== -->
-                <Border
-                    BackgroundColor="#110C26"
-                    Padding="18,14"
-                    Margin="0,0,0,4">
+                <Label Grid.Column="0"
+                       Text="🛡️"
+                       FontSize="17"
+                       VerticalTextAlignment="Center" />
 
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="14" />
-                    </Border.StrokeShape>
+                <Label Grid.Column="1"
+                       Text="DEF"
+                       FontSize="15"
+                       TextColor="#D8C9E5"
+                       VerticalTextAlignment="Center" />
 
-                    <Border.Stroke>
-                        <SolidColorBrush Color="#271A45" />
-                    </Border.Stroke>
+                <ProgressBar Grid.Column="2"
+                             Progress="{Binding StatDef, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
+                             ProgressColor="#5163D8"
+                             BackgroundColor="#160C22"
+                             HeightRequest="6"
+                             VerticalOptions="Center" />
 
-                    <VerticalStackLayout Spacing="12">
+                <Label Grid.Column="3"
+                       Text="{Binding StatDef}"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       TextColor="#F4D57A"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center" />
+            </Grid>
 
-                        <!-- หัวข้อ Stats Panel -->
-                        <Label
-                            Text="BASE STATS"
-                            FontSize="10"
-                            FontAttributes="Bold"
-                            TextColor="#50405E"
-                            CharacterSpacing="4"
-                            HorizontalOptions="Fill"
-                            HorizontalTextAlignment="Center" />
+            <!-- INT row -->
+            <Grid ColumnDefinitions="34,52,*,44"
+                  ColumnSpacing="10"
+                  AbsoluteLayout.LayoutBounds="0.50,0.775,0.76,0.04"
+                  AbsoluteLayout.LayoutFlags="All">
 
-                        <!-- ATK Row -->
-                        <Grid ColumnDefinitions="26,48,*,40" ColumnSpacing="10" RowDefinitions="Auto">
-                            <Label Grid.Column="0" Text="⚔️" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="ATK" FontSize="14" TextColor="#B0A0C0" VerticalOptions="Center" />
-                            <!-- Progress Binding ยังคงเดิม -->
-                            <ProgressBar
-                                Grid.Column="2"
-                                Progress="{Binding StatAtk, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
-                                ProgressColor="#B34A2A"
-                                HeightRequest="5"
-                                VerticalOptions="Center" />
-                            <!-- StatAtk Binding ยังคงเดิม -->
-                            <Label
-                                Grid.Column="3"
-                                Text="{Binding StatAtk}"
-                                FontSize="14"
-                                FontAttributes="Bold"
-                                TextColor="#E8D5A3"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                        </Grid>
+                <Label Grid.Column="0"
+                       Text="🔮"
+                       FontSize="17"
+                       VerticalTextAlignment="Center" />
 
-                        <!-- DEF Row -->
-                        <Grid ColumnDefinitions="26,48,*,40" ColumnSpacing="10">
-                            <Label Grid.Column="0" Text="🛡️" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="DEF" FontSize="14" TextColor="#B0A0C0" VerticalOptions="Center" />
-                            <ProgressBar
-                                Grid.Column="2"
-                                Progress="{Binding StatDef, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
-                                ProgressColor="#3A4AB0"
-                                HeightRequest="5"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="3"
-                                Text="{Binding StatDef}"
-                                FontSize="14"
-                                FontAttributes="Bold"
-                                TextColor="#E8D5A3"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                        </Grid>
+                <Label Grid.Column="1"
+                       Text="INT"
+                       FontSize="15"
+                       TextColor="#D8C9E5"
+                       VerticalTextAlignment="Center" />
 
-                        <!-- INT Row -->
-                        <Grid ColumnDefinitions="26,48,*,40" ColumnSpacing="10">
-                            <Label Grid.Column="0" Text="🔮" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="INT" FontSize="14" TextColor="#B0A0C0" VerticalOptions="Center" />
-                            <ProgressBar
-                                Grid.Column="2"
-                                Progress="{Binding StatInt, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
-                                ProgressColor="#7B2FBE"
-                                HeightRequest="5"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="3"
-                                Text="{Binding StatInt}"
-                                FontSize="14"
-                                FontAttributes="Bold"
-                                TextColor="#E8D5A3"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                        </Grid>
+                <ProgressBar Grid.Column="2"
+                             Progress="{Binding StatInt, Converter={StaticResource StatToProgressConverter}, ConverterParameter=20}"
+                             ProgressColor="#9B3EE8"
+                             BackgroundColor="#160C22"
+                             HeightRequest="6"
+                             VerticalOptions="Center" />
 
-                        <!-- เส้นคั่นก่อน HP -->
-                        <BoxView HeightRequest="1" Color="#241840" />
+                <Label Grid.Column="3"
+                       Text="{Binding StatInt}"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       TextColor="#F4D57A"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center" />
+            </Grid>
 
-                        <!-- HP Row — สำคัญที่สุด แยกออกมาเพื่อเน้นสายตา -->
-                        <Grid ColumnDefinitions="26,*,Auto" ColumnSpacing="10">
-                            <Label Grid.Column="0" Text="❤️" FontSize="15" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="HP สูงสุด"
-                                FontSize="14"
-                                TextColor="#B0A0C0"
-                                VerticalOptions="Center" />
-                            <!-- StatHp Binding ยังคงเดิม -->
-                            <Label
-                                Grid.Column="2"
-                                Text="{Binding StatHp}"
-                                FontSize="17"
-                                FontAttributes="Bold"
-                                TextColor="#D45050"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                        </Grid>
+            <!-- HP row -->
+            <Grid ColumnDefinitions="34,*,Auto"
+                  ColumnSpacing="10"
+                  AbsoluteLayout.LayoutBounds="0.50,0.835,0.76,0.045"
+                  AbsoluteLayout.LayoutFlags="All">
 
-                        <!-- MP Row -->
-                        <Grid ColumnDefinitions="26,*,Auto" ColumnSpacing="10">
-                            <Label Grid.Column="0" Text="💧" FontSize="15" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="MP สูงสุด"
-                                FontSize="14"
-                                TextColor="#B0A0C0"
-                                VerticalOptions="Center" />
-                            <!-- StatMp Binding ยังคงเดิม -->
-                            <Label
-                                Grid.Column="2"
-                                Text="{Binding StatMp}"
-                                FontSize="17"
-                                FontAttributes="Bold"
-                                TextColor="#0000FF"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                        </Grid>
+                <Label Grid.Column="0"
+                       Text="❤️"
+                       FontSize="18"
+                       VerticalTextAlignment="Center" />
 
-                    </VerticalStackLayout>
-                </Border>
+                <Label Grid.Column="1"
+                       Text="HP สูงสุด"
+                       FontSize="16"
+                       TextColor="#D8C9E5"
+                       VerticalTextAlignment="Center" />
 
-            </VerticalStackLayout>
-        </ScrollView>
+                <Label Grid.Column="2"
+                       Text="{Binding StatHp}"
+                       FontSize="19"
+                       FontAttributes="Bold"
+                       TextColor="#F05C5C"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center" />
+            </Grid>
 
-        <!-- ===== ROW 2: Select Button (ติดด้านล่าง) ===== -->
-        <!-- Padding ล่าง 34dp รองรับ Home Indicator บน iPhone -->
-        <Grid
-            Grid.Row="2"
-            Padding="20,10,20,34"
-            BackgroundColor="#0D0A1A">
+            <!-- MP row -->
+            <Grid ColumnDefinitions="34,*,Auto"
+                  ColumnSpacing="10"
+                  AbsoluteLayout.LayoutBounds="0.50,0.875,0.76,0.045"
+                  AbsoluteLayout.LayoutFlags="All">
 
-            <!-- ActivityIndicator แสดงขณะกำลัง Insert ลง SQLite -->
-            <!-- IsRunning และ IsVisible Binding ยังคงเดิม -->
-            <ActivityIndicator
-                IsRunning="{Binding IsSaving}"
-                IsVisible="{Binding IsSaving}"
-                Color="#A07ED0"
-                HorizontalOptions="Center"
-                VerticalOptions="Center" />
+                <Label Grid.Column="0"
+                       Text="💧"
+                       FontSize="18"
+                       VerticalTextAlignment="Center" />
 
-            <!-- ปุ่ม SELECT CLASS — ซ่อนระหว่าง Saving (InvertedBoolConverter Binding ยังคงเดิม) -->
-            <Button
-                Clicked="selectClassBtnClicked"
-                Text="SELECT CLASS  ▶"
-                Command="{Binding SelectClassCommand}"
-                IsVisible="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
-                BackgroundColor="#4A2D7A"
-                TextColor="#E8D5A3"
-                FontSize="15"
-                FontAttributes="Bold"
-                HeightRequest="52"
-                CornerRadius="10"
-                HorizontalOptions="Fill"
-                CharacterSpacing="3">
-                <Button.Shadow>
-                    <Shadow
-                        Brush="#7B4FBF"
-                        Offset="0,3"
-                        Radius="10"
-                        Opacity="0.45" />
-                </Button.Shadow>
-            </Button>
+                <Label Grid.Column="1"
+                       Text="MP สูงสุด"
+                       FontSize="16"
+                       TextColor="#D8C9E5"
+                       VerticalTextAlignment="Center" />
 
-        </Grid>
+                <Label Grid.Column="2"
+                       Text="{Binding StatMp}"
+                       FontSize="19"
+                       FontAttributes="Bold"
+                       TextColor="#3D6DFF"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!-- Saving indicator -->
+            <ActivityIndicator IsRunning="{Binding IsSaving}"
+                               IsVisible="{Binding IsSaving}"
+                               Color="#C890F0"
+                               AbsoluteLayout.LayoutBounds="0.50,0.952,44,44"
+                               AbsoluteLayout.LayoutFlags="PositionProportional" />
+
+            <!-- Select button text -->
+            <Label Text="SELECT CLASS  ▶"
+                   IsVisible="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#F4D57A"
+                   CharacterSpacing="3"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   AbsoluteLayout.LayoutBounds="0.50,0.98,0.84,0.065"
+                   AbsoluteLayout.LayoutFlags="All"
+                   TranslationY="2"/>
+
+            <!-- Select button click layer -->
+            <Button Clicked="selectClassBtnClicked"
+                    Command="{Binding SelectClassCommand}"
+                    IsVisible="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="Transparent"
+                    Opacity="0.01"
+                    AbsoluteLayout.LayoutBounds="0.50,0.98,0.84,0.065"
+                    AbsoluteLayout.LayoutFlags="All" />
+
+        </AbsoluteLayout>
 
     </Grid>
 </ContentPage>

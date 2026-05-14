@@ -1,160 +1,108 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
-             x:Class="StickyRogueProject.Views.PopUp.InventoryPopUpPage"
-             x:DataType="vm:InventoryPopUpViewModel"
-             BackgroundColor="Transparent"
-             Shell.NavBarIsVisible="False">
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:vm="clr-namespace:StickyRogueProject.ViewModels"
+               x:Class="StickyRogueProject.Views.PopUp.InventoryPopUpPage"
+               x:DataType="vm:InventoryPopUpViewModel">
 
-    <Grid>
-        <BoxView Color="#000000" Opacity="0.6">
-        </BoxView>
+    <toolkit:Popup.Content>
+        <Grid BackgroundColor="#B3000000" HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Grid WidthRequest="355" HeightRequest="600" HorizontalOptions="Center" VerticalOptions="Center">
+                <Grid WidthRequest="455" HeightRequest="750" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="ui_inventory_popup_panel.png" Aspect="Fill" HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True" />
+                </Grid>
 
-        <Border BackgroundColor="#F5F5F0"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 24"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                WidthRequest="340"
-                Padding="0">
-
-            <VerticalStackLayout Spacing="0">
-
-                <Border BackgroundColor="#2C2C2C"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 24"
-                        Padding="20,14">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="🎒 Inventory"
-                                   FontSize="20" FontFamily="skeleboom" TextColor="#FFFFFF"/>
-                            <Label Text="{Binding SlotCountText}"
-                                   FontSize="11" TextColor="#AAAAAA"/>
-                        </VerticalStackLayout>
-                        <Border Grid.Column="1"
-                                BackgroundColor="{Binding SlotBadgeColor}"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 12"
-                                Padding="12,6" VerticalOptions="Center">
-                            <Label Text="{Binding SlotBadgeText}" FontSize="18" FontFamily="skeleboom"
-                                   TextColor="#2C2C2C" HorizontalOptions="Center"/>
-                        </Border>
+                <Grid Padding="22,22,22,20" RowDefinitions="78,170,184,52,28,54" RowSpacing="8">
+                    <Grid Grid.Row="0">
+                        <Grid WidthRequest="460" HeightRequest="90" HorizontalOptions="Center" VerticalOptions="Center" TranslationX="-5" TranslationY="-30">
+                            <Image Source="ui_inventory_header_bar.png" Aspect="Fill" InputTransparent="True" />
+                        </Grid>
+                        <Grid Padding="40,-50,16,8" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                                <Label Text="Inventory" FontSize="26" FontFamily="skeleboom" FontAttributes="Bold" TextColor="#F6E7BF" CharacterSpacing="1" />
+                                <Label Text="{Binding SlotCountText}" FontSize="13" FontAttributes="Bold" TextColor="#BBAE9A" />
+                            </VerticalStackLayout>
+                            <Grid Grid.Column="1" WidthRequest="42" HeightRequest="42" VerticalOptions="Center" HorizontalOptions="End">
+                                <Grid WidthRequest="42" HeightRequest="42" TranslationX="-10">
+                                    <Image Source="ui_inventory_badge_green.png" Aspect="Fill" InputTransparent="True" />
+                                </Grid>
+                                <Label Text="{Binding SlotBadgeText}" FontSize="19" FontFamily="skeleboom" FontAttributes="Bold" TextColor="#1B1B16" HorizontalOptions="Center" VerticalOptions="Center" TranslationX="-10" TranslationY="-3" />
+                            </Grid>
+                        </Grid>
                     </Grid>
-                </Border>
 
-                <VerticalStackLayout Padding="14,14" Spacing="12">
-
-                    <Border BackgroundColor="#EEEEEE"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 14"
-                            Padding="12,10">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="💠 Equipped Artifacts (Max 6)"
-                                   FontSize="12" FontFamily="skeleboom"
-                                   TextColor="#555555"/>
-
+                    <Grid Grid.Row="1">
+                        <Grid WidthRequest="400" HeightRequest="300" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image Source="ui_inventory_section_panel.png" Aspect="Fill" InputTransparent="True" />
+                        </Grid>
+                        <VerticalStackLayout Padding="16,16,16,10" Spacing="10">
+                            <Label Text="Equipped Artifacts (Max 6)" FontSize="14" FontFamily="skeleboom" FontAttributes="Bold" TextColor="#362336" CharacterSpacing="1" TranslationY="-50" />
                             <FlexLayout BindableLayout.ItemsSource="{Binding ArtifactSlots}" Wrap="Wrap" JustifyContent="SpaceBetween">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="vm:InventorySlotUI">
-                                        <Border BackgroundColor="{Binding BackgroundColor}"
-                                                Stroke="{Binding BorderColor}"
-                                                StrokeThickness="1.5" StrokeShape="RoundRectangle 10"
-                                                HeightRequest="75" WidthRequest="75" Margin="0,4">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer 
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=ArtifactSlotTappedCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                            </Border.GestureRecognizers>
-                                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
-                                                <Image Source="{Binding Icon}" Aspect="AspectFit" HeightRequest="36" WidthRequest="36" HorizontalOptions="Center"/>
-                                                <Label Text="{Binding Name}" FontSize="8" TextColor="#555555"
-                                                       HorizontalOptions="Center" LineBreakMode="TailTruncation"
-                                                       MaxLines="2" HorizontalTextAlignment="Center"/>
-                                                <Label Text="{Binding Tag}" FontSize="7" TextColor="#999999" HorizontalOptions="Center"/>
+                                        <Grid HeightRequest="64" WidthRequest="86" Margin="0,2">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=ArtifactSlotTappedCommand}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Grid WidthRequest="84" HeightRequest="72" TranslationY="-20">
+                                                <Image Source="ui_inventory_slot.png" Aspect="Fill" InputTransparent="True" />
+                                            </Grid>
+                                            <Border Margin="7" BackgroundColor="{Binding BackgroundColor}" Stroke="{Binding BorderColor}" StrokeThickness="1" StrokeShape="RoundRectangle 7" Opacity="0" />
+                                            <VerticalStackLayout Spacing="0" Padding="6,5" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="-23">
+
+                                                <Image Source="{Binding Icon}" WidthRequest="32" HeightRequest="32" HorizontalOptions="Center" />
+
+                                                <Label Text="{Binding Name}" FontSize="7" TextColor="#3E332B" HorizontalOptions="Center" HorizontalTextAlignment="Center" MaxLines="2" />
                                             </VerticalStackLayout>
-                                        </Border>
+                                        </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </FlexLayout>
                         </VerticalStackLayout>
-                    </Border>
+                    </Grid>
 
-                    <Border BackgroundColor="#EEEEEE"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 14"
-                            Padding="12,10">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="🎒 Bag Inventory (Max 6)"
-                                   FontSize="12" FontFamily="skeleboom"
-                                   TextColor="#555555"/>
-
+                    <Grid Grid.Row="2">
+                        <Grid WidthRequest="400" HeightRequest="300" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="40">
+                            <Image Source="ui_inventory_section_panel.png" Aspect="Fill" InputTransparent="True" />
+                        </Grid>
+                        <VerticalStackLayout Padding="16,16,16,10" Spacing="10">
+                            <Label Text="Bag Inventory (Max 6)" FontSize="14" FontFamily="skeleboom" FontAttributes="Bold" TextColor="#362336" CharacterSpacing="1" TranslationY="-2" />
                             <FlexLayout BindableLayout.ItemsSource="{Binding BagSlots}" Wrap="Wrap" JustifyContent="SpaceBetween">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="vm:InventorySlotUI">
-                                        <Border BackgroundColor="{Binding BackgroundColor}"
-                                                Stroke="{Binding BorderColor}"
-                                                StrokeThickness="1.5" StrokeShape="RoundRectangle 10"
-                                                HeightRequest="75" WidthRequest="75" Margin="0,4">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer 
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=BagSlotTappedCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                            </Border.GestureRecognizers>
-                                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
-                                                <Image Source="{Binding Icon}" Aspect="AspectFit" HeightRequest="36" WidthRequest="36" HorizontalOptions="Center"/>
-                                                <Label Text="{Binding Name}" FontSize="8" TextColor="#555555"
-                                                       HorizontalOptions="Center" LineBreakMode="TailTruncation"
-                                                       MaxLines="2" HorizontalTextAlignment="Center"/>
-                                                <Label Text="{Binding Tag}" FontSize="7" TextColor="#999999" HorizontalOptions="Center"/>
+                                        <Grid HeightRequest="68" WidthRequest="86" Margin="0,3">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryPopUpViewModel}}, Path=BagSlotTappedCommand}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Grid WidthRequest="84" HeightRequest="66" TranslationY="20">
+                                                <Image Source="ui_inventory_slot.png" Aspect="Fill" InputTransparent="True" />
+                                            </Grid>
+                                            <Border Margin="7" BackgroundColor="{Binding BackgroundColor}" Stroke="{Binding BorderColor}" StrokeThickness="1" StrokeShape="RoundRectangle 7" Opacity="0" TranslationY="20" />
+                                            <VerticalStackLayout Spacing="0" Padding="6,5" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="20">
+
+                                                <Image Source="{Binding Icon}" WidthRequest="32" HeightRequest="32" HorizontalOptions="Center" />
+
+                                                <Label Text="{Binding Name}" FontSize="7" TextColor="#3E332B" HorizontalOptions="Center" HorizontalTextAlignment="Center" MaxLines="2" />
                                             </VerticalStackLayout>
-                                        </Border>
+                                        </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </FlexLayout>
                         </VerticalStackLayout>
-                    </Border>
+                    </Grid>
 
-                    <Border BackgroundColor="#FFF8E1"
-                            Stroke="#F5C518"
-                            StrokeThickness="1.5"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            IsVisible="{Binding HasNewLoot}">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="✨ New Item Drop!" FontSize="13" FontFamily="skeleboom" TextColor="#7A6000"/>
-                            <Border BackgroundColor="#F5C518"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="10,8">
-                                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
-                                    <Image Grid.Column="0" Source="{Binding NewDropIcon}" Aspect="AspectFit" HeightRequest="38" WidthRequest="38" VerticalOptions="Center"/>
+                    <Label Grid.Row="4" Text="{Binding HintText}" TextColor="#362336" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="-15" />
 
-                                    <Label Grid.Column="1" Text="{Binding NewDropName}" FontSize="14" FontFamily="skeleboom" TextColor="#2C2C2C" VerticalOptions="Center"/>
-
-                                    <Button Grid.Column="2" Text="Discard"
-                                            Command="{Binding DiscardNewDropCommand}"
-                                            BackgroundColor="#CC0000" TextColor="White"
-                                            CornerRadius="8" FontSize="11"
-                                            HeightRequest="32" WidthRequest="64"
-                                            VerticalOptions="Center"/>
-                                </Grid>
-                            </Border>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Label Text="{Binding HintText}"
-                           TextColor="{Binding HintTextColor}"
-                           FontSize="11" HorizontalOptions="Center" LineBreakMode="WordWrap"/>
-
-                    <Button Text="Close"
-                            Command="{Binding CloseCommand}"
-                            BackgroundColor="#2C2C2C" TextColor="#FFFFFF"
-                            CornerRadius="20" HeightRequest="46"
-                            FontFamily="skeleboom" FontSize="15"/>
-
-                </VerticalStackLayout>
-            </VerticalStackLayout>
-        </Border>
-    </Grid>
-</ContentPage>
+                    <Grid Grid.Row="5" HeightRequest="54" HorizontalOptions="Fill" VerticalOptions="Center">
+                        <Grid WidthRequest="300" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="-20">
+                            <Image Source="ui_inventory_button_primary.png" Aspect="Fill" InputTransparent="True" />
+                        </Grid>
+                        <Label Text="Close" FontSize="18" FontFamily="skeleboom" FontAttributes="Bold" TextColor="#FFF7DE" HorizontalOptions="Center" VerticalOptions="Center" TranslationY="-20" />
+                        <Button BackgroundColor="Transparent" Opacity="0" Command="{Binding CloseCommand}" TranslationY="-20" />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </toolkit:Popup.Content>
+</toolkit:Popup>

@@ -87,4 +87,5 @@ public partial class BlackjackPage : ContentPage
         }
         return cardBorder;
     }
+
 }

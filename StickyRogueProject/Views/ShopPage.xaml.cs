@@ -25,4 +25,9 @@ public partial class ShopPage : ContentPage
         // คำสั่ง ".." หมายถึงการถอยกลับไป 1 หน้า (กลับไป Main Menu)
         await Shell.Current.GoToAsync("..");
     }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
 }

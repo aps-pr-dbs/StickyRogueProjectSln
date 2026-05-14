@@ -41,7 +41,7 @@ public partial class ClassSelectViewModel : ObservableObject
                 Description = "นักรบผู้แกร่งกล้า ทนทานและถล่มหนัก\nเหมาะสำหรับผู้เล่นที่ชอบบุกตรงๆ",
                 ImageSource = "fighter.png",
                 AccentColor = "#B34A2A",
-                BaseAtk     = 100,
+                BaseAtk     = 500,
                 BaseDef     = 10,
                 BaseInt     = 4,
                 BaseMaxMp   = 30, // MP เริ่มต้นของนักรบ

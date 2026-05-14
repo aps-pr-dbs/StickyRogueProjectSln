@@ -125,24 +125,34 @@ public partial class ShopViewModel : ObservableObject
                 return;
             }
 
-            // ── ซื้อสำเร็จ ──────────────────────────────────
+            // ⚡ เช็คว่ากระเป๋าเต็มไหม (Max 6 ช่อง)
+            if (_currentSave.Inventory == null) _currentSave.Inventory = new List<InventoryArtifac>();
+            if (_currentSave.Inventory.Count >= 6)
+            {
+                await ShowFeedbackAsync("กระเป๋าเต็ม! กรุณาจัดการไอเทมก่อน 🎒");
+                return;
+            }
+
+            // ── ซื้อสำเร็จ (หักเงินอย่างเดียว ไม่บวก Stat) ──────────────────
             _currentSave.Coins -= artifact.Price;
             artifact.CurrentLevel += 1;
 
-            ApplyStatBonus(_currentSave, artifact.StatType, artifact.StatBonus);
+            // =======================================================
+            // ⚡ โยนไอเทมเข้า "กระเป๋า (Inventory)" ⚡
+            // =======================================================
+            // ใช้ artifact.Key ในการดึงข้อมูลเพื่อแก้บัครูปกล่องของขวัญ
+            var newItem = InventoryArtifac.FromString(artifact.Key);
+            _currentSave.Inventory.Add(newItem);
+            // =======================================================
 
             _currentSave.ArtifactData = SerializeLevels(_masterPool);
             await _saveService.UpdateSaveAsync(_currentSave);
 
             PlayerCoins = _currentSave.Coins;
-
-            // ล็อกร้านทันที — IsSoldOut = true โดยอัตโนมัติ
-            // BuyArtifactCommand.CanExecute() จะคืน false ให้ทุกปุ่มพร้อมกัน
             HasPurchasedThisRound = true;
-
             MerchantGreeting = "ได้ของแล้ว! โชคดีในการต่อสู้ นักสู้! 👋";
 
-            await ShowFeedbackAsync($"✅ ซื้อสำเร็จ! {artifact.Name} → Lv.{artifact.CurrentLevel}  (+{artifact.StatBonus} {artifact.StatType})");
+            await ShowFeedbackAsync($"✅ ซื้อสำเร็จ! {artifact.Name} ถูกเก็บลงกระเป๋า 🎒");
         }
         catch (Exception ex)
         {

@@ -1,28 +1,39 @@
+using System;
 using System.Threading.Tasks;
 
 namespace StickyRogueProject.Views.PopUp;
 
 public partial class GameMessagePopUpPage : ContentPage
 {
-    // ⚡ สร้างตัวแปรเก็บตัวรับสัญญาณ
     private readonly TaskCompletionSource<bool> _tcs;
 
-    // ⚡ เพิ่ม TaskCompletionSource<bool> tcs ในวงเล็บ
+    // ⚡ 1. สร้างตัวแปรล็อกกันการกดเบิ้ล
+    private bool _isClosing = false;
+
     public GameMessagePopUpPage(string title, string message, TaskCompletionSource<bool> tcs)
     {
         InitializeComponent();
         TitleLabel.Text = title;
         MessageLabel.Text = message;
-
-        _tcs = tcs; // เก็บค่าไว้ใช้ตอนกดปุ่ม
+        _tcs = tcs;
     }
 
     private async void OnOkClicked(object sender, EventArgs e)
     {
-        // 1. ปิดหน้าต่าง PopUp
+        // ถ้ากำลังปิดอยู่ (กดซ้ำ) ให้ดีดออกทันที
+        if (_isClosing) return;
+        _isClosing = true;
+
+        // ⚡ 1. สั่งปิดหน้าต่าง PopUp ให้เสร็จสมบูรณ์ก่อน! (สำคัญมาก)
         await Navigation.PopModalAsync();
 
-        // 2. ⚡ ส่งสัญญาณบอก ViewModel ว่า "ผู้เล่นกดปุ่มตกลงแล้วนะ ไปต่อได้!"
-        _tcs?.SetResult(true);
+        // ⚡ 2. ปิดเสร็จปุ๊บ ค่อยส่งสัญญาณบอกให้เกมโหลดหน้าร้านค้าขึ้นมา
+        _tcs?.TrySetResult(true);
+    }
+
+    // ⚡ 4. ป้องกันผู้เล่นกดปุ่ม Back (ย้อนกลับ) ที่ตัวเครื่อง เพื่อหนีหน้าต่างนี้
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
     }
 }

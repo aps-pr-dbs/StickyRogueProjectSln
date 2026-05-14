@@ -54,4 +54,9 @@ public partial class ClassSelectPage : ContentPage
         // ⚡ 2. ย้อนกลับไปหน้าหลัก
         await Shell.Current.GoToAsync("MainPage");
     }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
 }

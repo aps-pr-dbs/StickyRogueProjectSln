@@ -9,4 +9,9 @@ public partial class StoryPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
 }

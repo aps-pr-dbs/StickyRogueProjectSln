@@ -413,8 +413,21 @@ public partial class CombatViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenInventoryAsync()
     {
-        if (OpenInventoryPopup is not null)
-            await OpenInventoryPopup();
+        if (_save == null) return;
+
+        _soundService.PlayClickSound();
+
+        // ⚡ สร้าง ViewModel และส่ง Save เข้าไป
+        var invViewModel = new InventoryPopUpViewModel(_save, _saveService);
+
+        // ⚡ เปิด Popup (ใช้ ShowPopupAsync ตามที่เราเปลี่ยน InventoryPopUpPage เป็น Popup)
+        if (Application.Current.MainPage is Page mainPage)
+        {
+            await mainPage.ShowPopupAsync(new Views.PopUp.InventoryPopUpPage(invViewModel));
+        }
+
+        // ⚡ พอกระเป๋าปิดปุ๊บ บังคับรีเฟรชหน้าจอต่อสู้ทันที Stat จะได้อัปเดต!
+        RefreshPlayerUi();
     }
 
     [RelayCommand]
@@ -949,13 +962,23 @@ public partial class CombatViewModel : ObservableObject
 
     public async Task ReloadSaveDataAsync()
     {
-        if (_save is null) return;
-
-        var freshSave = await _saveService.LoadSaveAsync();
-        if (freshSave is not null)
+        try
         {
-            _save = freshSave;
-            RefreshPlayerUi();
+            // บังคับโหลด Save ใหม่จากไฟล์จริงๆ
+            var freshSave = await _saveService.LoadSaveAsync();
+
+            if (freshSave is not null)
+            {
+                _save = freshSave;
+
+                // ⚡ รีเฟรชค่าพื้นหลัง
+                RefreshPlayerUi();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReloadSave] บัค: {ex.Message}");
         }
     }
 

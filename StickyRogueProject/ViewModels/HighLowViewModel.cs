@@ -32,7 +32,7 @@ public partial class HighLowViewModel : ObservableObject
     [ObservableProperty] private bool _isBettingPhase = true;
     [ObservableProperty] private int _currentBet = 0;
     [ObservableProperty] private string _dealerTaunt = "อยากรวยทางลัดงั้นรึ? วางเงินเดิมพันมาสิไอ้หนู!";
-    [ObservableProperty] private string _statusText = "What you think about next card?";
+    [ObservableProperty] private string _statusText = "นายคิดยังไงเกี่ยวกับการ์ดใบถัดไปหรอ คุณหนู? ฮ่าฮ่า";
     [ObservableProperty] private Color _statusColor = Colors.LightGray;
 
     [ObservableProperty] private bool _isGameOver;
@@ -92,7 +92,7 @@ public partial class HighLowViewModel : ObservableObject
         StreakCount = 0;
         UpdateStreakUI();
 
-        StatusText = "What you think about next card?";
+        StatusText = "นายคิดยังไงเกี่ยวกับการ์ดใบถัดไปหรอ คุณหนู? ฮ่าฮ่า";
         StatusColor = Colors.LightGray;
         DealerTaunt = "หึ... ขอให้ทายถูกละกันนะ";
 
@@ -146,7 +146,7 @@ public partial class HighLowViewModel : ObservableObject
             }
             else
             {
-                StatusText = "You did well! Guess again.";
+                StatusText = "นายทำได้ดีนี้คุณหนู! ลองเดาอีกครั้งสิ";
                 StatusColor = Colors.LightGreen;
                 CurrentCard = NextCard;
                 NextCard = _deck[0]; _deck.RemoveAt(0);

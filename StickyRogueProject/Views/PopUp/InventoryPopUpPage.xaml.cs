@@ -1,49 +1,20 @@
-using StickyRogueProject.Models;
-using StickyRogueProject.Services;
+using CommunityToolkit.Maui.Views;
 using StickyRogueProject.ViewModels;
 
 namespace StickyRogueProject.Views.PopUp;
 
-public partial class InventoryPopUpPage : ContentPage
+public partial class InventoryPopUpPage : Popup
 {
-    private readonly InventoryPopUpViewModel _viewModel;
-
-    // ⚡ เพิ่มตัวล็อก
-    private bool _isClosing = false;
-
-    public InventoryPopUpPage(ActiveSave save)
-        : this(save, new List<InventoryArtifac>()) { }
-
-    public InventoryPopUpPage(ActiveSave save, List<string> newLootStrings)
-        : this(save, newLootStrings.Select(InventoryArtifac.FromString).ToList()) { }
-
-    public InventoryPopUpPage(ActiveSave save, List<InventoryArtifac> newLoot)
+    public InventoryPopUpPage(InventoryPopUpViewModel viewModel)
     {
         InitializeComponent();
 
-        var saveService = IPlatformApplication.Current?.Services.GetService<SaveService>()
-            ?? throw new InvalidOperationException("SaveService not found in DI container");
+        BindingContext = viewModel;
 
-        _viewModel = new InventoryPopUpViewModel(save, newLoot, saveService)
+        // ⚡ ผูกระบบปิดหน้าต่างเข้ากับคำสั่งใน ViewModel
+        viewModel.ClosePopupAction = async () =>
         {
-            ShowActionSheet = async (title, cancel, destroy, buttons) =>
-                await DisplayActionSheet(title, cancel, destroy, buttons),
-
-            ShowConfirm = async (title, message, accept, cancel) =>
-                await DisplayAlert(title, message, accept, cancel),
-
-            ShowAlert = async (title, message) =>
-                await DisplayAlert(title, message, "OK"),
-
-            // ⚡ ใส่ตัวล็อกกันการกดเบิ้ลตรงนี้
-            ClosePopupAction = async () =>
-            {
-                if (_isClosing) return;
-                _isClosing = true;
-                await Navigation.PopModalAsync();
-            }
+            await CloseAsync();
         };
-
-        BindingContext = _viewModel;
     }
 }

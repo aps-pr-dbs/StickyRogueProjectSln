@@ -7,8 +7,8 @@
              Shell.NavBarIsVisible="False">
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#F3E4C9" Offset="0.1" />
-            <GradientStop Color="#A77F60" Offset="1.0" />
+            <GradientStop Color="#000000" Offset="0.1" />
+            <GradientStop Color="#000000" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">

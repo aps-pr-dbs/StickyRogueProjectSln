@@ -5,14 +5,7 @@ using StickyRogueProject.Services;
 
 namespace StickyRogueProject.ViewModels;
 
-// คลาสเก็บข้อมูลรางวัลในมินิเกม
-public class RopArtifactReward
-{
-    public string Name { get; set; } = string.Empty;
-    public string Icon { get; set; } = string.Empty;
-    public string StatType { get; set; } = string.Empty;
-    public int StatBonus { get; set; }
-}
+// ⚡ ลบคลาส RopArtifactReward ทิ้งไปได้เลยครับ ไม่ต้องใช้แล้ว
 
 public partial class RopViewModel : ObservableObject
 {
@@ -25,27 +18,12 @@ public partial class RopViewModel : ObservableObject
     [ObservableProperty] private string _resultText = "เลือกอาวุธของคุณเลย!";
     [ObservableProperty] private Color _resultColor = Color.FromArgb("#2196F3");
 
-    // ⚡ เพิ่มบทพูดของพ่อค้า
     [ObservableProperty] private string _shopkeeperDialogue = "กล้ามาเดิมพันกับข้าไหมล่ะ? หึหึหึ...";
 
-    // ควบคุมปุ่มเป่ายิ้งฉุบ
     [ObservableProperty] private bool _isActionEnabled = true;
-
-    // ⚡ ควบคุมปุ่มกดออก (จะโผล่มาตอนรู้ผลแพ้ชนะแล้ว)
     [ObservableProperty] private bool _isGameOver = false;
 
-    // คลัง Artifact รางวัลเมื่อชนะ
-    private readonly List<RopArtifactReward> _artifactPool = new()
-    {
-        new() { Name="Iron Sword",        Icon="🗡️", StatType="ATK",   StatBonus=1  },
-        new() { Name="Steel Blade",       Icon="⚔️", StatType="ATK",   StatBonus=2  },
-        new() { Name="Demon Edge",        Icon="🗡️", StatType="ATK",   StatBonus=3  },
-        new() { Name="Wooden Buckler",    Icon="🛡️", StatType="DEF",   StatBonus=1  },
-        new() { Name="Iron Shield",       Icon="🛡️", StatType="DEF",   StatBonus=2  },
-        new() { Name="Apprentice Book",   Icon="📖", StatType="INT",   StatBonus=1  },
-        new() { Name="Magic Scroll",      Icon="📜", StatType="INT",   StatBonus=2  },
-        new() { Name="Mana Crystal",      Icon="🔮", StatType="MAXMP", StatBonus=5  },
-    };
+    // ⚡ ลบ _artifactPool แบบเก่าที่ใช้ Emoji ทิ้งไปเช่นกัน
 
     public RopViewModel(SaveService saveService)
     {
@@ -63,7 +41,6 @@ public partial class RopViewModel : ObservableObject
         UserChoiceImage = GetImageFileName(playerChoice);
         CpuChoiceImage = GetImageFileName(cpuChoice);
 
-        // ⚡ จุดสำคัญ: เปลี่ยนให้ `IsVsVisible = true` เพื่อให้รูปค้างอยู่หน้าจอ
         IsVsVisible = true;
 
         string result = DetermineWinner(playerChoice, cpuChoice);
@@ -73,16 +50,10 @@ public partial class RopViewModel : ObservableObject
             ResultText = "DRAW!\nลองใหม่อีกครั้งสิ";
             ShopkeeperDialogue = "ใจตรงกันซะงั้น! เอาใหม่สิไอ้หนู!";
             ResultColor = Colors.DarkGray;
-
-            // ⚡ เมื่อเสมอ เราเปิดปุ่มเป่ายิ้งฉุบให้กดได้ใหม่ทันที
             IsActionEnabled = true;
-
-            // ⚡ เราจะไม่ปิด `IsVsVisible = false` ที่นี่ เพื่อให้รูปคู่ HAMMER VS SCISSORS ค้างอยู่
             return;
         }
 
-        // --- ส่วนของผลแพ้หรือชนะ (คุณอ๊าฟมีอยู่แล้ว) ---
-        // (เมื่อผลออกมาแพ้/ชนะ โค้ดส่วนนี้จะทำงานต่อและปิดรับเป่ายิ้งฉุบ)
         if (result == "WIN")
         {
             ResultColor = Colors.LimeGreen;
@@ -105,36 +76,26 @@ public partial class RopViewModel : ObservableObject
         if (save is null) return;
 
         save.Inventory ??= new List<InventoryArtifac>();
-        var reward = _artifactPool[_random.Next(_artifactPool.Count)];
 
-        var newItem = new InventoryArtifac
-        {
-            Name = reward.Name,
-            Icon = reward.Icon,
-            Type = ItemType.Accessory,
-            Description = $"+{reward.StatBonus} {reward.StatType}"
-        };
-
-        switch (reward.StatType)
-        {
-            case "ATK": newItem.BonusAtk = reward.StatBonus; break;
-            case "DEF": newItem.BonusDef = reward.StatBonus; break;
-            case "INT": newItem.BonusInt = reward.StatBonus; break;
-            case "MAXMP": newItem.BonusMaxMp = reward.StatBonus; break;
-        }
+        // =======================================================
+        // ⚡ สุ่มของรางวัลจากระบบ Artifact แท้ๆ (จะได้รูปภาพ .png มาด้วย)
+        // =======================================================
+        var reward = ArtifactRegistry.GetRandomArtifact();
 
         if (save.Inventory.Count < 6)
         {
+            // ⚡ แปลง Key เป็น InventoryArtifac เพื่อดึงรูปมาให้ครบ
+            var newItem = InventoryArtifac.FromString(reward.Key);
             save.Inventory.Add(newItem);
-            // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
+
             ResultText = $"YOU WIN! 🎉\n\nได้รับ: {reward.Name}\n(+{reward.StatBonus} {reward.StatType})";
         }
         else
         {
             ApplyStatBonus(save, reward.StatType, reward.StatBonus);
-            // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
             ResultText = $"YOU WIN! 🎉\n\nกระเป๋าเต็ม!\nดูดกลืนพลัง: +{reward.StatBonus} {reward.StatType}";
         }
+        // =======================================================
 
         await _saveService.UpdateSaveAsync(save);
     }
@@ -156,7 +117,6 @@ public partial class RopViewModel : ObservableObject
         }
 
         await _saveService.UpdateSaveAsync(save);
-        // ⚡ จัดบรรทัดใหม่ให้อ่านง่าย
         ResultText = $"YOU LOSE! 💀\n\nโดนสาป: {statName} ลดลง 1";
     }
 
@@ -188,7 +148,6 @@ public partial class RopViewModel : ObservableObject
         return "LOSE";
     }
 
-    // ⚡ ปุ่มกดออก (ทำงานเมื่อคลิก)
     [RelayCommand]
     private async Task ExitGameAsync()
     {

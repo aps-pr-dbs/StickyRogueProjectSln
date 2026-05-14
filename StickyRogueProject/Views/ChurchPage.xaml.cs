@@ -22,4 +22,9 @@ public partial class ChurchPage : ContentPage
         base.OnAppearing();
         await _viewModel.InitializeCommand.ExecuteAsync(null);
     }
+    //ป้องกันการกดปุ่ม Back (ย้อนกลับ) ของ Android / Windows
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
 }

@@ -42,7 +42,7 @@
                                             <Label Text="|" TextColor="#4A2D7A" FontSize="12" />
                                             <Label Text="{Binding LoopReached, StringFormat='Loop: {0}'}" FontSize="12" TextColor="#C5A8E1" FontAttributes="Bold" />
                                         </HorizontalStackLayout>
-                                        <Label Text="{Binding CauseOfDeath, StringFormat='💀 {0}'}" FontSize="12" TextColor="#D9534F" FontAttributes="Italic" />
+                                        <Label Text="{Binding CauseOfDeath, StringFormat='{0}'}" FontSize="12" TextColor="#D9534F" FontAttributes="Italic" />
                                     </VerticalStackLayout>
 
                                 </Grid>
