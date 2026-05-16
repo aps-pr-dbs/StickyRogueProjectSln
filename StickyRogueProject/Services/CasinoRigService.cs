@@ -50,8 +50,8 @@ public static class CasinoRigService
     public static readonly string[] OpeningTaunts =
     {
         "อีกคนที่มาส่งเงินให้ข้า... น่าสงสาร",
-        "Haha! You dare play in my turf? No way you're taking these coins home!",
-        "Another foolish adventurer giving me their money!",
+        "ฮ่าฮ่า! แกกล้ามาเล่นในถิ่นของฉันเหรอ? ไม่มีทางที่แกจะเอาเหรียญพวกนี้กลับบ้านไปได้หรอก!",
+        "นักผจญภัยหน้าโง่อีกราย ที่เอาเงินมาประเคนให้ข้า!",
         "เข้ามาแล้วก็อย่าคิดจะออกไปพร้อมเงิน",
         "กฎในที่นี้มีข้าเป็นคนกำหนด ไม่มีใครชนะข้า",
         "โชคของเจ้าหมดแล้ว ตั้งแต่วันที่เดินเข้ามา",
@@ -68,7 +68,7 @@ public static class CasinoRigService
     public static readonly string[] CheatTaunts =
     {
         "คิดว่าชนะแล้วใช่ไหม? ข้าเป็นผู้กำหนดกฎ!",
-        "You thought you won? I make the rules here.",
+        "แกคิดว่าแกชนะแล้วงั้นเหรอ? กฎของที่นี่ฉันเป็นคนกำหนด!",
         "ในคาสิโนของข้า... ไม่มีคำว่า 'ชนะ' สำหรับผู้มาเยือน",
         "HAHAHA! ไพ่ที่เจ้าได้นั้น... ข้าจัดการมาเองทั้งนั้น",
         "เจ้าจะรู้ว่าคาสิโนนี้ไม่เคยแพ้ใคร",
@@ -79,13 +79,13 @@ public static class CasinoRigService
         "แพ้แล้ว... ตามคาด เข้ามาอีกสิ ข้ายินดีรับเสมอ",
         "เงินเจ้าอยู่ในมือข้าแล้ว ขอบคุณ",
         "อ่อนแอเกินไป ฝึกฝนมาให้ดีกว่านี้แล้วค่อยมาแก้แค้น",
-        "Another one bites the dust~",
+        "เสร็จไปอีกหนึ่ง~",
     };
 
     public static readonly string[] ItemStolenTaunts =
     {
         "โอ้? ของชิ้นนี้ดูมีค่านะ... ข้าขอเป็น 'ค่าธรรมเนียม' แล้วกัน",
-        "Oops! ดูเหมือนกระเป๋าเจ้าเบาลงนิดนึง ฮ่าฮ่า",
+        "อุ้ยยย! ดูเหมือนกระเป๋าเจ้าเบาลงนิดนึง ฮ่าฮ่า",
         "ในคาสิโนของข้า ทุกอย่างสามารถเป็นเดิมพันได้",
     };
 
@@ -109,11 +109,11 @@ public static class CasinoRigService
         if (_rng.NextDouble() < 0.20) // 20% ใน 80% = Double
         {
             string jackpotTaunt = WinTaunts[_rng.Next(WinTaunts.Length)];
-            return (CasinoWinResult.DoubleWin, betAmount * 2, jackpotTaunt, null);
+            return (CasinoWinResult.DoubleWin, betAmount * 3, jackpotTaunt, null);
         }
 
         string normalTaunt = WinTaunts[_rng.Next(WinTaunts.Length)];
-        return (CasinoWinResult.NormalWin, betAmount, normalTaunt, null);
+        return (CasinoWinResult.NormalWin, betAmount * 2, normalTaunt, null);
     }
 
     // ── ResolveLoss ──────────────────────────────────────────
