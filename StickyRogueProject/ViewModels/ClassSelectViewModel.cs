@@ -41,7 +41,7 @@ public partial class ClassSelectViewModel : ObservableObject
                 Description = "นักรบผู้แกร่งกล้า ทนทานและถล่มหนัก\nเหมาะสำหรับผู้เล่นที่ชอบบุกตรงๆ",
                 ImageSource = "fighter.png",
                 AccentColor = "#B34A2A",
-                BaseAtk     = 500,
+                BaseAtk     = 16,
                 BaseDef     = 10,
                 BaseInt     = 4,
                 BaseMaxMp   = 30, // MP เริ่มต้นของนักรบ
@@ -53,9 +53,9 @@ public partial class ClassSelectViewModel : ObservableObject
                 Description = "นักลอบเร้นที่ว่องไว โจมตีไวและแม่นยำ\nสำหรับผู้เล่นที่ชอบเล่น High Risk / High Reward",
                 ImageSource = "therogue.png",
                 AccentColor = "#2A7A4A",
-                BaseAtk     = 12,
+                BaseAtk     = 15,
                 BaseDef     = 6,
-                BaseInt     = 7,
+                BaseInt     = 12,
                 BaseMaxMp   = 60, // MP เริ่มต้นของโร้ก
                 BaseMaxHp   = 85
             },

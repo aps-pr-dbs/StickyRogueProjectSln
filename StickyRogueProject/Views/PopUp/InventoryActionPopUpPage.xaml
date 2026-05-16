@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="StickyRogueProject.Views.PopUp.InventoryActionPopUpPage"
+             BackgroundColor="#B3000000"
+             Shell.NavBarIsVisible="False">
+
+    <Grid HorizontalOptions="Fill" VerticalOptions="Fill" Padding="30">
+        <Border BackgroundColor="#2A2431"
+                Stroke="#4A3F54"
+                StrokeThickness="3"
+                StrokeShape="RoundRectangle 24"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                WidthRequest="320"
+                Padding="24">
+
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                <Label x:Name="ItemNameLabel"
+                       FontSize="22"
+                       FontFamily="Schoolbell-Regular"
+                       FontAttributes="Bold"
+                       TextColor="#F6E7BF"
+                       HorizontalTextAlignment="Center"
+                       Text="ชื่อไอเทม"/>
+
+                <BoxView HeightRequest="2" Color="#3A3142" HorizontalOptions="Fill"/>
+
+                <Button x:Name="PrimaryBtn"
+                        Text="สวมใส่ (Equip)"
+                        Clicked="OnPrimaryClicked"
+                        BackgroundColor="#2E4D2E"
+                        TextColor="#98FB98"
+                        BorderColor="#98FB98"
+                        BorderWidth="1.5"
+                        FontFamily="skeleboom"
+                        FontSize="16"
+                        CornerRadius="15"
+                        HeightRequest="48"/>
+
+                <Button Text="ทิ้งไอเทม (Discard)"
+                        Clicked="OnDiscardClicked"
+                        BackgroundColor="#4D2E2E"
+                        TextColor="#FB9898"
+                        BorderColor="#FB9898"
+                        BorderWidth="1.5"
+                        FontFamily="skeleboom"
+                        FontSize="16"
+                        CornerRadius="15"
+                        HeightRequest="48"/>
+
+                <Button Text="ยกเลิก"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="#1D1721"
+                        TextColor="#A69C95"
+                        BorderColor="#4A3F54"
+                        BorderWidth="1.5"
+                        FontFamily="skeleboom"
+                        FontSize="16"
+                        CornerRadius="15"
+                        HeightRequest="48"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

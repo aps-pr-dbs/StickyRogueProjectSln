@@ -18,7 +18,7 @@
             Padding="32,0,32,36">
 
             <Label
-                Text="STICKY ROGUE"
+                Text="STICKY ROUGE"
                 FontSize="34"
                 FontAttributes="Bold"
                 TextColor="#E8D5A3"

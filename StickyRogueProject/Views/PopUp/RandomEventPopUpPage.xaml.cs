@@ -40,36 +40,72 @@ public partial class RandomEventPopUpPage : Popup
 
     private async void OnAcceptDealerClicked(object sender, EventArgs e)
     {
-        // ⚡ ป้องกันกรณีกดเบิ้ลตรงปุ่มนี้แล้วสุ่ม 2 รอบ
+        // ป้องกันกรณีคลิกเบิ้ล
         if (_isClosing) return;
+        _isClosing = true; // ล็อกปุ่มไว้ก่อนระหว่างที่ PopUp แจ้งเตือนเด้ง
 
         int outcome = new Random().Next(0, 2);
         if (outcome == 1)
         {
-            await Shell.Current.DisplayAlert("รอดตัวไป!", "ดีใจด้วย! คุณได้รับ ATK, DEF, INT +20 และ MAX HP, MAX MP +50  ", "OK");
+            var tcs = new TaskCompletionSource<bool>();
+            await Navigation.PushModalAsync(new PopUp.GameMessagePopUpPage(
+                "รอดตัวไป!",
+                "ดีใจด้วย! คุณได้รับ ATK, DEF, INT +20 และ MAX HP, MAX MP +50",
+                tcs
+            ));
+            await tcs.Task; // รอจนกว่าจะกด "ตกลง"
+
+            _isClosing = false; // ⚡ ปลดล็อก! เพื่อให้ฟังก์ชัน CloseWithAnimation ยอมทำงาน
             await CloseWithAnimation("DealerWin");
         }
         else
         {
-            await Shell.Current.DisplayAlert("ดวงแตก...", "เสียใจด้วย , ค่า ATK, DEF, INT ของคุณลดลง -10 รวมไปถึง MAX HP, MAX MP ลดลง -20", "OK");
+            var tcs = new TaskCompletionSource<bool>();
+            await Navigation.PushModalAsync(new PopUp.GameMessagePopUpPage(
+                "ดวงแตก...",
+                "เสียใจด้วย, ค่า ATK, DEF, INT ของคุณลดลง -10 รวมไปถึง MAX HP, MAX MP ลดลง -20",
+                tcs
+            ));
+            await tcs.Task; // รอจนกว่าจะกด "ตกลง"
+
+            _isClosing = false; // ⚡ ปลดล็อก! เพื่อให้ฟังก์ชัน CloseWithAnimation ยอมทำงาน
             await CloseWithAnimation("DealerLose");
         }
     }
 
     private async void OnRunAwayClicked(object sender, EventArgs e)
     {
-        // ⚡ ป้องกันกรณีกดเบิ้ลตรงปุ่มนี้แล้วสุ่ม 2 รอบ
+        // ⚡ ป้องกันกรณีกดเบิ้ล
         if (_isClosing) return;
+        _isClosing = true; // ล็อกปุ่มชั่วคราว
 
         int escapeChance = new Random().Next(1, 5);
         if (escapeChance == 1)
         {
             RunAwayBtn.IsVisible = false;
-            await Shell.Current.DisplayAlert("โดนกระโดดจับตัว!", "เขาบล็อคไม่ให้คุณหนี! คุณหนีไม่สำเร็จ. คุณถูกบังคับให้ต้องดื่มยา", "โอ้ ไม่!");
+
+            // ⚡ โดนจับได้ บังคับดื่มยา
+            var tcs = new TaskCompletionSource<bool>();
+            await Navigation.PushModalAsync(new PopUp.GameMessagePopUpPage(
+                "โดนกระโดดจับตัว!",
+                "เขาบล็อคไม่ให้คุณหนี! คุณหนีไม่สำเร็จ. คุณถูกบังคับให้ต้องดื่มยา",
+                tcs
+            ));
+            await tcs.Task;
+
+            _isClosing = false; // 💡 สำคัญมาก: หนีไม่สำเร็จ หน้าจอยังไม่ปิด ต้องปลดล็อกให้กดปุ่มอื่นต่อได้!
         }
         else
         {
-            await Shell.Current.DisplayAlert("รอดตัวไป", "คุณหนีสำเร็จ!", "OK");
+            // ⚡ หนีรอดสำเร็จ
+            var tcs = new TaskCompletionSource<bool>();
+            await Navigation.PushModalAsync(new PopUp.GameMessagePopUpPage(
+                "รอดตัวไป",
+                "คุณหนีสำเร็จ!",
+                tcs
+            ));
+            await tcs.Task;
+
             await CloseWithAnimation("Escaped");
         }
     }

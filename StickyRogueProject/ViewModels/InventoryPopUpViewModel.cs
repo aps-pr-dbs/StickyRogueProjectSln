@@ -8,7 +8,7 @@ using StickyRogueProject.Services;
 
 namespace StickyRogueProject.ViewModels;
 
-// ⚡ ตัวช่วยสำหรับโชว์ในกระเป๋า (เอาไว้ที่นี่เลยจะได้หาเจอชัวร์ๆ)
+// ⚡ ตัวช่วยสำหรับโชว์ในกระเป๋า
 public partial class InventorySlotUI : ObservableObject
 {
     [ObservableProperty] private string _icon = "";
@@ -73,13 +73,25 @@ public partial class InventoryPopUpViewModel : ObservableObject
         SlotBadgeText = _save.Inventory.Count.ToString();
     }
 
+    // ===============================================================
+    // ⚡ ส่วนที่แก้ใหม่: เมื่อกดไอเทมในกระเป๋า (รอสวมใส่)
+    // ===============================================================
     [RelayCommand]
     private async Task BagSlotTappedAsync(InventorySlotUI slot)
     {
         if (slot.IsEmpty || slot.Item == null) return;
-        string action = await App.Current.MainPage!.DisplayActionSheet(slot.Name, "ยกเลิก", "ทิ้งไอเทม (Discard)", "🛡️ สวมใส่ (Equip)");
 
-        if (action == "🛡️ สวมใส่ (Equip)")
+        // 1. สร้างตัวดักรอสัญญาณ
+        var tcs = new TaskCompletionSource<string>();
+
+        // 2. เรียก PopUp หน้าตาเท่ๆ ของเรา (ส่ง false ไปเพราะยังไม่ได้ใส่)
+        await App.Current.MainPage!.Navigation.PushModalAsync(new Views.PopUp.InventoryActionPopUpPage(slot.Name, false, tcs));
+
+        // 3. รอจนกว่าผู้เล่นจะกดปุ่มใดปุ่มหนึ่งบน PopUp
+        string action = await tcs.Task;
+
+        // 4. ทำงานตามที่ผู้เล่นเลือก
+        if (action == "Equip")
         {
             if (_save.Artifacts.Count >= 6) { HintText = "❌ ช่องสวมใส่เต็มแล้ว!"; return; }
             var item = slot.Item;
@@ -88,20 +100,32 @@ public partial class InventoryPopUpViewModel : ObservableObject
             UpdatePlayerStats(item, isEquipping: true);
             await SaveAndRefresh("✅ สวมใส่สำเร็จ! Stat เพิ่มขึ้นแล้ว");
         }
-        else if (action == "ทิ้งไอเทม (Discard)")
+        else if (action == "Discard")
         {
             _save.Inventory.Remove(slot.Item);
             await SaveAndRefresh("🗑️ ทิ้งไอเทมเรียบร้อย");
         }
     }
 
+    // ===============================================================
+    // ⚡ ส่วนที่แก้ใหม่: เมื่อกดไอเทมที่สวมใส่อยู่ (รอถอดออก)
+    // ===============================================================
     [RelayCommand]
     private async Task ArtifactSlotTappedAsync(InventorySlotUI slot)
     {
         if (slot.IsEmpty || slot.Item == null) return;
-        string action = await App.Current.MainPage!.DisplayActionSheet(slot.Name, "ยกเลิก", "ทิ้งไอเทม (Discard)", "📦 ถอดออก (Unequip)");
 
-        if (action == "📦 ถอดออก (Unequip)")
+        // 1. สร้างตัวดักรอสัญญาณ
+        var tcs = new TaskCompletionSource<string>();
+
+        // 2. เรียก PopUp (ส่ง true ไปเพราะใส่อยู่ ปุ่มจะเปลี่ยนเป็น "ถอดออก")
+        await App.Current.MainPage!.Navigation.PushModalAsync(new Views.PopUp.InventoryActionPopUpPage(slot.Name, true, tcs));
+
+        // 3. รอจนกว่าผู้เล่นจะกดปุ่ม
+        string action = await tcs.Task;
+
+        // 4. ทำงานตามที่ผู้เล่นเลือก
+        if (action == "Unequip")
         {
             if (_save.Inventory.Count >= 6) { HintText = "❌ กระเป๋าเต็ม! ถอดไม่ได้"; return; }
             var item = slot.Item;
@@ -110,7 +134,7 @@ public partial class InventoryPopUpViewModel : ObservableObject
             UpdatePlayerStats(item, isEquipping: false);
             await SaveAndRefresh("✅ ถอดออกแล้ว Stat ลดลงตามปกติ");
         }
-        else if (action == "ทิ้งไอเทม (Discard)")
+        else if (action == "Discard")
         {
             _save.Artifacts.Remove(slot.Item);
             UpdatePlayerStats(slot.Item, isEquipping: false);
